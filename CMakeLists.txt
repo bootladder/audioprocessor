@@ -28,12 +28,21 @@ enable_language(ASM)
 set(SOURCE_ROOT_DIR "../")
 SET(C_SOURCES "")
 
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/User/Core/main.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/main.c"                                      )
 
 ########################################
 # INCLUDES
 #######################################
-include_directories("./headers/Projects/STM32F769I-Discovery/Demonstrations/STemWin/Core/Inc"                   )
+include_directories("./Application")
+include_directories("./Drivers")
+include_directories("./Drivers/STM32F7xx_HAL_Drivers/Inc")
+include_directories("./Drivers/CMSIS/Device")
+include_directories("./Drivers/CMSIS/Include")
+include_directories("./FreeRTOS/include")
+include_directories("./FreeRTOS/")
+include_directories("./FreeRTOS/portable/GCC/ARM_CM7_MPU/r0p1/")
+
+include_directories("./Help")
 
 #######################################
 # FLAGS
