@@ -28,6 +28,9 @@ enable_language(ASM)
 set(SOURCE_ROOT_DIR "../")
 SET(C_SOURCES "")
 
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"                                      )
+
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/main.c"                                      )
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/CMSIS/Device/system_stm32f7xx.c"                                      )
 
@@ -66,7 +69,7 @@ LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/portable/MemMang/heap_4.c")
 # INCLUDES
 #######################################
 include_directories("./Application")
-include_directories("./Drivers")
+include_directories("./Drivers/BSP")
 include_directories("./Drivers/STM32F7xx_HAL_Drivers/Inc")
 include_directories("./Drivers/CMSIS/Device")
 include_directories("./Drivers/CMSIS/Include")
@@ -89,7 +92,7 @@ string(APPEND CMAKE_C_FLAGS "  -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fp
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 
 
-SET(PATH_TO_LINKERSCRIPT "../STM32F769NIHx_FLASH.ld")
+SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH.ld")
 set(TARGET_LINK_FLAGS "")
 
 string(APPEND TARGET_LINK_FLAGS " -specs=nosys.specs -specs=nano.specs ")
