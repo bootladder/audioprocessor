@@ -83,8 +83,8 @@ include_directories("./Help")
 # FLAGS
 #######################################
 set(CMAKE_C_FLAGS "  -std=c99                      ")
-string(APPEND CMAKE_C_FLAGS " -Wall                         ")
-string(APPEND CMAKE_C_FLAGS " -g -Wall                         ")
+string(APPEND CMAKE_C_FLAGS " -Wall   -Wextra                      ")
+string(APPEND CMAKE_C_FLAGS " -g                        ")
 string(APPEND CMAKE_C_FLAGS "  -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
 
 # Avoid known bug in linux giving:

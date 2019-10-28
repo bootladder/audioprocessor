@@ -642,6 +642,8 @@ uint32_t wm8994_ReadID(uint16_t DeviceAddr)
   */
 uint32_t wm8994_Play(uint16_t DeviceAddr, uint16_t* pBuffer, uint16_t Size)
 {
+  (void)Size;
+  (void)pBuffer;
   uint32_t counter = 0;
  
   /* Resumes the audio file playing */  

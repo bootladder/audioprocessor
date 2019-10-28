@@ -1,3 +1,4 @@
+#include "stm32f7xx_hal.h"
 #include "My_Logger.h"
 #include "BSP_LED.h"
 

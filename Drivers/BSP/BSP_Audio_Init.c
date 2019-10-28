@@ -350,16 +350,19 @@ static void My_SAI_In_Init(uint32_t AudioFreq)
 ////////////////////////////////////////////////////////////////
 
 void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai){
+  (void)hsai;
   LOG_ONESHOT("SAI RX HALF");
   My_AUDIO_IN_HalfTransfer_CallBack();
 }
 
 void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai){
+  (void)hsai;
   LOG_ONESHOT("SAI RX CPLT");
   My_AUDIO_IN_TransferComplete_CallBack();
 }
 
 void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai){
+  (void)hsai;
   My_AUDIO_OUT_Error_CallBack();
 }
 

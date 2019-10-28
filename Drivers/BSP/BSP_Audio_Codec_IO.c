@@ -37,7 +37,6 @@ static void     I2Cx_Init(I2C_HandleTypeDef *i2c_handler);
 
 static HAL_StatusTypeDef I2Cx_ReadMultiple(I2C_HandleTypeDef *i2c_handler, uint8_t Addr, uint16_t Reg, uint16_t MemAddSize, uint8_t *Buffer, uint16_t Length);
 static HAL_StatusTypeDef I2Cx_WriteMultiple(I2C_HandleTypeDef *i2c_handler, uint8_t Addr, uint16_t Reg, uint16_t MemAddSize, uint8_t *Buffer, uint16_t Length);
-static HAL_StatusTypeDef I2Cx_IsDeviceReady(I2C_HandleTypeDef *i2c_handler, uint16_t DevAddress, uint32_t Trials);
 static void              I2Cx_Error(I2C_HandleTypeDef *i2c_handler, uint8_t Addr);
 
 
@@ -82,18 +81,6 @@ static HAL_StatusTypeDef I2Cx_WriteMultiple(I2C_HandleTypeDef *i2c_handler, uint
   return status;
 }
 
-/**
-  * @brief  Checks if target device is ready for communication. 
-  * @note   This function is used with Memory devices
-  * @param  i2c_handler : I2C handler
-  * @param  DevAddress: Target device address
-  * @param  Trials: Number of trials
-  * @retval HAL status
-  */
-static HAL_StatusTypeDef I2Cx_IsDeviceReady(I2C_HandleTypeDef *i2c_handler, uint16_t DevAddress, uint32_t Trials)
-{
-  return (HAL_I2C_IsDeviceReady(i2c_handler, DevAddress, Trials, 1000));
-}
 
 /**
   * @brief  Manages error callback by re-initializing I2C.
@@ -103,6 +90,7 @@ static HAL_StatusTypeDef I2Cx_IsDeviceReady(I2C_HandleTypeDef *i2c_handler, uint
   */
 static void I2Cx_Error(I2C_HandleTypeDef *i2c_handler, uint8_t Addr)
 {
+  (void)Addr;
   /* De-initialize the I2C communication bus */
   HAL_I2C_DeInit(i2c_handler);
 
@@ -148,6 +136,7 @@ static void I2Cx_Init(I2C_HandleTypeDef *i2c_handler)
   */
 static void I2Cx_MspInit(I2C_HandleTypeDef *i2c_handler)
 {
+  (void)i2c_handler;
   GPIO_InitTypeDef  gpio_init_structure;
 
   /*** Configure the GPIOs ***/

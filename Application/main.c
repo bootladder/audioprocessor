@@ -5,11 +5,16 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-void SystemClock_Config(void);
-static void TimerCallback(void const *n);
+static void SystemClock_Config(void);
 static void MPU_Config(void);
 
+// Declare these somewhere else?
 void vApplicationMallocFailedHook( void );
+void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName );
+void vApplicationIdleHook(void);
+void vApplicationTickHook (void);
+void StartIdleMonitor (void);
+void EndIdleMonitor (void);
 
 // FreeRTOS heap
 uint8_t  ucHeap[configTOTAL_HEAP_SIZE];
@@ -69,6 +74,8 @@ int main(void)
 
 void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName )
 {
+  (void)xTask;
+  (void)pcTaskName;
   while(1);
 }
 
@@ -98,10 +105,6 @@ void EndIdleMonitor (void)
 
 
 
-static void TimerCallback(void const *n)
-{
-}
-
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow :
@@ -123,7 +126,7 @@ static void TimerCallback(void const *n)
   * @param  None
   * @retval None
   */
-void SystemClock_Config(void)
+static void SystemClock_Config(void)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
