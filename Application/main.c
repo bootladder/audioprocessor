@@ -61,7 +61,7 @@ int main(void)
               NULL ); //task handle
 
 
-  osKernelStart ();
+  vTaskStartScheduler();
 
   /* We should never get here as control is now taken by the scheduler */
   for( ;; );

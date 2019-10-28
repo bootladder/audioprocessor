@@ -1,5 +1,4 @@
-/**
-  ******************************************************************************
+/** ******************************************************************************
   * @file    wm8994.c
   * @author  MCD Application Team
   * @brief   This file provides the WM8994 Audio Codec driver.
@@ -82,25 +81,6 @@
   * @{
   */
 
-/* Audio codec driver structure initialization */  
-AUDIO_DrvTypeDef wm8994_drv = 
-{
-  wm8994_Init,
-  wm8994_DeInit,
-  wm8994_ReadID,
-
-  wm8994_Play,
-  wm8994_Pause,
-  wm8994_Resume,
-  wm8994_Stop,  
-
-  wm8994_SetFrequency,
-  wm8994_SetVolume,
-  wm8994_SetMute,  
-  wm8994_SetOutputMode,
-
-  wm8994_Reset
-};
 
 static uint32_t outputEnabled = 0;
 static uint32_t inputEnabled = 0;

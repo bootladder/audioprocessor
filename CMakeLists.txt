@@ -32,14 +32,24 @@ LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/main.c"                   
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/CMSIS/Device/system_stm32f7xx.c"                                      )
 
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc_ex.c"                                      )
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal.c"                                      )
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_gpio.c"                                      )
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_cortex.c"                                      )
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_pwr_ex.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_sai.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_dma.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_i2c.c"                                      )
 
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Init.c"                                      )
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Task.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Bringup.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_LED.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Codec_IO.c"                                      )
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"                                      )
+
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Help/My_Logger.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"                                      )
 
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/portable/GCC/ARM_CM7/r0p1/port.c")
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/tasks.c")
