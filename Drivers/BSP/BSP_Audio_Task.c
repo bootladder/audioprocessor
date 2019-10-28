@@ -20,8 +20,10 @@ static BufferStatusMessage_t bufferStatusMessage;
 static int16_t playbackBuffer[MY_BUFFER_SIZE_SAMPLES];
 static int16_t recordBuffer[MY_BUFFER_SIZE_SAMPLES];
 
-void My_Audio_Task(void const * argument)
+void My_Audio_Task(void * argument)
 {
+  RUN_AND_LOG( My_BSP_Audio_Init(); );
+
   xQueue_BufferStatus = xQueueCreate(32, sizeof(BufferStatusMessage_t));
 
   while (1)
