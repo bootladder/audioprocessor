@@ -11,9 +11,8 @@ static void MPU_Config(void);
 
 void vApplicationMallocFailedHook( void );
 
-//#if (configAPPLICATION_ALLOCATED_HEAP == 1)
-//uint8_t  ucHeap[configTOTAL_HEAP_SIZE];
-//#endif
+// FreeRTOS heap
+uint8_t  ucHeap[configTOTAL_HEAP_SIZE];
 
 
 int main(void)
@@ -78,6 +77,26 @@ void vApplicationMallocFailedHook( void )
 {
   while(1);
 }
+void vApplicationIdleHook(void)
+{
+}
+
+void vApplicationTickHook (void)
+{
+}
+
+void StartIdleMonitor (void)
+{
+}
+void EndIdleMonitor (void)
+{
+}
+
+
+
+
+
+
 
 static void TimerCallback(void const *n)
 {

@@ -29,6 +29,28 @@ set(SOURCE_ROOT_DIR "../")
 SET(C_SOURCES "")
 
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/main.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/CMSIS/Device/system_stm32f7xx.c"                                      )
+
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_gpio.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_cortex.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_pwr_ex.c"                                      )
+
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Init.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Task.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"                                      )
+
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/portable/GCC/ARM_CM7/r0p1/port.c")
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/tasks.c")
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/list.c")
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/timers.c")
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/queue.c")
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/stream_buffer.c")
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/event_groups.c")
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/portable/MemMang/heap_4.c")
+
+
 
 ########################################
 # INCLUDES
@@ -40,7 +62,7 @@ include_directories("./Drivers/CMSIS/Device")
 include_directories("./Drivers/CMSIS/Include")
 include_directories("./FreeRTOS/include")
 include_directories("./FreeRTOS/")
-include_directories("./FreeRTOS/portable/GCC/ARM_CM7_MPU/r0p1/")
+include_directories("./FreeRTOS/portable/GCC/ARM_CM7/r0p1/")
 
 include_directories("./Help")
 
