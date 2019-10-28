@@ -95,6 +95,8 @@ void My_BSP_Audio_Init(void)
 
   RUN_AND_LOG( wm8994_Init(AUDIO_I2C_ADDRESS, INPUT_DEVICE_INPUT_LINE_1 | OUTPUT_DEVICE_HEADPHONE, volume, frequency); );
 
+  My_Logger_LogStringLn("codec initted");
+
   RUN_AND_LOG( HAL_SAI_Transmit_DMA(&haudio_out_sai, saiDMATransmitBuffer, MY_DMA_BUFFER_SIZE_MSIZES); );
   RUN_AND_LOG( HAL_SAI_Receive_DMA( &haudio_in_sai,  saiDMAReceiveBuffer,  MY_DMA_BUFFER_SIZE_MSIZES); );
 }
@@ -348,10 +350,12 @@ static void My_SAI_In_Init(uint32_t AudioFreq)
 ////////////////////////////////////////////////////////////////
 
 void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai){
+  LOG_ONESHOT("SAI RX HALF");
   My_AUDIO_IN_HalfTransfer_CallBack();
 }
 
 void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai){
+  LOG_ONESHOT("SAI RX CPLT");
   My_AUDIO_IN_TransferComplete_CallBack();
 }
 
@@ -360,10 +364,12 @@ void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai){
 }
 
 void DMA2_Stream4_IRQHandler(void){
+  LOG_ONESHOT("DMA2 STREAM4 ISR");
   HAL_DMA_IRQHandler(haudio_in_sai.hdmarx);
 }
 
 void DMA2_Stream1_IRQHandler(void){
+  LOG_ONESHOT("DMA2 STREAM1 ISR");
   HAL_DMA_IRQHandler(haudio_out_sai.hdmatx);
 }
 

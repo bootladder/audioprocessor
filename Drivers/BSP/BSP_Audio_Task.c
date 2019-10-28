@@ -27,6 +27,7 @@ void My_Audio_Task(void const * argument)
   while (1)
   {
     xQueueReceive( xQueue_BufferStatus, &bufferStatusMessage, 1000 );
+    LOG_ONESHOT("RECEIVED QUEUE ITEM");
 
     switch(bufferStatusMessage)
     {
@@ -71,6 +72,7 @@ static void CopySampleBuffer(int16_t * dst, int16_t * src, uint32_t num_samples)
 
 void My_AUDIO_IN_TransferComplete_CallBack(void)
 {
+  LOG_ONESHOT("AUDIO IN COMPLETE");
   static BufferStatusMessage_t msg = BUFFER_STATUS_UPPER_HALF_FULL;
   static BaseType_t higherPriorityTaskWoken = 0;
   xQueueSendFromISR( xQueue_BufferStatus, &msg, &higherPriorityTaskWoken );
@@ -78,6 +80,7 @@ void My_AUDIO_IN_TransferComplete_CallBack(void)
 
 void My_AUDIO_IN_HalfTransfer_CallBack(void)
 {
+  LOG_ONESHOT("AUDIO IN HALF");
   static BufferStatusMessage_t msg = BUFFER_STATUS_LOWER_HALF_FULL;
   static BaseType_t higherPriorityTaskWoken = 0;
   xQueueSendFromISR( xQueue_BufferStatus, &msg, &higherPriorityTaskWoken );

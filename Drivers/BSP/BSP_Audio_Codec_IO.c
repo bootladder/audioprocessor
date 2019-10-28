@@ -150,8 +150,6 @@ static void I2Cx_MspInit(I2C_HandleTypeDef *i2c_handler)
 {
   GPIO_InitTypeDef  gpio_init_structure;
 
-  if (i2c_handler == (I2C_HandleTypeDef*)(&hI2cAudioHandler))
-  {
   /*** Configure the GPIOs ***/
   /* Enable GPIO clock */
   DISCOVERY_AUDIO_I2Cx_SCL_GPIO_CLK_ENABLE();
@@ -186,8 +184,6 @@ static void I2Cx_MspInit(I2C_HandleTypeDef *i2c_handler)
   /* Enable and set I2C1 Interrupt to a lower priority */
   HAL_NVIC_SetPriority(DISCOVERY_AUDIO_I2Cx_ER_IRQn, 0x0F, 0);
   HAL_NVIC_EnableIRQ(DISCOVERY_AUDIO_I2Cx_ER_IRQn);
-
-  }
 }
 
 
