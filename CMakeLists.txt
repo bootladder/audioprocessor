@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
-PROJECT(bsp-bringup)
+PROJECT(audio-processor)
 
 ########################################
 # NAME
 #######################################
-set(TARGET_BASENAME stm32f769-discovery-bsp-bringup)
+set(TARGET_BASENAME stm32f769-discovery-audio-processor)
 
 #############################################################
 # PATH TO THE OUTPUT EXECUTABLE
@@ -85,7 +85,7 @@ include_directories("./Help")
 set(CMAKE_C_FLAGS "  -std=c99                      ")
 string(APPEND CMAKE_C_FLAGS " -Wall                         ")
 string(APPEND CMAKE_C_FLAGS " -g -Wall                         ")
-string(APPEND CMAKE_C_FLAGS "  -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER -DUSE_STM32F769I_DISCO -DUSE_USB_HS ")
+string(APPEND CMAKE_C_FLAGS "  -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
 
 # Avoid known bug in linux giving:
 #    arm-none-eabi-gcc: error: unrecognized command line option '-rdynamic'
