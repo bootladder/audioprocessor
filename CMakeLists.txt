@@ -7,21 +7,10 @@ PROJECT(audio-processor)
 set(TARGET_BASENAME stm32f769-discovery-audio-processor)
 
 #############################################################
-# PATH TO THE OUTPUT EXECUTABLE
+# OUTPUT PATHS
 ############################################################
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
-
-
-########################################
-# TOOLCHAIN
-#######################################
-set(TOOLCHAIN_PATH "/opt/gcc-arm-none-eabi-7-2018-q2-update/bin")
-
-set(CMAKE_C_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-gcc")
-set(CMAKE_CXX_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-g++")
-set(OBJCOPY "${TOOLCHAIN_PATH}/arm-none-eabi-objcopy")
-set(CMAKE_ASM_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-as")
-enable_language(ASM)
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
 ########################################
 # SOURCE
@@ -29,107 +18,172 @@ enable_language(ASM)
 set(SOURCE_ROOT_DIR "../")
 SET(C_SOURCES "")
 
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"                                      )
+SET(C_SOURCES_FOR_TESTING "")
+LIST(APPEND C_SOURCES_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"                                      )
 
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/main.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"                                      )
+SET(C_SOURCES_NOT_FOR_TESTING "")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"                                      )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"                                      )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/main.c"                                      )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/CMSIS/Device/system_stm32f7xx.c"                           )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc_ex.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_gpio.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_cortex.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_pwr_ex.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_sai.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_dma.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_i2c.c"                  )
 
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/CMSIS/Device/system_stm32f7xx.c"                                      )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Init.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Task.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Bringup.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_LED.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Codec_IO.c"                  )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"                  )
 
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc_ex.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_gpio.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_cortex.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_pwr_ex.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_sai.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_dma.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_i2c.c"                                      )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Help/My_Logger.c"                                      )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"                                      )
 
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Init.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Task.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Bringup.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_LED.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Codec_IO.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"                                      )
-
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Help/My_Logger.c"                                      )
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"                                      )
-
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/portable/GCC/ARM_CM7/r0p1/port.c")
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/tasks.c")
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/list.c")
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/timers.c")
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/queue.c")
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/stream_buffer.c")
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/event_groups.c")
-LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/FreeRTOS/portable/MemMang/heap_4.c")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/FreeRTOS/portable/GCC/ARM_CM7/r0p1/port.c")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/FreeRTOS/tasks.c")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/FreeRTOS/list.c")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/FreeRTOS/timers.c")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/FreeRTOS/queue.c")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/FreeRTOS/stream_buffer.c")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/FreeRTOS/event_groups.c")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/FreeRTOS/portable/MemMang/heap_4.c")
 
 
+LIST(APPEND C_SOURCES ${C_SOURCES_FOR_TESTING})
+LIST(APPEND C_SOURCES ${C_SOURCES_NOT_FOR_TESTING})
 
 ########################################
 # INCLUDES
 #######################################
-include_directories("./Application")
-include_directories("./Drivers/BSP")
-include_directories("./Drivers/STM32F7xx_HAL_Drivers/Inc")
-include_directories("./Drivers/CMSIS/Device")
-include_directories("./Drivers/CMSIS/Include")
-include_directories("./FreeRTOS/include")
-include_directories("./FreeRTOS/")
-include_directories("./FreeRTOS/portable/GCC/ARM_CM7/r0p1/")
+SET(INCLUDES_FOR_TESTING "")
+LIST(APPEND INCLUDES_FOR_TESTING "./Application")
+LIST(APPEND INCLUDES_FOR_TESTING "./Help")
 
-include_directories("./Help")
+
+SET(INCLUDES_NOT_FOR_TESTING "")
+LIST(APPEND INCLUDES_NOT_FOR_TESTING )
+LIST(APPEND INCLUDES_NOT_FOR_TESTING "./Drivers/BSP")
+LIST(APPEND INCLUDES_NOT_FOR_TESTING "./Drivers/STM32F7xx_HAL_Drivers/Inc")
+LIST(APPEND INCLUDES_NOT_FOR_TESTING "./Drivers/CMSIS/Device")
+LIST(APPEND INCLUDES_NOT_FOR_TESTING "./Drivers/CMSIS/Include")
+LIST(APPEND INCLUDES_NOT_FOR_TESTING "./FreeRTOS/include")
+LIST(APPEND INCLUDES_NOT_FOR_TESTING "./FreeRTOS/")
+LIST(APPEND INCLUDES_NOT_FOR_TESTING "./FreeRTOS/portable/GCC/ARM_CM7/r0p1/")
+
+include_directories(${INCLUDES_NOT_FOR_TESTING})
+include_directories(${INCLUDES_FOR_TESTING})
 
 #######################################
 # FLAGS
 #######################################
 set(COMMON_FLAGS " ")
-string(APPEND COMMON_FLAGS " -Wall   -Wextra                      ")
-string(APPEND COMMON_FLAGS " -g                        ")
-string(APPEND COMMON_FLAGS "  -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
+string(APPEND COMMON_FLAGS " -Wall   -Wextra   -g                   ")
+
+set(TARGET_SPECIFIC_FLAGS " ")
+string(APPEND TARGET_SPECIFIC_FLAGS "  -mcpu=cortex-m7 -mthumb ")
+string(APPEND TARGET_SPECIFIC_FLAGS " -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
 
 set(CMAKE_C_FLAGS "  -std=c99                      ")
-string(APPEND CMAKE_C_FLAGS ${COMMON_FLAGS})
-
 set(CMAKE_CXX_FLAGS "  -std=c++11                      ")
+string(APPEND CMAKE_C_FLAGS ${COMMON_FLAGS})
 string(APPEND CMAKE_CXX_FLAGS ${COMMON_FLAGS})
 
-# Avoid known bug in linux giving:
-#    arm-none-eabi-gcc: error: unrecognized command line option '-rdynamic'
-set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
-
-
-SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH.ld")
 set(TARGET_LINK_FLAGS "")
-
-string(APPEND TARGET_LINK_FLAGS " -specs=nosys.specs -specs=nano.specs ")
-string(APPEND TARGET_LINK_FLAGS " -T${PATH_TO_LINKERSCRIPT}  ")
 string(APPEND TARGET_LINK_FLAGS " -Wl,-Map=output.map  ")
+
+if(BUILD_TEST)
+
+else()
+  string(APPEND CMAKE_C_FLAGS ${TARGET_SPECIFIC_FLAGS})
+  string(APPEND CMAKE_CXX_FLAGS ${TARGET_SPECIFIC_FLAGS})
+
+  # Avoid known bug in linux giving:
+  #    arm-none-eabi-gcc: error: unrecognized command line option '-rdynamic'
+  set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+  set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+
+  SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH.ld")
+
+  string(APPEND TARGET_LINK_FLAGS " -specs=nosys.specs -specs=nano.specs ")
+  string(APPEND TARGET_LINK_FLAGS " -T${PATH_TO_LINKERSCRIPT}  ")
+
+endif()
+
+
+########################################
+# TOOLCHAIN
+#######################################
+if(BUILD_TEST)
+  #do nothing, use default system tools
+else()
+  set(TOOLCHAIN_PATH "/opt/gcc-arm-none-eabi-7-2018-q2-update/bin")
+  set(CMAKE_C_COMPILER   "${TOOLCHAIN_PATH}/arm-none-eabi-gcc")
+  set(CMAKE_CXX_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-g++")
+  set(OBJCOPY            "${TOOLCHAIN_PATH}/arm-none-eabi-objcopy")
+  set(CMAKE_ASM_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-as")
+  set(CMAKE_AR           "${TOOLCHAIN_PATH}/arm-none-eabi-ar")
+  enable_language(ASM)
+endif()
+
+#############################################################
+# EXECUTABLE (CROSS COMPILE)
+############################################################
+if(NOT BUILD_TEST)
+  add_executable(${TARGET_BASENAME}  ${C_SOURCES} ${ASM_SOURCES})
+
+  set_target_properties(${TARGET_BASENAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
+
+  EXEC_PROGRAM(
+    "echo $(git rev-parse --abbrev-ref HEAD)_$(git rev-parse --short HEAD)"
+    OUTPUT_VARIABLE gitrepoinfo
+    )
+
+  set(output_exe_basename ${TARGET_BASENAME}-${gitrepoinfo})
+  set(output_exe_elfname  "${output_exe_basename}.elf")
+  set_target_properties(${TARGET_BASENAME} PROPERTIES OUTPUT_NAME ${output_exe_elfname})
+
+  add_custom_command(TARGET ${TARGET_BASENAME} POST_BUILD
+    COMMAND size ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname}
+    )
+  add_custom_command(TARGET ${TARGET_BASENAME} POST_BUILD
+    COMMAND cp ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname} ${EXECUTABLE_OUTPUT_PATH}/latest.elf
+  )
 
 
 #############################################################
-# CONFIGURE EXECUTABLE
+# SOURCE LIBRARY FOR TESTING
 ############################################################
-add_executable(${TARGET_BASENAME}  ${C_SOURCES} ${ASM_SOURCES})
+else()
+  set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
-set_target_properties(${TARGET_BASENAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
+  add_library(${TARGET_BASENAME}-for-testing STATIC ${C_SOURCES_FOR_TESTING})
 
+#############################################################
+# TEST EXECUTABLE (HOST COMPILED)
+############################################################
 
-EXEC_PROGRAM(
-  "echo $(git rev-parse --abbrev-ref HEAD)_$(git rev-parse --short HEAD)" 
-  OUTPUT_VARIABLE gitrepoinfo
+  set(UNIT_TEST_TARGET_BASENAME ${TARGET_BASENAME}-unit-tests)
+
+  set(Sources
+    test/ExampleTests.cpp
+    )
+  include_directories("test/googletest/googletest/include")
+
+  add_executable(${UNIT_TEST_TARGET_BASENAME} ${Sources})
+  target_link_libraries(${UNIT_TEST_TARGET_BASENAME} PUBLIC gtest_main gtest pthread "-L../test/googletest/build/lib" ${TARGET_BASENAME}-for-testing)
+
+  add_custom_command(TARGET ${UNIT_TEST_TARGET_BASENAME} POST_BUILD
+    COMMAND size ${EXECUTABLE_OUTPUT_PATH}/${UNIT_TEST_TARGET_BASENAME}
+    )
+  add_custom_command(TARGET ${UNIT_TEST_TARGET_BASENAME} POST_BUILD
+    COMMAND cp ${EXECUTABLE_OUTPUT_PATH}/${UNIT_TEST_TARGET_BASENAME} ${EXECUTABLE_OUTPUT_PATH}/unit-tests.elf
   )
 
-set(output_exe_basename ${TARGET_BASENAME}-${gitrepoinfo})
-set(output_exe_elfname  "${output_exe_basename}.elf")
-set_target_properties(${TARGET_BASENAME} PROPERTIES OUTPUT_NAME ${output_exe_elfname})
-
-add_custom_command(TARGET ${TARGET_BASENAME} POST_BUILD
-  COMMAND size ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname}
-  )
-add_custom_command(TARGET ${TARGET_BASENAME} POST_BUILD
-  COMMAND cp ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname} ${EXECUTABLE_OUTPUT_PATH}/latest.elf
-)
+endif()
