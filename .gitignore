@@ -1,4 +1,6 @@
-build/
+build-test/
+build-prod/
+test/googletest
 TAGS
 
 # Created by https://www.gitignore.io/api/emacs
