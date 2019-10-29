@@ -1,6 +1,7 @@
 #include "BSP_Audio_Task.h"
 
 #include "BSP_Audio_Buffer_Interface.h"
+#include "AudioProcessor.h"
 
 #include "FreeRTOS.h"
 #include "queue.h"
@@ -17,7 +18,6 @@ typedef uint32_t BufferStatusMessage_t ;
 static QueueHandle_t xQueue_BufferStatus;
 static BufferStatusMessage_t bufferStatusMessage;
 
-static int16_t playbackBuffer[MY_BUFFER_SIZE_SAMPLES];
 static int16_t recordBuffer[MY_BUFFER_SIZE_SAMPLES/2];
 
 void My_Audio_Task(void * argument)
@@ -35,28 +35,29 @@ void My_Audio_Task(void * argument)
     switch(bufferStatusMessage)
     {
     case BUFFER_STATUS_LOWER_HALF_FULL:
-      ExtractSamplesFromDMAReceiveBuffer_LowerHalf(recordBuffer,
-                                                   MY_BUFFER_SIZE_SAMPLES / 2);
+      {
+        ExtractSamplesFromDMAReceiveBuffer_LowerHalf(recordBuffer,
+                                                     MY_BUFFER_SIZE_SAMPLES / 2);
 
-      CopySampleBuffer(&playbackBuffer[0],
-                       recordBuffer,
-                       MY_BUFFER_SIZE_SAMPLES / 2);
+        int16_t * outBuf = AudioProcessor_ProcessSampleBuffer(recordBuffer,
+                                                              MY_BUFFER_SIZE_SAMPLES / 2);
 
-      InsertSamplesIntoDMATransmitBuffer_LowerHalf(&playbackBuffer[0],
-                                                   MY_BUFFER_SIZE_SAMPLES / 2);
-      break;
-
+        InsertSamplesIntoDMATransmitBuffer_LowerHalf(outBuf,
+                                                     MY_BUFFER_SIZE_SAMPLES / 2);
+        break;
+      }
     case BUFFER_STATUS_UPPER_HALF_FULL:
-      ExtractSamplesFromDMAReceiveBuffer_UpperHalf(recordBuffer,
-                                                   MY_BUFFER_SIZE_SAMPLES / 2);
+      {
+        ExtractSamplesFromDMAReceiveBuffer_UpperHalf(recordBuffer,
+                                                     MY_BUFFER_SIZE_SAMPLES / 2);
 
-      CopySampleBuffer(&playbackBuffer[MY_BUFFER_SIZE_SAMPLES / 2],
-                       recordBuffer,
-                       MY_BUFFER_SIZE_SAMPLES / 2);
+        int16_t * outBuf = AudioProcessor_ProcessSampleBuffer(recordBuffer,
+                                                              MY_BUFFER_SIZE_SAMPLES / 2);
 
-      InsertSamplesIntoDMATransmitBuffer_UpperHalf(&playbackBuffer[MY_BUFFER_SIZE_SAMPLES / 2],
-                                                   MY_BUFFER_SIZE_SAMPLES / 2);
-      break;
+        InsertSamplesIntoDMATransmitBuffer_UpperHalf(outBuf,
+                                                     MY_BUFFER_SIZE_SAMPLES / 2);
+        break;
+      }
     }
   }
 }

@@ -18,6 +18,7 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(TOOLCHAIN_PATH "/opt/gcc-arm-none-eabi-7-2018-q2-update/bin")
 
 set(CMAKE_C_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-gcc")
+set(CMAKE_CXX_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-g++")
 set(OBJCOPY "${TOOLCHAIN_PATH}/arm-none-eabi-objcopy")
 set(CMAKE_ASM_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-as")
 enable_language(ASM)
@@ -32,6 +33,8 @@ LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"            
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"                                      )
 
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/main.c"                                      )
+LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"                                      )
+
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/CMSIS/Device/system_stm32f7xx.c"                                      )
 
 LIST(APPEND C_SOURCES "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc.c"                                      )
@@ -82,14 +85,21 @@ include_directories("./Help")
 #######################################
 # FLAGS
 #######################################
+set(COMMON_FLAGS " ")
+string(APPEND COMMON_FLAGS " -Wall   -Wextra                      ")
+string(APPEND COMMON_FLAGS " -g                        ")
+string(APPEND COMMON_FLAGS "  -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
+
 set(CMAKE_C_FLAGS "  -std=c99                      ")
-string(APPEND CMAKE_C_FLAGS " -Wall   -Wextra                      ")
-string(APPEND CMAKE_C_FLAGS " -g                        ")
-string(APPEND CMAKE_C_FLAGS "  -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
+string(APPEND CMAKE_C_FLAGS ${COMMON_FLAGS})
+
+set(CMAKE_CXX_FLAGS "  -std=c++11                      ")
+string(APPEND CMAKE_CXX_FLAGS ${COMMON_FLAGS})
 
 # Avoid known bug in linux giving:
 #    arm-none-eabi-gcc: error: unrecognized command line option '-rdynamic'
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
 
 SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH.ld")
