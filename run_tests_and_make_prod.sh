@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 PROJECT_DIR=/audio-processor-project
 cd $PROJECT_DIR/build-test
 cmake .. -DBUILD_TEST=ON
