@@ -2,14 +2,16 @@
 #define __AUDIOPROCESSOR_HPP__
 
 #include "ProcessBlock.hpp"
+#define STATIC_NUM_PROCESS_BLOCKS 5
 
 class AudioProcessor{
-  ProcessBlock * block1;
-  ProcessBlock * block2;
+  ProcessBlock * blocks[STATIC_NUM_PROCESS_BLOCKS];
+  int numBlocksAssigned = 0;
 public:
   AudioProcessor(){
-    block1 = 0;
-    block2 = 0;
+    for(int i=0; i<STATIC_NUM_PROCESS_BLOCKS; i++){
+      blocks[i] = 0;
+    }
   };
   int16_t * ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples);
   void AddBlockInSeries(ProcessBlock * block);
