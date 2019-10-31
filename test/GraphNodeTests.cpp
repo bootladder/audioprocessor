@@ -26,7 +26,8 @@ TEST_F(GraphNodeTest, applyGraphToSampleBuffer_OneBlock_AppliesBlock)
   ProcessBlock block(DummyProcessFunctions_add_1);
   GraphNode node(&block);
 
-  int16_t * out = node.applyGraphToSampleBuffer(testBuf, num_samples);
+  node.applyGraphToSampleBuffer(testBuf, num_samples);
+  int16_t * out = node.getSampleBuffer();
 
   for(uint32_t i=0; i<num_samples; i++){
     ASSERT_EQ(out[i], (int16_t)1);
@@ -48,7 +49,8 @@ TEST_F(GraphNodeTest, applyGraphToSampleBuffer_LotsOfBlocksInSeries)
     nodes[i].addEdge(&nodes[i+1], EDGE_PASSTHROUGH);
   }
 
-  int16_t * out = nodes[0].applyGraphToSampleBuffer(testBuf, num_samples);
+  nodes[0].applyGraphToSampleBuffer(testBuf, num_samples);
+  int16_t * out = nodes[0].getSampleBuffer();
 
   for(uint32_t i=0; i<num_samples; i++){
     ASSERT_EQ(out[i], (int16_t)NUM_LOTSOFBLOCKS);
@@ -76,7 +78,8 @@ TEST_F(GraphNodeTest, applyGraphToSampleBuffer_SplitJoin2Paths)
   node1B.addEdge(&node2, EDGE_JOIN_TERMINATOR);
 
 
-  int16_t * out = node0.applyGraphToSampleBuffer(testBuf, num_samples);
+  node0.applyGraphToSampleBuffer(testBuf, num_samples);
+  int16_t * out = node0.getSampleBuffer();
 
   for(uint32_t i=0; i<num_samples; i++){
     ASSERT_EQ(3, out[i]);
@@ -97,14 +100,15 @@ TEST_F(GraphNodeTest, applyGraphToSampleBuffer_SplitJoin2Paths_UsingConstantBloc
   node0.addEdge(&node1A, EDGE_PASSTHROUGH);
   node0.addEdge(&node1B, EDGE_PASSTHROUGH);
 
-  ProcessBlock block2(DummyProcessFunctions_noop);
+  ProcessBlock block2(DummyProcessFunctions_mixer_addition);
   GraphNode node2(&block2);
 
-  node1A.addEdge(&node2, EDGE_PASSTHROUGH);
-  node1B.addEdge(&node2, EDGE_JOIN_TERMINATOR);
+  node1A.addEdge(&node2, EDGE_JOIN_TERMINATOR);
+  node1B.addEdge(&node2, EDGE_PASSTHROUGH);
 
 
-  int16_t * out = node0.applyGraphToSampleBuffer(testBuf, num_samples);
+  node0.applyGraphToSampleBuffer(testBuf, num_samples);
+  int16_t * out = node0.getSampleBuffer();
 
   for(uint32_t i=0; i<num_samples; i++){
     ASSERT_EQ(12, out[i]);
