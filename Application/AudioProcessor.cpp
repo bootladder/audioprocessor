@@ -19,15 +19,17 @@ AudioProcessor_ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
 
 int16_t * AudioProcessor::ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
 {
-  int16_t * in = sampleBuf;
-  for(int i=0; i<numBlocksAssigned; i++){
-    in = blocks[i]->ProcessSampleBuffer(in, num_samples);
-  }
-  return in;
+  int16_t * out = graph->applySubgraphToSampleBuffer(sampleBuf, num_samples);
+  return out;
 }
 
 void AudioProcessor::AddBlockInSeries(ProcessBlock * block)
 {
   blocks[numBlocksAssigned] = block;
   numBlocksAssigned++;
+}
+
+void AudioProcessor::SetGraph(GraphNode * graph)
+{
+  graph = graph;
 }

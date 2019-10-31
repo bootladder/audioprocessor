@@ -22,6 +22,7 @@ SET(C_SOURCES_FOR_TESTING "")
 LIST(APPEND C_SOURCES_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"                                      )
 LIST(APPEND C_SOURCES_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/ProcessBlock.cpp"                                      )
 LIST(APPEND C_SOURCES_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/DummyProcessFunctions.cpp"                                      )
+LIST(APPEND C_SOURCES_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/GraphNode.cpp"                                      )
 
 SET(C_SOURCES_NOT_FOR_TESTING "")
 LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"                                      )
@@ -177,6 +178,7 @@ else()
     test/ExampleTests.cpp
     test/ProcessBlockTests.cpp
     test/AudioProcessorTests.cpp
+    test/GraphNodeTests.cpp
     )
   include_directories("test/googletest/googletest/include")
 
