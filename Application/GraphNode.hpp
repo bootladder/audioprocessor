@@ -6,6 +6,7 @@
 
 typedef enum {
   EDGE_OUTPUT_TERMINATOR,
+  EDGE_JOIN_TERMINATOR,
   EDGE_PASSTHROUGH,
 } EdgeType_t;
 
@@ -25,8 +26,11 @@ class GraphNode
   int numEdges = 0;
 
 public:
-  GraphNode(){}
+  GraphNode(){
+    edges[0].edgeType = EDGE_OUTPUT_TERMINATOR;
+  }
   GraphNode(ProcessBlock * blockArg){
+    edges[0].edgeType = EDGE_OUTPUT_TERMINATOR;
     block = blockArg;
   }
 

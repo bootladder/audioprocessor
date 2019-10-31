@@ -54,3 +54,31 @@ TEST_F(GraphNodeTest, applySubgraphToSampleBuffer_LotsOfBlocksInSeries)
     ASSERT_EQ(out[i], (int16_t)NUM_LOTSOFBLOCKS);
   }
 }
+
+TEST_F(GraphNodeTest, applySubGraphToSampleBuffer_SplitJoin2Paths)
+{
+  ProcessBlock block0(DummyProcessFunctions_noop);
+  GraphNode node0(&block0);
+
+  ProcessBlock block1A(DummyProcessFunctions_add_1);
+  GraphNode node1A(&block1A);
+
+  ProcessBlock block1B(DummyProcessFunctions_add_2);
+  GraphNode node1B(&block1B);
+
+  node0.addEdge(&node1A, EDGE_PASSTHROUGH);
+  node0.addEdge(&node1B, EDGE_PASSTHROUGH);
+
+  ProcessBlock block2(DummyProcessFunctions_noop);
+  GraphNode node2(&block2);
+
+  node1A.addEdge(&node2, EDGE_PASSTHROUGH);
+  node1B.addEdge(&node2, EDGE_JOIN_TERMINATOR);
+
+
+  int16_t * out = node0.applySubgraphToSampleBuffer(testBuf, num_samples);
+
+  for(uint32_t i=0; i<num_samples; i++){
+    ASSERT_EQ(3, out[i]);
+  }
+}
