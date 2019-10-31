@@ -2,14 +2,27 @@
 #define __GRAPH_HPP__
 #include "ProcessBlock.hpp"
 
-#define STATIC_NUM_GRAPHNODE_CHILDS 10
+#define STATIC_NUM_GRAPHNODE_EDGES 10
+
+typedef enum {
+  EDGE_OUTPUT_TERMINATOR,
+  EDGE_PASSTHROUGH,
+} EdgeType_t;
+
+class GraphNode;
+
+struct Edge
+{
+  GraphNode * node;
+  EdgeType_t edgeType;
+};
 
 class GraphNode
 {
   ProcessBlock * block;
 
-  GraphNode * childs[STATIC_NUM_GRAPHNODE_CHILDS];
-  int numChilds = 0;
+  Edge edges[STATIC_NUM_GRAPHNODE_EDGES];
+  int numEdges = 0;
 
 public:
   GraphNode(){}
@@ -17,7 +30,7 @@ public:
     block = blockArg;
   }
 
-  void addChild(GraphNode * node);
+  void addEdge(GraphNode * node, EdgeType_t edgeType);
 
   int16_t * applySubgraphToSampleBuffer(int16_t * sampleBuf, uint32_t num_samples);
 };

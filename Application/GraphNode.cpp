@@ -1,9 +1,10 @@
 #include "GraphNode.hpp"
 
-void GraphNode::addChild(GraphNode * node)
+void GraphNode::addEdge(GraphNode * node, EdgeType_t edgeType)
 {
-  childs[numChilds] = node;
-  numChilds++;
+  edges[numEdges].node = node;
+  edges[numEdges].edgeType = edgeType;
+  numEdges++;
 }
 
 
@@ -11,10 +12,10 @@ int16_t * GraphNode::applySubgraphToSampleBuffer(int16_t * sampleBuf, uint32_t n
 {
   int16_t * out = block->ProcessSampleBuffer(sampleBuf, num_samples);
 
-  if(numChilds == 0)
+  if(edges[0].edgeType == EDGE_OUTPUT_TERMINATOR)
     return out;
   else
-    return childs[0]->applySubgraphToSampleBuffer(out,num_samples);
+    return edges[0].node->applySubgraphToSampleBuffer(out,num_samples);
 }
 
 /////////////////////////////////////////////////////////

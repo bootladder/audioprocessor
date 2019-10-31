@@ -45,7 +45,7 @@ TEST_F(GraphNodeTest, applySubgraphToSampleBuffer_LotsOfBlocksInSeries)
   }
 
   for(uint32_t i=0; i<NUM_LOTSOFBLOCKS - 1; i++){
-    nodes[i].addChild(&nodes[i+1]);
+    nodes[i].addEdge(&nodes[i+1], EDGE_PASSTHROUGH);
   }
 
   int16_t * out = nodes[0].applySubgraphToSampleBuffer(testBuf, num_samples);
