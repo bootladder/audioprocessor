@@ -83,35 +83,30 @@ TEST_F(GraphNodeTest, applyGraphToSampleBuffer_SplitJoin2Paths)
   }
 }
 
-TEST_F(GraphNodeTest, applyGraphToSampleBuffer_SplitJoin2Paths_OnePathHas2InSeries)
+TEST_F(GraphNodeTest, applyGraphToSampleBuffer_SplitJoin2Paths_UsingConstantBlocks)
 {
   ProcessBlock block0(DummyProcessFunctions_noop);
   GraphNode node0(&block0);
 
-  ProcessBlock block1A(DummyProcessFunctions_add_2);
+  ProcessBlock block1A(DummyProcessFunctions_Constant_5);
   GraphNode node1A(&block1A);
 
-  ProcessBlock block1B(DummyProcessFunctions_add_1);
+  ProcessBlock block1B(DummyProcessFunctions_Constant_7);
   GraphNode node1B(&block1B);
 
   node0.addEdge(&node1A, EDGE_PASSTHROUGH);
   node0.addEdge(&node1B, EDGE_PASSTHROUGH);
 
-  ProcessBlock block2A(DummyProcessFunctions_add_2);
-  GraphNode node2A(&block2A);
+  ProcessBlock block2(DummyProcessFunctions_noop);
+  GraphNode node2(&block2);
 
-  node1A.addEdge(&node2A, EDGE_PASSTHROUGH);
-
-  ProcessBlock block3(DummyProcessFunctions_noop);
-  GraphNode node3(&block3);
-
-  node2A.addEdge(&node3, EDGE_PASSTHROUGH);
-  node1B.addEdge(&node3, EDGE_JOIN_TERMINATOR);
+  node1A.addEdge(&node2, EDGE_PASSTHROUGH);
+  node1B.addEdge(&node2, EDGE_JOIN_TERMINATOR);
 
 
   int16_t * out = node0.applyGraphToSampleBuffer(testBuf, num_samples);
 
   for(uint32_t i=0; i<num_samples; i++){
-    ASSERT_EQ(5, out[i]);
+    ASSERT_EQ(12, out[i]);
   }
 }
