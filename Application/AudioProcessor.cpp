@@ -19,7 +19,7 @@ AudioProcessor_ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
 
 int16_t * AudioProcessor::ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
 {
-  int16_t * out = graph->applySubgraphToSampleBuffer(sampleBuf, num_samples);
+  int16_t * out = graph->applyGraphToSampleBuffer(sampleBuf, num_samples);
   return out;
 }
 

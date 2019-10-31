@@ -21,12 +21,12 @@ protected:
 };
 
 
-TEST_F(GraphNodeTest, applySubgraphToSampleBuffer_OneBlock_AppliesBlock)
+TEST_F(GraphNodeTest, applyGraphToSampleBuffer_OneBlock_AppliesBlock)
 {
   ProcessBlock block(DummyProcessFunctions_add_1);
   GraphNode node(&block);
 
-  int16_t * out = node.applySubgraphToSampleBuffer(testBuf, num_samples);
+  int16_t * out = node.applyGraphToSampleBuffer(testBuf, num_samples);
 
   for(uint32_t i=0; i<num_samples; i++){
     ASSERT_EQ(out[i], (int16_t)1);
@@ -34,7 +34,7 @@ TEST_F(GraphNodeTest, applySubgraphToSampleBuffer_OneBlock_AppliesBlock)
 }
 
 
-TEST_F(GraphNodeTest, applySubgraphToSampleBuffer_LotsOfBlocksInSeries)
+TEST_F(GraphNodeTest, applyGraphToSampleBuffer_LotsOfBlocksInSeries)
 {
   #define NUM_LOTSOFBLOCKS 10
   ProcessBlock blocks[NUM_LOTSOFBLOCKS];
@@ -48,14 +48,14 @@ TEST_F(GraphNodeTest, applySubgraphToSampleBuffer_LotsOfBlocksInSeries)
     nodes[i].addEdge(&nodes[i+1], EDGE_PASSTHROUGH);
   }
 
-  int16_t * out = nodes[0].applySubgraphToSampleBuffer(testBuf, num_samples);
+  int16_t * out = nodes[0].applyGraphToSampleBuffer(testBuf, num_samples);
 
   for(uint32_t i=0; i<num_samples; i++){
     ASSERT_EQ(out[i], (int16_t)NUM_LOTSOFBLOCKS);
   }
 }
 
-TEST_F(GraphNodeTest, applySubGraphToSampleBuffer_SplitJoin2Paths)
+TEST_F(GraphNodeTest, applyGraphToSampleBuffer_SplitJoin2Paths)
 {
   ProcessBlock block0(DummyProcessFunctions_noop);
   GraphNode node0(&block0);
@@ -76,7 +76,7 @@ TEST_F(GraphNodeTest, applySubGraphToSampleBuffer_SplitJoin2Paths)
   node1B.addEdge(&node2, EDGE_JOIN_TERMINATOR);
 
 
-  int16_t * out = node0.applySubgraphToSampleBuffer(testBuf, num_samples);
+  int16_t * out = node0.applyGraphToSampleBuffer(testBuf, num_samples);
 
   for(uint32_t i=0; i<num_samples; i++){
     ASSERT_EQ(3, out[i]);

@@ -36,7 +36,7 @@ public:
 
   void addEdge(GraphNode * node, EdgeType_t edgeType);
 
-  int16_t * applySubgraphToSampleBuffer(int16_t * sampleBuf, uint32_t num_samples);
+  int16_t * applyGraphToSampleBuffer(int16_t * sampleBuf, uint32_t num_samples);
 };
 
 #endif
