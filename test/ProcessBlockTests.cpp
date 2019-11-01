@@ -1,4 +1,5 @@
 #include <iostream>
+using namespace std;
 #include "gtest/gtest.h"
 
 #include "ProcessBlock.hpp"
@@ -52,5 +53,22 @@ TEST(ProcessBlock, gainParameterized)
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
     ASSERT_EQ((int16_t)i*3, out[i]);
+  }
+}
+
+TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositiveAndNegative)
+{
+  ProcessBlock block(ProcessBlockFunctions_ClippingDistortion, NUM_SAMPLES);
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    testBuf[i] = -0x8000 + (i*0x10000)/NUM_SAMPLES;
+  }
+
+  block.process(testBuf);
+  int16_t * out = block.getOutputBuffer();
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    ASSERT_LE(out[i], 0x8000/2);
+    ASSERT_GE(out[i], -(0x8000/2));
   }
 }
