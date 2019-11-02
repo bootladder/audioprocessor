@@ -38,10 +38,12 @@ set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_sai.c"
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_dma.c"
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_i2c.c"
+  "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_uart.c"
 
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Init.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Task.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Bringup.c"
+  "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_UART.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_LED.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Codec_IO.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"
