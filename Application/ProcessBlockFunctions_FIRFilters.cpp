@@ -2,7 +2,7 @@
 #include "stm32f769xx.h" //identifies device type for FPU_PRESENT
 #include "arm_math.h"
 
-static arm_fir_instance_q15 S;
+static arm_fir_instance_f32 S;
 #define SAMPLE_FREQUENCY 48000.0
 #define MAX_BLOCK_SIZE 1024
 #define MAX_NUM_TAPS 1024
@@ -23,7 +23,7 @@ void ProcessBlockFunctions_FIRLowPass_CalculateCoefficients(uint32_t cutoff)
         continue;
       }
       int16_t x = 3.14*fc_normalized*(int16_t)n;
-      coeffs[i] = fc_normalized * arm_sin_q15(x) / x;
+      coeffs[i] = fc_normalized * arm_sin_f32(x) / x;
 
       coefficient_sum += coeffs[i];
     }
@@ -34,8 +34,8 @@ void ProcessBlockFunctions_FIRLowPass_CalculateCoefficients(uint32_t cutoff)
   }
 }
 
-void ProcessBlockFunctions_FIRLowPass(BlockState * state, int16_t * in, int16_t * out, uint32_t size)
+void ProcessBlockFunctions_FIRLowPass(BlockState * state, sample_t * in, sample_t * out, uint32_t size)
 {
-  arm_fir_q15(&S, in, out, size);
+  arm_fir_f32(&S, in, out, size);
 }
 

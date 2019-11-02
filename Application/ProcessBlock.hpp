@@ -2,16 +2,17 @@
 #define __PROCESSBLOCK_HPP__
 
 #include <stdint.h>
+#include "SamplingTypes.hpp"
 #include "BlockState.hpp"
 #include "ProcessBlockFunctions_FIRFilters.hpp"
 
-typedef void (* ProcessBlockFunctionPointer)(BlockState *, int16_t *, int16_t *, uint32_t);
+typedef void (* ProcessBlockFunctionPointer)(BlockState *, sample_t *, sample_t *, uint32_t);
 
 class ProcessBlock{
 
   ProcessBlockFunctionPointer processFunc;
-  int16_t * inputBuffer;
-  int16_t * outputBuffer;
+  sample_t * inputBuffer;
+  sample_t * outputBuffer;
   uint32_t num_samples;
 
   BlockState * blockState;
@@ -20,8 +21,8 @@ public:
   ProcessBlock(ProcessBlockFunctionPointer func, uint32_t size){
     processFunc = func;
     num_samples = size;
-    inputBuffer = new int16_t[size];
-    outputBuffer = new int16_t[size];
+    inputBuffer = new sample_t[size];
+    outputBuffer = new sample_t[size];
 
     blockState = new BlockState();
 
@@ -31,7 +32,7 @@ public:
     }
   }
 
-  int16_t * getOutputBuffer(void){
+  sample_t * getOutputBuffer(void){
     return outputBuffer;
   }
 
@@ -39,7 +40,7 @@ public:
     blockState -> setParam(id, value);
   }
 
-  void process(int16_t * samplesToProcess){
+  void process(sample_t * samplesToProcess){
     for(uint32_t i=0; i<num_samples; i++){
       inputBuffer[i] = samplesToProcess[i];
     }

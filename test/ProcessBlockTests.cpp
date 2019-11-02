@@ -6,7 +6,7 @@ using namespace std;
 #include "ProcessBlockFunctions.hpp"
 
 #define NUM_SAMPLES 1024
-static int16_t testBuf[NUM_SAMPLES];
+static sample_t testBuf[NUM_SAMPLES];
 
 static void init_testBuf_with_staircase(void){
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
@@ -23,7 +23,7 @@ TEST(ProcessBlock, identity)
   block.process(testBuf);
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_EQ((int16_t)i, testBuf[i]);
+    ASSERT_EQ((sample_t)i, testBuf[i]);
   }
 }
 
@@ -34,10 +34,10 @@ TEST(ProcessBlock, gain2x)
   init_testBuf_with_staircase();
 
   block.process(testBuf);
-  int16_t * out = block.getOutputBuffer();
+  sample_t * out = block.getOutputBuffer();
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_EQ((int16_t)i*2, out[i]);
+    ASSERT_EQ((sample_t)i*2, out[i]);
   }
 }
 
@@ -49,10 +49,10 @@ TEST(ProcessBlock, gainParameterized)
 
   block.setParam(PARAM_0, 3);
   block.process(testBuf);
-  int16_t * out = block.getOutputBuffer();
+  sample_t * out = block.getOutputBuffer();
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_EQ((int16_t)i*3, out[i]);
+    ASSERT_EQ((sample_t)i*3, out[i]);
   }
 }
 
@@ -65,7 +65,7 @@ TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositi
   }
 
   block.process(testBuf);
-  int16_t * out = block.getOutputBuffer();
+  sample_t * out = block.getOutputBuffer();
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
     ASSERT_LE(out[i], 0x8000/2);
