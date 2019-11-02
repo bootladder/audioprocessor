@@ -2,21 +2,35 @@ extern "C" {
 #include "AudioProcessor.h"
 }
 
-static int16_t dummyBuf[1024];
-static int16_t add_something(uint32_t i);
 
+#include "BSP_Audio_Buffer_Interface.h"
+#include "ProcessBlock.hpp"
+#include "ProcessBlockFunctions.hpp"
+static int16_t * __testing__process_sample_buffer(int16_t * sampleBuf);
 
 extern "C"
 int16_t *
 AudioProcessor_ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
 {
-  for(uint32_t i=0; i < num_samples; i++){
-    dummyBuf[i] = sampleBuf[i] + add_something(num_samples);
-  }
-  return dummyBuf;
+  (void)num_samples;
+  int16_t * out = __testing__process_sample_buffer(sampleBuf);
+  return out;
 }
 
-static int16_t add_something(uint32_t i)
+
+
+static ProcessBlock block1(ProcessBlockFunctions_GainParameterized, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static ProcessBlock block4(ProcessBlockFunctions_ClippingDistortion, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+
+static int16_t * __testing__process_sample_buffer(int16_t * sampleBuf)
 {
-  return 0;
+  int16_t * out;
+  block1.process(sampleBuf);
+  out = block1.getOutputBuffer();
+  block1.setParam(PARAM_0, 2);
+
+  block4.process(out);
+  out = block4.getOutputBuffer();
+
+  return out;
 }
