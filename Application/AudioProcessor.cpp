@@ -48,8 +48,8 @@ static sample_t * __testing__process_sample_buffer(sample_t * sampleBuf)
   block4.process(out);
   out = block4.getOutputBuffer();
 
-  // block5.process(out);
-  // out = block5.getOutputBuffer();
+  block5.process(out);
+  out = block5.getOutputBuffer();
 
   return out;
 }

@@ -18,7 +18,6 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(SOURCE_ROOT_DIR "../")
 
 set(C_SOURCES_FOR_TESTING
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlockFunctions.cpp"
   )
 

@@ -28,7 +28,7 @@ public:
 
     //terrible, check function
     if(func == ProcessBlockFunctions_FIRLowPass){
-      ProcessBlockFunctions_FIRLowPass_CalculateCoefficients(300);
+      ProcessBlockFunctions_FIRLowPass_CalculateCoefficients(2000);
     }
   }
 
