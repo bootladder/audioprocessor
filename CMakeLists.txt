@@ -19,11 +19,13 @@ set(SOURCE_ROOT_DIR "../")
 SET(C_SOURCES "")
 
 SET(C_SOURCES_FOR_TESTING "")
-LIST(APPEND C_SOURCES_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"                                      )
 LIST(APPEND C_SOURCES_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/ProcessBlock.cpp"                                      )
 LIST(APPEND C_SOURCES_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/ProcessBlockFunctions.cpp"                                      )
 
 SET(C_SOURCES_NOT_FOR_TESTING "")
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"                                      )
+LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/ProcessBlockFunctions_FIRFilters.cpp"                                      )
+
 LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"                                      )
 LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"                                      )
 LIST(APPEND C_SOURCES_NOT_FOR_TESTING "${SOURCE_ROOT_DIR}/Application/main.c"                                      )
@@ -78,6 +80,7 @@ LIST(APPEND INCLUDES_NOT_FOR_TESTING "./Drivers/CMSIS/Include")
 LIST(APPEND INCLUDES_NOT_FOR_TESTING "./FreeRTOS/include")
 LIST(APPEND INCLUDES_NOT_FOR_TESTING "./FreeRTOS/")
 LIST(APPEND INCLUDES_NOT_FOR_TESTING "./FreeRTOS/portable/GCC/ARM_CM7/r0p1/")
+LIST(APPEND INCLUDES_NOT_FOR_TESTING "./static-libs")
 
 include_directories(${INCLUDES_NOT_FOR_TESTING})
 include_directories(${INCLUDES_FOR_TESTING})
@@ -89,7 +92,7 @@ set(COMMON_FLAGS " ")
 string(APPEND COMMON_FLAGS " -Wall   -Wextra   -g                   ")
 
 set(TARGET_SPECIFIC_FLAGS " ")
-string(APPEND TARGET_SPECIFIC_FLAGS "  -mcpu=cortex-m7 -mthumb ")
+string(APPEND TARGET_SPECIFIC_FLAGS "  -mcpu=cortex-m7 -mthumb  -DARM_MATH_CM7 ")
 string(APPEND TARGET_SPECIFIC_FLAGS " -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
 
 set(CMAKE_C_FLAGS "  -std=c99                      ")
@@ -139,6 +142,7 @@ endif()
 ############################################################
 if(NOT BUILD_TEST)
   add_executable(${TARGET_BASENAME}  ${C_SOURCES} ${ASM_SOURCES})
+  target_link_libraries(${TARGET_BASENAME} "-L../static-libs/" "-l:libarm_cortexM7lfdp_math.a")
 
   set_target_properties(${TARGET_BASENAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
 
@@ -176,6 +180,7 @@ else()
   set(Sources
     test/ExampleTests.cpp
     test/ProcessBlockTests.cpp
+    test/FAKE_ProcessBlockFunctions_FIRFilters.cpp
     )
   include_directories("test/googletest/googletest/include")
 

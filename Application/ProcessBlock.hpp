@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "BlockState.hpp"
+#include "ProcessBlockFunctions_FIRFilters.hpp"
 
 typedef void (* ProcessBlockFunctionPointer)(BlockState *, int16_t *, int16_t *, uint32_t);
 
@@ -23,6 +24,11 @@ public:
     outputBuffer = new int16_t[size];
 
     blockState = new BlockState();
+
+    //terrible, check function
+    if(func == ProcessBlockFunctions_FIRLowPass){
+      ProcessBlockFunctions_FIRLowPass_CalculateCoefficients(300);
+    }
   }
 
   int16_t * getOutputBuffer(void){
