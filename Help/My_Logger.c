@@ -1,7 +1,7 @@
 #include "My_Logger.h"
 #include "tinyprintf.h"
 
-#define BUFFER_SIZE 2048
+#define BUFFER_SIZE 1024*16  //large buffer size here
 static char log_buffer[BUFFER_SIZE];
 static char * log_ptr = log_buffer;
 
