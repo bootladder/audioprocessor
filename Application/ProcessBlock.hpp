@@ -9,6 +9,12 @@
 
 typedef void (* ProcessBlockFunctionPointer)(BlockState *, sample_t *, sample_t *, uint32_t);
 
+class MIDIAssignment{
+public:
+  MIDI_Message_t msg;
+  BlockParamIdentifier_t paramId;
+};
+
 class ProcessBlock{
 public:
   virtual void process(sample_t * samplesToProcess) = 0;
@@ -25,6 +31,8 @@ class RealProcessBlock : public ProcessBlock{
   uint32_t num_samples;
 
   BlockState * blockState;
+  MIDIAssignment midiAssignments[16];  //hard coded
+  int midiAssignmentIndex = 0;
 
 public:
   RealProcessBlock(ProcessBlockFunctionPointer func, uint32_t size){
@@ -54,6 +62,8 @@ public:
     blockState -> setParam(id, value);
   }
 
+  BlockState * getBlockState(void){return blockState;}
+
   void process(sample_t * samplesToProcess){
     for(uint32_t i=0; i<num_samples; i++){
       inputBuffer[i] = samplesToProcess[i];
@@ -63,7 +73,20 @@ public:
   }
 
   void MIDIMessageReceived(MIDI_Message_t & msg){
-    (void)msg;
+    for(int i=0; i<midiAssignmentIndex; i++){
+      if(midiAssignments[i].msg.type != msg.type)
+        continue;
+      if(midiAssignments[i].msg.id != msg.id)
+        continue;
+
+      blockState->setParam(midiAssignments[i].paramId, msg.value);
+    }
+  }
+
+  void assignMIDIMessageToParameter(MIDI_Message_t & msg, BlockParamIdentifier_t id){
+    midiAssignments[midiAssignmentIndex].msg = msg;
+    midiAssignments[midiAssignmentIndex].paramId = id;
+    midiAssignmentIndex++;
   }
 };
 

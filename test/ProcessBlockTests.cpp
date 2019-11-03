@@ -72,3 +72,47 @@ TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositi
     ASSERT_GE(out[i], -(0x8000/2));
   }
 }
+
+TEST(ProcessBlock, MIDIMessageReceived_PassesTheValue)
+{
+  RealProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
+
+  MIDI_Message_t msg;
+  msg.type = 0x9;
+  msg.id = 77;
+  msg.value = 99;
+
+  block.assignMIDIMessageToParameter(msg, PARAM_0);
+
+  block.MIDIMessageReceived(msg);
+
+  BlockState * state = block.getBlockState();
+
+  ASSERT_EQ(state->getParam(PARAM_0), 99);
+}
+
+TEST(ProcessBlock, MIDIMessageReceived_TwoMessagesAssigned_PassesTheValue)
+{
+  RealProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
+
+  MIDI_Message_t msg1;
+  msg1.type = 0x9;
+  msg1.id = 77;
+  msg1.value = 99;
+
+  MIDI_Message_t msg2;
+  msg2.type = 0x9;
+  msg2.id = 88;
+  msg2.value = 33;
+
+  block.assignMIDIMessageToParameter(msg1, PARAM_0);
+  block.assignMIDIMessageToParameter(msg2, PARAM_1);
+
+  block.MIDIMessageReceived(msg1);
+  block.MIDIMessageReceived(msg2);
+
+  BlockState * state = block.getBlockState();
+
+  ASSERT_EQ(state->getParam(PARAM_0), 99);
+  ASSERT_EQ(state->getParam(PARAM_1), 33);
+}
