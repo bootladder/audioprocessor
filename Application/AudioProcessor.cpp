@@ -34,9 +34,9 @@ AudioProcessor_ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
 
 
 
-static ProcessBlock block1(ProcessBlockFunctions_GainParameterized, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-static ProcessBlock block4(ProcessBlockFunctions_ClippingDistortion, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-static ProcessBlock block5(ProcessBlockFunctions_FIRLowPass, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static RealProcessBlock block1(ProcessBlockFunctions_GainParameterized, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static RealProcessBlock block4(ProcessBlockFunctions_ClippingDistortion, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static RealProcessBlock block5(ProcessBlockFunctions_FIRLowPass, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
 static sample_t * __testing__process_sample_buffer(sample_t * sampleBuf)
 {

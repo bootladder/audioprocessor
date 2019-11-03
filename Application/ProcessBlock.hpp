@@ -9,6 +9,12 @@
 typedef void (* ProcessBlockFunctionPointer)(BlockState *, sample_t *, sample_t *, uint32_t);
 
 class ProcessBlock{
+public:
+  virtual void process(sample_t * samplesToProcess) = 0;
+  virtual ~ProcessBlock() {};
+};
+
+class RealProcessBlock : public ProcessBlock{
 
   ProcessBlockFunctionPointer processFunc;
   sample_t * inputBuffer;
@@ -18,7 +24,7 @@ class ProcessBlock{
   BlockState * blockState;
 
 public:
-  ProcessBlock(ProcessBlockFunctionPointer func, uint32_t size){
+  RealProcessBlock(ProcessBlockFunctionPointer func, uint32_t size){
     processFunc = func;
     num_samples = size;
     inputBuffer = new sample_t[size];
@@ -31,6 +37,8 @@ public:
       ProcessBlockFunctions_FIRLowPass_CalculateCoefficients(2000);
     }
   }
+
+  ~RealProcessBlock(){;}
 
   sample_t * getOutputBuffer(void){
     return outputBuffer;

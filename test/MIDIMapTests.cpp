@@ -14,7 +14,7 @@ TEST(MIDIMap, AddEntry_and_Lookup)
   msg.id = 77;
   msg.value = 99;
 
-  ProcessBlock block(ProcessBlockFunctions_GainParameterized, TEST_NUM_SAMPLES);
+  RealProcessBlock block(ProcessBlockFunctions_GainParameterized, TEST_NUM_SAMPLES);
 
   MIDIMap midiMap;
   midiMap.addEntry(msg, block);
@@ -36,8 +36,8 @@ TEST(MIDIMap, AddEntry_and_Lookup_MultipleEntries)
   msg2.id = 88;
   msg2.value = 2;
 
-  ProcessBlock block1(ProcessBlockFunctions_GainParameterized, TEST_NUM_SAMPLES);
-  ProcessBlock block2(ProcessBlockFunctions_GainParameterized, TEST_NUM_SAMPLES);
+  RealProcessBlock block1(ProcessBlockFunctions_GainParameterized, TEST_NUM_SAMPLES);
+  RealProcessBlock block2(ProcessBlockFunctions_GainParameterized, TEST_NUM_SAMPLES);
 
   MIDIMap midiMap;
   midiMap.addEntry(msg1, block1);

@@ -16,7 +16,7 @@ static void init_testBuf_with_staircase(void){
 
 TEST(ProcessBlock, identity)
 {
-  ProcessBlock block(ProcessBlockFunctions_Identity, NUM_SAMPLES);
+  RealProcessBlock block(ProcessBlockFunctions_Identity, NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
@@ -29,7 +29,7 @@ TEST(ProcessBlock, identity)
 
 TEST(ProcessBlock, gain2x)
 {
-  ProcessBlock block(ProcessBlockFunctions_Gain2X, NUM_SAMPLES);
+  RealProcessBlock block(ProcessBlockFunctions_Gain2X, NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
@@ -43,7 +43,7 @@ TEST(ProcessBlock, gain2x)
 
 TEST(ProcessBlock, gainParameterized)
 {
-  ProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
+  RealProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
@@ -58,7 +58,7 @@ TEST(ProcessBlock, gainParameterized)
 
 TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositiveAndNegative)
 {
-  ProcessBlock block(ProcessBlockFunctions_ClippingDistortion, NUM_SAMPLES);
+  RealProcessBlock block(ProcessBlockFunctions_ClippingDistortion, NUM_SAMPLES);
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
     testBuf[i] = -0x8000 + (i*0x10000)/NUM_SAMPLES;
