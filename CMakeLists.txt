@@ -190,9 +190,10 @@ else()
     test/FAKE_ProcessBlockFunctions_FIRFilters.cpp
     )
   include_directories("test/googletest/googletest/include")
+  include_directories("test/googletest/googlemock/include")
 
   add_executable(${UNIT_TEST_TARGET_BASENAME} ${Sources})
-  target_link_libraries(${UNIT_TEST_TARGET_BASENAME} PUBLIC gtest_main gtest pthread "-L../test/googletest/build/lib" ${TARGET_BASENAME}-for-testing)
+  target_link_libraries(${UNIT_TEST_TARGET_BASENAME} PUBLIC gtest_main gtest gmock pthread "-L../test/googletest/build/lib" ${TARGET_BASENAME}-for-testing)
 
   add_custom_command(TARGET ${UNIT_TEST_TARGET_BASENAME} POST_BUILD
     COMMAND size ${EXECUTABLE_OUTPUT_PATH}/${UNIT_TEST_TARGET_BASENAME}

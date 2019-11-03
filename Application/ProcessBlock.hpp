@@ -5,12 +5,14 @@
 #include "SamplingTypes.hpp"
 #include "BlockState.hpp"
 #include "ProcessBlockFunctions_FIRFilters.hpp"
+#include "MIDI_Message.h"
 
 typedef void (* ProcessBlockFunctionPointer)(BlockState *, sample_t *, sample_t *, uint32_t);
 
 class ProcessBlock{
 public:
   virtual void process(sample_t * samplesToProcess) = 0;
+  virtual void MIDIMessageReceived(MIDI_Message_t & msg) = 0;
   virtual ~ProcessBlock() {};
 };
 
@@ -54,6 +56,10 @@ public:
     }
 
     processFunc(blockState, inputBuffer, outputBuffer, num_samples);
+  }
+
+  void MIDIMessageReceived(MIDI_Message_t & msg){
+    (void)msg;
   }
 };
 
