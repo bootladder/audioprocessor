@@ -1,4 +1,7 @@
 #include "MIDI_Input_Task.h"
+
+#include "MIDIMessageHandler.h"
+
 #include "BSP_UART.h"
 #include "FreeRTOS.h"
 #include "queue.h"
@@ -6,12 +9,6 @@
 
 static void my_app_callback(uint8_t * buf);
 static void Send_Hello_Message(void);
-
-typedef struct {
-  uint8_t type;
-  uint8_t id;
-  uint8_t value;
-} MIDI_Message_t;
 
 static QueueHandle_t xQueue_MIDIMessages;
 static MIDI_Message_t received_MIDI_message;
@@ -29,11 +26,8 @@ void MIDI_Input_Task(void * argument)
   xQueue_MIDIMessages = xQueueCreate(32, sizeof(MIDI_Message_t));
 
   while(1){
-
     xQueueReceive( xQueue_MIDIMessages, &received_MIDI_message, portMAX_DELAY );
-
-    //call command handler with MIDI_Message_t
-    My_Logger_LogStringLn("Message Receievd");
+    MIDIMessageHandler_Handle(received_MIDI_message);
   }
 }
 

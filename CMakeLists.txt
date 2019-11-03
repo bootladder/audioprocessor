@@ -19,6 +19,7 @@ set(SOURCE_ROOT_DIR "../")
 
 set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/ProcessBlockFunctions.cpp"
+  "${SOURCE_ROOT_DIR}/Application/MIDIMessageHandler.cpp"
   )
 
 set(C_SOURCES_NOT_FOR_TESTING
@@ -184,6 +185,7 @@ else()
   set(Sources
     test/ExampleTests.cpp
     test/ProcessBlockTests.cpp
+    test/MIDIMessageHandlerTests.cpp
     test/FAKE_ProcessBlockFunctions_FIRFilters.cpp
     )
   include_directories("test/googletest/googletest/include")
