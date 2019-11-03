@@ -13,6 +13,7 @@ class ProcessBlock{
 public:
   virtual void process(sample_t * samplesToProcess) = 0;
   virtual void MIDIMessageReceived(MIDI_Message_t & msg) = 0;
+  virtual sample_t * getOutputBuffer(void) = 0;
   virtual ~ProcessBlock() {};
 };
 
@@ -40,7 +41,10 @@ public:
     }
   }
 
-  ~RealProcessBlock(){;}
+  ~RealProcessBlock(){
+    delete []inputBuffer;
+    delete []outputBuffer;
+  }
 
   sample_t * getOutputBuffer(void){
     return outputBuffer;

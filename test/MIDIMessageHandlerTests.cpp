@@ -19,7 +19,8 @@ class MockProcessBlock : public ProcessBlock{
 public:
   MockProcessBlock(ProcessBlockFunctionPointer func, uint32_t size){;}
   MOCK_METHOD(void, MIDIMessageReceived, (MIDI_Message_t & msg), (override));
-  MOCK_METHOD(void, process, (sample_t * samplesToProcess));
+  MOCK_METHOD(void, process, (sample_t * samplesToProcess), (override));
+  MOCK_METHOD(sample_t*, getOutputBuffer, (), (override));
 };
 
 TEST(MIDIMessageHandler, MapInitialized_HandleCalled_BlockReceivesMessage)
