@@ -186,6 +186,7 @@ else()
     test/ExampleTests.cpp
     test/ProcessBlockTests.cpp
     test/MIDIMessageHandlerTests.cpp
+    test/MIDIMapTests.cpp
     test/FAKE_ProcessBlockFunctions_FIRFilters.cpp
     )
   include_directories("test/googletest/googletest/include")
