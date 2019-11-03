@@ -32,6 +32,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
   _receive_callback(myreceivebuf);
 }
 
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  LOG_ONESHOT("UART Error");
+}
+
 void UART5_IRQHandler(void){
   HAL_UART_IRQHandler(&UartHandle);
 }
@@ -40,7 +45,7 @@ void BSP_UART_Init(void)
 {
   UartHandle.Instance        = UART5;
 
-  UartHandle.Init.BaudRate   = 115200;
+  UartHandle.Init.BaudRate   = 9600;
   UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
   UartHandle.Init.StopBits   = UART_STOPBITS_1;
   UartHandle.Init.Parity     = UART_PARITY_NONE;
@@ -82,6 +87,6 @@ static void BSP_UART_MspInit(void)
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   // Interrupts
-  HAL_NVIC_SetPriority(UART5_IRQn, 0, 1);
+  HAL_NVIC_SetPriority(UART5_IRQn, 7, 8); //priority, subpriority
   HAL_NVIC_EnableIRQ(UART5_IRQn);
 }
