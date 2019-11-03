@@ -1,11 +1,40 @@
+#include "My_Logger.h"
+
 #include "BSP_UART.h"
 #include "stm32f7xx_hal.h"
 
-
+#define STATIC_UART_RECEIVE_BUFFER_SIZE 256    //length is a uint8_t anyway, can't overflow
 
 static void BSP_UART_MspInit(void);
 
 static UART_HandleTypeDef UartHandle;
+static BSP_UART_Receive_Callback_t _receive_callback;
+static uint8_t myreceivebuf[STATIC_UART_RECEIVE_BUFFER_SIZE];
+
+
+void BSP_UART_Receive_Bytes(uint8_t length, BSP_UART_Receive_Callback_t callback){
+  _receive_callback = callback;
+  HAL_UART_Receive_IT(&UartHandle, myreceivebuf, length);
+}
+
+void BSP_UART_Transmit_Bytes_Blocking(uint8_t * buf, uint16_t size)
+{
+  HAL_UART_Transmit(&UartHandle, buf, size, 1000);
+}
+
+// ISR Defined here!!!
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+
+  LOG_ONESHOT("UART RX COMPLETE CALLBACK");
+  (void)huart;
+  //ASSERT CALLBACK EXISTS???
+  //CHECK FOR UART ERRORS?
+  _receive_callback(myreceivebuf);
+}
+
+void UART5_IRQHandler(void){
+  HAL_UART_IRQHandler(&UartHandle);
+}
 
 void BSP_UART_Init(void)
 {
@@ -24,12 +53,6 @@ void BSP_UART_Init(void)
   if(HAL_UART_Init(&UartHandle) != HAL_OK)
     {
       ;
-    }
-
-  uint8_t txBuffer[] = "MIDI Receiver Up:  115200 Baud \n";
-
-  if(HAL_UART_Transmit(&UartHandle, txBuffer, sizeof(txBuffer), 1000) != HAL_OK)
-    {
     }
 }
 
@@ -57,4 +80,8 @@ static void BSP_UART_MspInit(void)
   GPIO_InitStruct.Alternate = GPIO_AF8_UART5;
 
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  // Interrupts
+  HAL_NVIC_SetPriority(UART5_IRQn, 0, 1);
+  HAL_NVIC_EnableIRQ(UART5_IRQn);
 }

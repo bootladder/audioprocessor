@@ -1,6 +1,7 @@
 #include "My_Logger.h"
 #include "BSP_Bringup.h"
 #include "BSP_Audio_Task.h"
+#include "MIDI_Input_Task.h"
 #include "stm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -49,20 +50,30 @@ int main(void)
   */
   HAL_Init();
 
+
+  // DO NOT ADD CODE WITH DELAYS BETWEEN HAL_Init() AND STARTING THE SCHEDULER!!!!!
+
   /* Configure the system clock @ 200 Mhz */
   SystemClock_Config();
 
 
   My_BSP_Bringup();
 
-  int myPriority = 3;
   int myStackSize = 1024;
 
+  // LOWER NUMBER PRIORITIES ARE LOWER PRIORITIES
   xTaskCreate(My_Audio_Task,
               "My Audio Task",
               myStackSize,
               NULL, //task params
-              myPriority,
+              3,  //priority
+              NULL ); //task handle
+
+  xTaskCreate(MIDI_Input_Task,
+              "MIDI Input Task",
+              myStackSize,
+              NULL, //task params
+              2, //priority
               NULL ); //task handle
 
 
