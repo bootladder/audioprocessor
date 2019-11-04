@@ -1,3 +1,5 @@
+//remember this file has C linkage
+
 #include "SerialLogger.h"
 
 #include "BSP_Fast_UART.h"
