@@ -5,6 +5,7 @@
 #include "SamplingTypes.hpp"
 #include "BlockState.hpp"
 #include "ProcessBlockFunctions_FIRFilters.hpp"
+#include "ProcessBlockFunctions.hpp"
 #include "MIDI_Message.h"
 
 typedef void (* ProcessBlockFunctionPointer)(BlockState *, sample_t *, sample_t *, uint32_t);
@@ -25,6 +26,7 @@ public:
 
 class RealProcessBlock : public ProcessBlock{
 
+protected:
   ProcessBlockFunctionPointer processFunc;
   sample_t * inputBuffer;
   sample_t * outputBuffer;
@@ -42,11 +44,6 @@ public:
     outputBuffer = new sample_t[size];
 
     blockState = new BlockState();
-
-    //terrible, check function
-    if(func == ProcessBlockFunctions_FIRLowPass){
-      ProcessBlockFunctions_FIRLowPass_CalculateCoefficients(2000);
-    }
   }
 
   ~RealProcessBlock(){
@@ -89,5 +86,26 @@ public:
     midiAssignmentIndex++;
   }
 };
+
+
+
+extern "C"{
+#include "SerialLogger.h"
+}
+
+class GainBlock : public RealProcessBlock{
+public:
+  GainBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_GainParameterized, size){
+    SerialLogger_PrintLiteralString("gainblock constructed");
+  }
+};
+
+class ClippingDistortionBlock : public RealProcessBlock{
+public:
+  ClippingDistortionBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_ClippingDistortion, size){
+    SerialLogger_PrintLiteralString("clipping block constructed");
+  }
+};
+
 
 #endif

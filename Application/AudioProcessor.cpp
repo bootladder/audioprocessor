@@ -7,6 +7,7 @@ extern "C" {
 #include "ProcessBlock.hpp"
 #include "ProcessBlockFunctions.hpp"
 #include "ProcessBlockFunctions_FIRFilters.hpp"
+#include "FIRBlock.hpp"
 
 static sample_t inputSampleBuffer[MY_PROCESSING_BUFFER_SIZE_SAMPLES];
 static int16_t outputInt16Buffer[MY_PROCESSING_BUFFER_SIZE_SAMPLES];
@@ -34,22 +35,31 @@ AudioProcessor_ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
 
 
 
-static RealProcessBlock block1(ProcessBlockFunctions_GainParameterized, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-static RealProcessBlock block4(ProcessBlockFunctions_ClippingDistortion, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-static RealProcessBlock block5(ProcessBlockFunctions_FIRLowPass, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static FIRBlock firBlock(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+
+static GainBlock gainBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static GainBlock gainBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+
+static ClippingDistortionBlock clippingBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+//ProcessBlockFunctions_ClippingDistortion, 
 
 static sample_t * __testing__process_sample_buffer(sample_t * sampleBuf)
 {
   sample_t * out;
-  block1.process(sampleBuf);
-  out = block1.getOutputBuffer();
-  block1.setParam(PARAM_0, 2);
 
-  block4.process(out);
-  out = block4.getOutputBuffer();
+  gainBlock1.setParam(PARAM_0, 4);  //don't set the param every time
+  gainBlock1.process(sampleBuf);
+  out = gainBlock1.getOutputBuffer();
 
-  block5.process(out);
-  out = block5.getOutputBuffer();
+  clippingBlock1.process(out);
+  out = clippingBlock1.getOutputBuffer();
+
+  gainBlock2.setParam(PARAM_0, 2);  //don't set the param every time
+  gainBlock2.process(out);
+  out = gainBlock2.getOutputBuffer();
+
+  firBlock.process(out);
+  out = firBlock.getOutputBuffer();
 
   return out;
 }
