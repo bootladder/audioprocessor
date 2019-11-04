@@ -46,6 +46,7 @@ set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Task.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Bringup.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_UART.c"
+  "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Fast_UART.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_LED.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Codec_IO.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"

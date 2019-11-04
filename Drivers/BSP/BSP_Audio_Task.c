@@ -7,6 +7,8 @@
 #include "queue.h"
 #include "My_Logger.h"
 
+#include "BSP_Fast_UART.h"
+
 static void CopySampleBuffer(int16_t * dst, int16_t * src, uint32_t num_samples);
 
 enum {
@@ -26,6 +28,11 @@ void My_Audio_Task(void * argument)
   RUN_AND_LOG( My_BSP_Audio_Init(); );
 
   xQueue_BufferStatus = xQueueCreate(32, sizeof(BufferStatusMessage_t));
+
+  //temporarily init here..  move this somewhere else
+  BSP_Fast_UART_Init();
+  static uint8_t txbuf[] = "hurrrr durrrrrr";
+  BSP_Fast_UART_Transmit_Bytes_Blocking(txbuf, sizeof(txbuf));
 
   while (1)
   {
