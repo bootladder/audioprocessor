@@ -2,6 +2,7 @@
 #include "BSP_Bringup.h"
 #include "BSP_Audio_Task.h"
 #include "MIDI_Input_Task.h"
+#include "Messager_Task.h"
 #include "stm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -66,11 +67,18 @@ int main(void)
               "My Audio Task",
               myStackSize,
               NULL, //task params
-              3,  //priority
+              4,  //priority
               NULL ); //task handle
 
   xTaskCreate(MIDI_Input_Task,
               "MIDI Input Task",
+              myStackSize,
+              NULL, //task params
+              3, //priority
+              NULL ); //task handle
+
+  xTaskCreate(Messager_Task,
+              "Messager Task",
               myStackSize,
               NULL, //task params
               2, //priority

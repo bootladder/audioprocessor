@@ -27,6 +27,7 @@ set(C_SOURCES_FOR_TESTING
 set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"
   "${SOURCE_ROOT_DIR}/Application/MIDI_Input_Task.c"
+  "${SOURCE_ROOT_DIR}/Application/Messager_Task.c"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlockFunctions_FIRFilters.cpp"
 
   "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"
