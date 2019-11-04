@@ -53,6 +53,8 @@ set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Codec_IO.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"
 
+  "${SOURCE_ROOT_DIR}/Help/SerialLogger.c"
+
   "${SOURCE_ROOT_DIR}/FreeRTOS/portable/GCC/ARM_CM7/r0p1/port.c"
   "${SOURCE_ROOT_DIR}/FreeRTOS/tasks.c"
   "${SOURCE_ROOT_DIR}/FreeRTOS/list.c"
@@ -188,6 +190,7 @@ else()
     test/MIDIMessageHandlerTests.cpp
     test/MIDIMapTests.cpp
     test/FAKE_ProcessBlockFunctions_FIRFilters.cpp
+    test/FAKE_SerialLogger.c
     )
   include_directories("test/googletest/googletest/include")
   include_directories("test/googletest/googlemock/include")
