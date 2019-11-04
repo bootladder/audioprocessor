@@ -1,5 +1,5 @@
 #include "stm32f7xx_hal.h"
-#include "My_Logger.h"
+#include "MemoryLogger.h"
 #include "BSP_LED.h"
 
 extern void xPortSysTickHandler(void);

@@ -1,7 +1,7 @@
 extern "C"{
 #include "MIDIMessageHandler.h"
 #include "BSP_Fast_UART.h"
-#include "My_Logger.h"
+#include "MemoryLogger.h"
 }
 
 #include "MIDIMessageHandler.hpp"
@@ -18,7 +18,7 @@ extern "C" void MIDIMessageHandler_Handle(MIDI_Message_t message)
     return;
 
   block->MIDIMessageReceived(message);
-  My_Logger_LogStringLn("hurr");
+  MemoryLogger_LogStringLn("hurr");
   //SerialLogger_PrintLiteralString("Hurr Durr I'm a string literal\n");
 }
 

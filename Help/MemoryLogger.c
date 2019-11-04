@@ -1,4 +1,4 @@
-#include "My_Logger.h"
+#include "MemoryLogger.h"
 #include "tinyprintf.h"
 
 #define BUFFER_SIZE 1024*16  //large buffer size here
@@ -7,13 +7,13 @@ static char * log_ptr = log_buffer;
 
 
 
-void My_Logger_LogString(char * const str)
+void MemoryLogger_LogString(char * const str)
 {
   int bytesWritten = tfp_snprintf(log_ptr, BUFFER_SIZE, "%s", str);
   log_ptr += bytesWritten;
 }
 
-void My_Logger_LogStringLn(char * const str)
+void MemoryLogger_LogStringLn(char * const str)
 {
   //don't allow writing past the buffer
 
@@ -24,7 +24,7 @@ void My_Logger_LogStringLn(char * const str)
   log_ptr += bytesWritten;
 }
 
-void My_Logger_LogFilenameAndLine(char * const str, int line)
+void MemoryLogger_LogFilenameAndLine(char * const str, int line)
 {
   //don't allow writing past the buffer
 
@@ -40,7 +40,7 @@ void My_Logger_LogFilenameAndLine(char * const str, int line)
 
 char * logger_oneshotstrings[100];
 
-void My_Logger_SetOneTime(MY_LOGGER_ONESHOTS index, char * const str)
+void MemoryLogger_SetOneTime(MY_LOGGER_ONESHOTS index, char * const str)
 {
   logger_oneshotstrings[index] = str;
 }

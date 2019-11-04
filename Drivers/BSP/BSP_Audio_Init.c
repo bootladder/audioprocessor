@@ -4,7 +4,7 @@
 
 #include "stm32f7xx_hal.h"
 #include "wm8994.h"
-#include "My_Logger.h"
+#include "MemoryLogger.h"
 
 #define MY_DMA_BYTES_PER_FRAME 8
 #define MY_DMA_BYTES_PER_MSIZE 2
@@ -95,7 +95,7 @@ void My_BSP_Audio_Init(void)
 
   RUN_AND_LOG( wm8994_Init(AUDIO_I2C_ADDRESS, INPUT_DEVICE_INPUT_LINE_1 | OUTPUT_DEVICE_HEADPHONE, volume, frequency); );
 
-  My_Logger_LogStringLn("codec initted");
+  MemoryLogger_LogStringLn("codec initted");
 
   RUN_AND_LOG( HAL_SAI_Transmit_DMA(&haudio_out_sai, saiDMATransmitBuffer, MY_DMA_BUFFER_SIZE_MSIZES); );
   RUN_AND_LOG( HAL_SAI_Receive_DMA( &haudio_in_sai,  saiDMAReceiveBuffer,  MY_DMA_BUFFER_SIZE_MSIZES); );

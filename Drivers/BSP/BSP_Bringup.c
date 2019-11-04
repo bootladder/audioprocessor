@@ -1,6 +1,6 @@
 #include "BSP_Bringup.h"
 #include "BSP_UART.h"
-#include "My_Logger.h"
+#include "MemoryLogger.h"
 #include "BSP_Audio_Init.h"
 #include "BSP_LED.h"
 

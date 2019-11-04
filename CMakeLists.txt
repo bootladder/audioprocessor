@@ -20,6 +20,8 @@ set(SOURCE_ROOT_DIR "../")
 set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/ProcessBlockFunctions.cpp"
   "${SOURCE_ROOT_DIR}/Application/MIDIMessageHandler.cpp"
+  "${SOURCE_ROOT_DIR}/Help/MemoryLogger.c"
+  "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
   )
 
 set(C_SOURCES_NOT_FOR_TESTING
@@ -50,9 +52,6 @@ set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_LED.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Codec_IO.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"
-
-  "${SOURCE_ROOT_DIR}/Help/My_Logger.c"
-  "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
 
   "${SOURCE_ROOT_DIR}/FreeRTOS/portable/GCC/ARM_CM7/r0p1/port.c"
   "${SOURCE_ROOT_DIR}/FreeRTOS/tasks.c"

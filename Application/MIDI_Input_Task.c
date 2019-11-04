@@ -5,7 +5,7 @@
 #include "BSP_UART.h"
 #include "FreeRTOS.h"
 #include "queue.h"
-#include "My_Logger.h"
+#include "MemoryLogger.h"
 
 static void my_app_callback(uint8_t * buf);
 static void Send_Hello_Message(void);
