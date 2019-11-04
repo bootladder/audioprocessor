@@ -23,6 +23,7 @@ void ProcessBlockFunctions_GainParameterized(BlockState * state, sample_t * in, 
 
 void ProcessBlockFunctions_ClippingDistortion(BlockState * state, sample_t * in, sample_t * out, uint32_t size)
 {
+  (void)state;
   //clip half way, both ends
   sample_t max = (sample_t) 0x8000/2;
   sample_t min = (sample_t) -(0x8000/2);

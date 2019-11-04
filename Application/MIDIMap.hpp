@@ -17,6 +17,7 @@ class MIDIMap
   MIDIMapEntry table[64];
 
 public:
+  MIDIMap(){index = 0;}
   void addEntry(MIDI_Message_t &msg, ProcessBlock &block){
     MIDIMapEntry e = {
       msg, &block
