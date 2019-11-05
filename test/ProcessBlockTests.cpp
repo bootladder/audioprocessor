@@ -47,12 +47,29 @@ TEST(ProcessBlock, gainParameterized)
 
   init_testBuf_with_staircase();
 
-  block.setParam(PARAM_0, 3);
+  // the gain formula is 8.0 * value / 128.0
+  block.setParam(PARAM_0, 128);
   block.process(testBuf);
   sample_t * out = block.getOutputBuffer();
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_EQ((sample_t)i*3, out[i]);
+    ASSERT_EQ((sample_t)i*8, out[i]);
+  }
+}
+
+TEST(ProcessBlock, attenuation)
+{
+  RealProcessBlock block(ProcessBlockFunctions_Attenuation, NUM_SAMPLES);
+
+  init_testBuf_with_staircase();
+
+  // the attenuation formula is 2.0 * value / 128.0
+  block.setParam(PARAM_0, 64);
+  block.process(testBuf);
+  sample_t * out = block.getOutputBuffer();
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    ASSERT_EQ((sample_t)i*1, out[i]);
   }
 }
 
