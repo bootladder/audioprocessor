@@ -76,7 +76,7 @@ public:
       if(midiAssignments[i].msg.id != msg.id)
         continue;
 
-      blockState->setParam(midiAssignments[i].paramId, msg.value);
+      setParam(midiAssignments[i].paramId, msg.value);
     }
   }
 

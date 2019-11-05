@@ -14,13 +14,15 @@ MIDIMap * midiMap = 0;
 
 extern "C" void MIDIMessageHandler_Handle(MIDI_Message_t message)
 {
-  SerialLogger_PrintLiteralString("Hurr Durr I'm a string literal\n");
+  SerialLogger_PrintLiteralString("MIDI IN: ");
+
   ProcessBlock * block = midiMap->lookup(message);
   if(block == 0)
     return;
 
+  SerialLogger_PrintLiteralString("MATCH\n");
+
   block->MIDIMessageReceived(message);
-  MemoryLogger_LogStringLn("hurr");
 }
 
 void MIDIMessageHandler_RegisterMIDIMap(MIDIMap & map)

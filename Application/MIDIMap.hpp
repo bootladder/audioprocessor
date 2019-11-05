@@ -18,7 +18,7 @@ class MIDIMap
 
 public:
   MIDIMap(){index = 0;}
-  void addEntry(MIDI_Message_t &msg, ProcessBlock &block){
+  void addEntry(MIDI_Message_t msg, ProcessBlock &block){
     MIDIMapEntry e = {
       msg, &block
     };
@@ -26,7 +26,7 @@ public:
     index++;
   }
 
-  ProcessBlock * lookup(MIDI_Message_t & msg){
+  ProcessBlock * lookup(MIDI_Message_t msg){
     for(int i=0; i<index; i++){
       //check equality with type and ID
       if(table[i].msg.type != msg.type)
