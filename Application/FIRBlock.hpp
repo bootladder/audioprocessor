@@ -20,17 +20,19 @@ extern "C"{
 
 
 class FIRBlock : public RealProcessBlock{
-  sample_t * filter_coefficients;
+  float * filter_coefficients;
+  float * firStateF32;
   arm_fir_instance_f32 S;
 
 public:
-  FIRBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_Gain2X, size){
+  FIRBlock(uint32_t size, uint32_t cutoff) : RealProcessBlock(ProcessBlockFunctions_Gain2X, size){
+    filter_coefficients = new float[MAX_NUM_TAPS];
+    firStateF32 = new float[MAX_BLOCK_SIZE + MAX_NUM_TAPS - 1];
+    calculateCoefficients(cutoff);
     MemoryLogger_LogStringLn("FIR Coeffs calcualtd");
-    calculateCoefficients(200);
   }
 
   void process(sample_t * samplesToProcess){
-    LOG_ONESHOT("FIR PRocess");
     for(uint32_t i=0; i<num_samples; i++){
       inputBuffer[i] = samplesToProcess[i];
     }
@@ -39,32 +41,30 @@ public:
 
   void calculateCoefficients(uint32_t cutoff)
   {
-    static float coeffs[MAX_NUM_TAPS];
     float fc_normalized = (float) (cutoff / SAMPLE_FREQUENCY);
     float coefficient_sum = 0.0;
-    int numTaps = 1024;
+    int numTaps = 512;
 
     for(int i=0; i<numTaps;i++)
       {
         int n = i - (numTaps/2);  //apply a time shift of numTaps/2
         if(n==0){  //sinc(1) = 1
-          coeffs[i] = 1;
-          coefficient_sum += coeffs[i];
+          filter_coefficients[i] = 1;
+          coefficient_sum += filter_coefficients[i];
           continue;
         }
         float x = 3.1415927*fc_normalized*(float)n;
-        coeffs[i] = fc_normalized * arm_sin_f32(x) / x;
+        filter_coefficients[i] = fc_normalized * arm_sin_f32(x) / x;
 
-        coefficient_sum += coeffs[i];
+        coefficient_sum += filter_coefficients[i];
       }
 
     //normalize coefficients to 1
     for(int i=0;i<numTaps;i++){
-      coeffs[i] = coeffs[i] / coefficient_sum;
+      filter_coefficients[i] = filter_coefficients[i] / coefficient_sum;
     }
 
-    static float firStateF32[MAX_BLOCK_SIZE + MAX_NUM_TAPS - 1];
-    arm_fir_init_f32(&S, numTaps, coeffs, &firStateF32[0], MY_PROCESSING_BUFFER_SIZE_SAMPLES); //blocksize
+    arm_fir_init_f32(&S, numTaps, filter_coefficients, &firStateF32[0], MY_PROCESSING_BUFFER_SIZE_SAMPLES); //blocksize
   }
 
 };
