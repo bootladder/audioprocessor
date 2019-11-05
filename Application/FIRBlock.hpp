@@ -67,5 +67,25 @@ public:
     arm_fir_init_f32(&S, numTaps, filter_coefficients, &firStateF32[0], MY_PROCESSING_BUFFER_SIZE_SAMPLES); //blocksize
   }
 
+  //overriding setParam to update coefficients here
+  void setParam(BlockParamIdentifier_t id, int value){
+
+    uint32_t new_cutoff = value * 10000 / 128;
+    calculateCoefficients(new_cutoff);
+  }
+
+  //need to redefine midimessagereceived, i belive due to early binding
+  void MIDIMessageReceived(MIDI_Message_t & msg){
+    for(int i=0; i<midiAssignmentIndex; i++){
+      if(midiAssignments[i].msg.type != msg.type)
+        continue;
+      if(midiAssignments[i].msg.id != msg.id)
+        continue;
+
+      setParam(midiAssignments[i].paramId, msg.value);
+    }
+  }
+
+
 };
 #endif
