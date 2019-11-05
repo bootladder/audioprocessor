@@ -25,8 +25,8 @@ void ProcessBlockFunctions_ClippingDistortion(BlockState * state, sample_t * in,
 {
   (void)state;
   //clip half way, both ends
-  sample_t max = (sample_t) 0x8000/2;
-  sample_t min = (sample_t) -(0x8000/2);
+  sample_t max = (sample_t) 0x4000/2;
+  sample_t min = (sample_t) -(0x4000/2);
 
   for(uint32_t i=0; i<size; i++){
     if(in[i] > max)

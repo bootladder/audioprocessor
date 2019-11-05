@@ -1,5 +1,5 @@
 extern "C" {
-#include "AudioProcessor.h"
+#include "AudioProcessor.h"  //Audio_Task uses this interface
 }
 
 #include "SamplingTypes.hpp"
@@ -16,6 +16,50 @@ public:
 };
 
 AudioProcessor audioProcessor;
+
+
+static FIRBlock firBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 5000);
+static FIRBlock firBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 20000);
+
+static GainBlock gainBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static GainBlock gainBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+
+static ClippingDistortionBlock clippingBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+
+void AudioProcessor::init(void)
+{
+  //block graph
+
+  //midi map
+
+  //initial block params
+  gainBlock1.setParam(PARAM_0, 6);
+  gainBlock2.setParam(PARAM_0, 2);
+}
+
+sample_t * AudioProcessor::process(sample_t * sampleBuf)
+{
+  sample_t * out;
+
+  gainBlock1.process(sampleBuf);
+  out = gainBlock1.getOutputBuffer();
+
+  clippingBlock1.process(out);
+  out = clippingBlock1.getOutputBuffer();
+
+  //  gainBlock2.process(out);
+  //  out = gainBlock2.getOutputBuffer();
+
+  firBlock1.process(out);
+  out = firBlock1.getOutputBuffer();
+
+  firBlock2.process(out);
+  out = firBlock2.getOutputBuffer();
+
+  return out;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
 
 // This is called by the FreeRTOS Audio Task, every time the DMA receive buf fills up.
 // Takes int16_t samples, processes, returns int16_t samples.
@@ -48,40 +92,3 @@ extern "C" void AudioProcessor_Init(void)
   audioProcessor.init();
 }
 
-
-
-static FIRBlock firBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 200);
-static FIRBlock firBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 800);
-
-static GainBlock gainBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-static GainBlock gainBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-
-static ClippingDistortionBlock clippingBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-
-void AudioProcessor::init(void)
-{
-}
-
-sample_t * AudioProcessor::process(sample_t * sampleBuf)
-{
-  sample_t * out;
-
-  gainBlock1.setParam(PARAM_0, 4);  //don't set the param every time
-  gainBlock1.process(sampleBuf);
-  out = gainBlock1.getOutputBuffer();
-
-  clippingBlock1.process(out);
-  out = clippingBlock1.getOutputBuffer();
-
-  //  gainBlock2.setParam(PARAM_0, 2);  //don't set the param every time
-  //  gainBlock2.process(out);
-  //  out = gainBlock2.getOutputBuffer();
-
-  firBlock1.process(out);
-  out = firBlock1.getOutputBuffer();
-
-  firBlock2.process(out);
-  out = firBlock2.getOutputBuffer();
-
-  return out;
-}
