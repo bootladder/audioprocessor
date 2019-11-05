@@ -27,6 +27,8 @@ void My_Audio_Task(void * argument)
   (void)argument;
   RUN_AND_LOG( My_BSP_Audio_Init(); );
 
+  RUN_AND_LOG( AudioProcessor_Init() );
+
   xQueue_BufferStatus = xQueueCreate(32, sizeof(BufferStatusMessage_t));
 
   //temporarily init here..  move this somewhere else
