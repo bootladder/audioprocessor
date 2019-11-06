@@ -8,8 +8,11 @@ extern "C" {
 #include "ProcessBlockFunctions.hpp"
 #include "ProcessBlockFunctions_FIRFilters.hpp"
 #include "FIRBlock.hpp"
+#include "MIDIMap.hpp"
+#include "MIDIMessageHandler.hpp"
 
 class AudioProcessor{
+  MIDIMap midiMap;
 public:
   void init(void);
   sample_t * process(sample_t * sampleBuf);
@@ -31,10 +34,23 @@ void AudioProcessor::init(void)
   //block graph
 
   //midi map
+  MIDI_Message_t gainBlock1_midi_message = {MIDI_CONTROL_CHANGE,1,1};
+  MIDI_Message_t gainBlock2_midi_message = {MIDI_CONTROL_CHANGE,2,1};
+  MIDI_Message_t firBlock1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
+  midiMap.addEntry(gainBlock1_midi_message, gainBlock1);
+  midiMap.addEntry(gainBlock2_midi_message, gainBlock2);
+  midiMap.addEntry(firBlock1_midi_message, firBlock1);
+
+  MIDIMessageHandler_RegisterMIDIMap(midiMap);
+
+  //block MIDI assignments
+  gainBlock1.assignMIDIMessageToParameter(gainBlock1_midi_message, PARAM_0);
+  gainBlock2.assignMIDIMessageToParameter(gainBlock2_midi_message, PARAM_0);
+  firBlock1.assignMIDIMessageToParameter(firBlock1_midi_message, PARAM_0);
 
   //initial block params
-  gainBlock1.setParam(PARAM_0, 6);
-  gainBlock2.setParam(PARAM_0, 2);
+  gainBlock1.setParam(PARAM_0, 1);
+  gainBlock2.setParam(PARAM_0, 1);
 }
 
 sample_t * AudioProcessor::process(sample_t * sampleBuf)
@@ -47,14 +63,14 @@ sample_t * AudioProcessor::process(sample_t * sampleBuf)
   clippingBlock1.process(out);
   out = clippingBlock1.getOutputBuffer();
 
-  //  gainBlock2.process(out);
-  //  out = gainBlock2.getOutputBuffer();
+  gainBlock2.process(out);
+  out = gainBlock2.getOutputBuffer();
 
   firBlock1.process(out);
   out = firBlock1.getOutputBuffer();
 
-  firBlock2.process(out);
-  out = firBlock2.getOutputBuffer();
+  //firBlock2.process(out);
+  //out = firBlock2.getOutputBuffer();
 
   return out;
 }
