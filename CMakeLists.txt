@@ -102,7 +102,7 @@ string(APPEND TARGET_SPECIFIC_FLAGS "  -mcpu=cortex-m7 -mthumb  -DARM_MATH_CM7 "
 string(APPEND TARGET_SPECIFIC_FLAGS " -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
 
 set(CMAKE_C_FLAGS "  -std=c99                      ")
-set(CMAKE_CXX_FLAGS "  -std=c++11                      ")
+set(CMAKE_CXX_FLAGS "  -std=c++14                      ")
 string(APPEND CMAKE_C_FLAGS ${COMMON_FLAGS})
 string(APPEND CMAKE_CXX_FLAGS ${COMMON_FLAGS})
 
