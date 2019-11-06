@@ -13,7 +13,7 @@ void MemoryLogger_LogString(char * const str)
   log_ptr += bytesWritten;
 }
 
-void MemoryLogger_LogStringLn(char * const str)
+void MemoryLogger_LogStringLn(const char * const str)
 {
   //don't allow writing past the buffer
 

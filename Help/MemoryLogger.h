@@ -1,6 +1,6 @@
 
 void MemoryLogger_LogString(char * const str);
-void MemoryLogger_LogStringLn(char * const str);
+void MemoryLogger_LogStringLn(const char * const str);
 void MemoryLogger_LogLineNumber(int line);
 void MemoryLogger_LogStringSpace(char * const str);
 void MemoryLogger_LogFilenameAndLine(char * const str, int line);

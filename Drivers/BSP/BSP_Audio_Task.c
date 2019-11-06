@@ -9,8 +9,6 @@
 
 #include "BSP_Fast_UART.h"
 
-static void CopySampleBuffer(int16_t * dst, int16_t * src, uint32_t num_samples);
-
 enum {
   BUFFER_STATUS_LOWER_HALF_FULL,
   BUFFER_STATUS_UPPER_HALF_FULL
@@ -70,15 +68,6 @@ void My_Audio_Task(void * argument)
     }
   }
 }
-
-
-static void CopySampleBuffer(int16_t * dst, int16_t * src, uint32_t num_samples)
-{
-  for(uint32_t i=0; i < num_samples; i++){
-    dst[i] = src[i];
-  }
-}
-
 
 
 // DMA receive complete ISRs
