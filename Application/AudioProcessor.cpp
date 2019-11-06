@@ -1,5 +1,5 @@
 extern "C" {
-#include "AudioProcessor.h"  //Audio_Task uses this interface
+#include "AudioProcessor.h"  //Audio_Task uses this interface to pass control to AudioProcessor
 }
 
 #include "SamplingTypes.hpp"
@@ -20,6 +20,10 @@ public:
 
 AudioProcessor audioProcessor;
 
+
+// Currently, everything is configured statically and manually.
+// Eventually there will be some configuration format
+// That will be parsed into the Processing Graph and the MIDI Map.
 
 static FIRBlock firBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 5000);
 static FIRBlock firBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 20000);
@@ -103,6 +107,10 @@ AudioProcessor_ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
   return outputInt16Buffer;
 }
 
+
+// This is called in the BSP_Audio_Task init.
+// Could do a constructor but at this point I want the init to execute later.
+// For example, the UARTs won't be initialized when the global constructors run.
 extern "C" void AudioProcessor_Init(void)
 {
   audioProcessor.init();
