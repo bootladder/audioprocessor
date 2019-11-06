@@ -10,6 +10,7 @@ extern "C" {
 #include "FIRBlock.hpp"
 #include "MIDIMap.hpp"
 #include "MIDIMessageHandler.hpp"
+#include "BlockGraph.hpp"
 
 class AudioProcessor{
   MIDIMap midiMap;
@@ -33,10 +34,19 @@ static GainBlock gainBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
 static ClippingDistortionBlock clippingBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
+static BlockGraph blockGraph = {
+  .start = &gainBlock1,
+  .edges = {
+    {&gainBlock1, &clippingBlock1},
+    {&clippingBlock1, &gainBlock2},
+    {&gainBlock2, &firBlock1},
+    {0,0}, // null terminator
+  },
+  .end = &firBlock1,
+};
+
 void AudioProcessor::init(void)
 {
-  //block graph
-
   //midi map
   MIDI_Message_t gainBlock1_midi_message = {MIDI_CONTROL_CHANGE,1,1};
   MIDI_Message_t gainBlock2_midi_message = {MIDI_CONTROL_CHANGE,2,1};
@@ -59,24 +69,16 @@ void AudioProcessor::init(void)
 
 sample_t * AudioProcessor::process(sample_t * sampleBuf)
 {
-  sample_t * out;
+  blockGraph.start->process(sampleBuf);
 
-  gainBlock1.process(sampleBuf);
-  out = gainBlock1.getOutputBuffer();
+  auto edges = blockGraph.edges;
+  int i=0;
+  while(edges[i].block != 0){
+    edges[i].next->process(edges[i].block->getOutputBuffer());
+    i++;
+  }
 
-  clippingBlock1.process(out);
-  out = clippingBlock1.getOutputBuffer();
-
-  gainBlock2.process(out);
-  out = gainBlock2.getOutputBuffer();
-
-  firBlock1.process(out);
-  out = firBlock1.getOutputBuffer();
-
-  //firBlock2.process(out);
-  //out = firBlock2.getOutputBuffer();
-
-  return out;
+  return blockGraph.end->getOutputBuffer();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
