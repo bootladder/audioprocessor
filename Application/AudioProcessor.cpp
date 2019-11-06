@@ -49,8 +49,8 @@ void AudioProcessor::init(void)
   firBlock1.assignMIDIMessageToParameter(firBlock1_midi_message, PARAM_0);
 
   //initial block params
-  gainBlock1.setParam(PARAM_0, 1);
-  gainBlock2.setParam(PARAM_0, 1);
+  gainBlock1.setMIDIParameter(PARAM_0, 1);
+  gainBlock2.setMIDIParameter(PARAM_0, 1);
 }
 
 sample_t * AudioProcessor::process(sample_t * sampleBuf)

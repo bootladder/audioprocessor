@@ -68,7 +68,7 @@ public:
   FIRBlock(uint32_t size, uint32_t cutoff) : RealProcessBlock(ProcessBlockFunctions_Gain2X, size){
     filter_coefficients = new float[MAX_NUM_TAPS];
     firStateF32 = new float[MAX_BLOCK_SIZE + MAX_NUM_TAPS - 1];
-    calculateCoefficients(cutoff);
+    assignCoefficientArray(cutoff);
     arm_fir_init_f32(&S, MAX_NUM_TAPS, (float*)low_pass_filter_coefficients.arr[40],
                      &firStateF32[0], MY_PROCESSING_BUFFER_SIZE_SAMPLES); //blocksize
     MemoryLogger_LogStringLn("FIR Coeffs calcualtd");
@@ -81,18 +81,16 @@ public:
     arm_fir_f32(&S, inputBuffer, outputBuffer, num_samples);
   }
 
-  void calculateCoefficients(uint32_t midivalue)
+  void assignCoefficientArray(uint8_t midivalue)
   {
-    if(midivalue > 127)
-      midivalue = 127;
-
     S.pCoeffs = (float * )low_pass_filter_coefficients.arr[midivalue];
   }
 
-  //overriding setParam to update coefficients here
-  void setParam(BlockParamIdentifier_t id, int value){
-
-    calculateCoefficients(value);
+  //overriding setMIDIParameter to update coefficients here
+  //now there's only 1 parameter but there could be other parameters in this block
+  void setMIDIParameter(BlockParamIdentifier_t id, uint8_t value){
+    (void)id;
+    assignCoefficientArray(value);
   }
 
   //need to redefine midimessagereceived, i belive due to early binding
@@ -103,7 +101,7 @@ public:
       if(midiAssignments[i].msg.id != msg.id)
         continue;
 
-      setParam(midiAssignments[i].paramId, msg.value);
+      setMIDIParameter(midiAssignments[i].paramId, msg.value);
     }
   }
 };

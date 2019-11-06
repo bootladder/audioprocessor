@@ -55,7 +55,7 @@ public:
     return outputBuffer;
   }
 
-  void setParam(BlockParamIdentifier_t id, int value){
+  void setMIDIParameter(BlockParamIdentifier_t id, int value){
     blockState -> setParam(id, value);
   }
 
@@ -76,7 +76,7 @@ public:
       if(midiAssignments[i].msg.id != msg.id)
         continue;
 
-      setParam(midiAssignments[i].paramId, msg.value);
+      setMIDIParameter(midiAssignments[i].paramId, msg.value);
     }
   }
 

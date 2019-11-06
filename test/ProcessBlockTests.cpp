@@ -48,7 +48,7 @@ TEST(ProcessBlock, gainParameterized)
   init_testBuf_with_staircase();
 
   // the gain formula is 8.0 * value / 128.0
-  block.setParam(PARAM_0, 128);
+  block.setMIDIParameter(PARAM_0, 128);
   block.process(testBuf);
   sample_t * out = block.getOutputBuffer();
 
@@ -64,7 +64,7 @@ TEST(ProcessBlock, attenuation)
   init_testBuf_with_staircase();
 
   // the attenuation formula is 2.0 * value / 128.0
-  block.setParam(PARAM_0, 64);
+  block.setMIDIParameter(PARAM_0, 64);
   block.process(testBuf);
   sample_t * out = block.getOutputBuffer();
 
