@@ -188,6 +188,7 @@ else()
     test/ProcessBlockTests.cpp
     test/MIDIMessageHandlerTests.cpp
     test/MIDIMapTests.cpp
+    test/BlockGraphTests.cpp
     test/FAKE_ProcessBlockFunctions_FIRFilters.cpp
     test/FAKE_SerialLogger.c
     )
