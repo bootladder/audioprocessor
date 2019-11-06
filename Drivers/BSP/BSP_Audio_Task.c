@@ -7,7 +7,6 @@
 #include "queue.h"
 #include "MemoryLogger.h"
 
-#include "BSP_Fast_UART.h"
 
 enum {
   BUFFER_STATUS_LOWER_HALF_FULL,
@@ -28,11 +27,6 @@ void My_Audio_Task(void * argument)
   RUN_AND_LOG( AudioProcessor_Init() );
 
   xQueue_BufferStatus = xQueueCreate(32, sizeof(BufferStatusMessage_t));
-
-  //temporarily init here..  move this somewhere else
-  BSP_Fast_UART_Init();
-  static uint8_t txbuf[] = "hurrrr durrrrrr";
-  BSP_Fast_UART_Transmit_Bytes_Blocking(txbuf, sizeof(txbuf));
 
   while (1)
   {

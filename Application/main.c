@@ -2,6 +2,7 @@
 #include "BSP_Bringup.h"
 #include "BSP_Audio_Task.h"
 #include "MIDI_Input_Task.h"
+#include "Monitor_Task.h"
 #include "stm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
