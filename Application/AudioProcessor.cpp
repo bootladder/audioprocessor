@@ -26,49 +26,61 @@ AudioProcessor audioProcessor;
 // Eventually there will be some configuration format
 // That will be parsed into the Processing Graph and the MIDI Map.
 
-static FIRBlock firBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 5000);
-static FIRBlock firBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 20000);
-
-static GainBlock gainBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-static GainBlock gainBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
-
-static ClippingDistortionBlock clippingBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static FIRBlock                 firBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 5000);
+static FIRBlock                 firBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES, 20000);
+static GainBlock                gainBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static GainBlock                gainBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static GainBlock                gainBlock3(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static ClippingDistortionBlock  clippingBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static MixerBlock               mixerBlock(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
 static BlockGraph blockGraph = {
   .start = &gainBlock1,
   .edges = {
-    {&gainBlock1, &clippingBlock1},
-    {&clippingBlock1, &gainBlock2},
-    {&gainBlock2, &firBlock1},
+    {&gainBlock1, &gainBlock2},
+    {&gainBlock1, &gainBlock3},
+    {&gainBlock3, &clippingBlock1},
+    {&clippingBlock1, &mixerBlock},
+    {&gainBlock2, &mixerBlock},
+
+    {&mixerBlock, &firBlock2},
     {0,0}, // null terminator
   },
-  .end = &firBlock1,
+  .end = &firBlock2,
 };
 
 void AudioProcessor::init(void)
 {
-  //midi map
+  //midi map assigns messages to blocks
   MIDI_Message_t gainBlock1_midi_message = {MIDI_CONTROL_CHANGE,1,1};
   MIDI_Message_t gainBlock2_midi_message = {MIDI_CONTROL_CHANGE,2,1};
+  MIDI_Message_t gainBlock3_midi_message = {MIDI_CONTROL_CHANGE,3,1};
   MIDI_Message_t firBlock1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
   midiMap.addEntry(gainBlock1_midi_message, gainBlock1);
   midiMap.addEntry(gainBlock2_midi_message, gainBlock2);
+  midiMap.addEntry(gainBlock3_midi_message, gainBlock3);
   midiMap.addEntry(firBlock1_midi_message, firBlock1);
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
 
-  //block MIDI assignments
+  //block MIDI assignments assign messages to block params
   gainBlock1.assignMIDIMessageToParameter(gainBlock1_midi_message, PARAM_0);
   gainBlock2.assignMIDIMessageToParameter(gainBlock2_midi_message, PARAM_0);
+  gainBlock3.assignMIDIMessageToParameter(gainBlock3_midi_message, PARAM_0);
   firBlock1.assignMIDIMessageToParameter(firBlock1_midi_message, PARAM_0);
 
-  //initial block params
-  gainBlock1.setMIDIParameter(PARAM_0, 1);
-  gainBlock2.setMIDIParameter(PARAM_0, 1);
+  //initial block params, these are MIDI values, ie 0 to 127
+  gainBlock1.setMIDIParameter(PARAM_0, 16);
+  gainBlock2.setMIDIParameter(PARAM_0, 16);
+  gainBlock3.setMIDIParameter(PARAM_0, 16);
 }
 
 sample_t * AudioProcessor::process(sample_t * sampleBuf)
 {
+  // call reset() on all of the blocks (particularly to reset the mixers' accumulators)
+  mixerBlock.reset();
+
+
   blockGraph.start->process(sampleBuf);
 
   auto edges = blockGraph.edges;

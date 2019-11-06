@@ -107,5 +107,25 @@ public:
   }
 };
 
+class MixerBlock : public RealProcessBlock {
+public:
+  MixerBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_Mixer, size){
+    reset();
+  }
+
+  //clear output buf
+  void reset(void){
+    for(uint32_t i=0; i<num_samples; i++){
+      outputBuffer[i] = (sample_t) 0;
+    }
+  }
+};
+
+class DelayBlock : public RealProcessBlock {
+public:
+  DelayBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_Delay, size){
+  }
+};
+
 
 #endif

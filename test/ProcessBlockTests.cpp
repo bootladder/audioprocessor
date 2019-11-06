@@ -90,7 +90,101 @@ TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositi
   }
 }
 
-TEST(ProcessBlock, MIDIMessageReceived_PassesTheValue)
+TEST(ProcessBlock, Mixer_2_Inputs_Mixes)
+{
+  MixerBlock mixerBlock(NUM_SAMPLES);
+
+  sample_t inputBuf1[NUM_SAMPLES];
+  sample_t inputBuf2[NUM_SAMPLES];
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    inputBuf1[i] = 2;
+    inputBuf2[i] = 3;
+  }
+
+  mixerBlock.process(inputBuf1);
+  mixerBlock.process(inputBuf2);
+
+  sample_t * out = mixerBlock.getOutputBuffer();
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    ASSERT_EQ(out[i], 5);
+  }
+}
+
+//need to clear the output buffer between subsequent mixes
+//for now, add a reset() method
+TEST(ProcessBlock, Mixer_CalledTwice_Works)
+{
+  MixerBlock mixerBlock(NUM_SAMPLES);
+
+  sample_t inputBuf1[NUM_SAMPLES];
+  sample_t inputBuf2[NUM_SAMPLES];
+  sample_t * out;
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    inputBuf1[i] = 2;
+    inputBuf2[i] = 3;
+  }
+
+  mixerBlock.process(inputBuf1);
+  mixerBlock.process(inputBuf2);
+
+  out = mixerBlock.getOutputBuffer();
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    ASSERT_EQ(out[i], 5);
+  }
+
+  //reset the mixer block
+  mixerBlock.reset();
+  // do the same thing again
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    inputBuf1[i] = 2;
+    inputBuf2[i] = 3;
+  }
+
+  mixerBlock.process(inputBuf1);
+  mixerBlock.process(inputBuf2);
+
+  out = mixerBlock.getOutputBuffer();
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    ASSERT_EQ(out[i], 5);
+  }
+}
+
+TEST(ProcessBlock, Delay)
+{
+  DelayBlock delayBlock(NUM_SAMPLES);
+
+  //output is equal to the input plus the delayed input
+  sample_t inputBuf1[NUM_SAMPLES];
+  sample_t inputBuf2[NUM_SAMPLES];
+  sample_t inputBuf3[NUM_SAMPLES];
+  sample_t inputBuf4[NUM_SAMPLES];
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    inputBuf1[i] = 1;
+    inputBuf2[i] = 2;
+    inputBuf3[i] = 3;
+    inputBuf4[i] = 4;
+  }
+
+  delayBlock.process(inputBuf1);
+  delayBlock.process(inputBuf2);
+  delayBlock.process(inputBuf3);
+  delayBlock.process(inputBuf4);
+
+  sample_t * out = delayBlock.getOutputBuffer();
+
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    ASSERT_EQ(out[i], 5);
+  }
+}
+
+TEST(ProcessBlock_MIDI, MIDIMessageReceived_PassesTheValue)
 {
   RealProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
 
@@ -108,7 +202,7 @@ TEST(ProcessBlock, MIDIMessageReceived_PassesTheValue)
   ASSERT_EQ(state->getParam(PARAM_0), 99);
 }
 
-TEST(ProcessBlock, MIDIMessageReceived_TwoMessagesAssigned_PassesTheValue)
+TEST(ProcessBlock_MIDI, MIDIMessageReceived_TwoMessagesAssigned_PassesTheValue)
 {
   RealProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
 

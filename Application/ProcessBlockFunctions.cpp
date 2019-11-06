@@ -52,3 +52,35 @@ void ProcessBlockFunctions_ClippingDistortion(BlockState * state, sample_t * in,
       out[i] = in[i];
   }
 }
+
+void ProcessBlockFunctions_Mixer(BlockState * state, sample_t * in, sample_t * out, uint32_t size)
+{
+  (void)state;
+
+  for(uint32_t i=0; i<size; i++){
+    out[i] = out[i] + in[i];
+  }
+}
+
+void ProcessBlockFunctions_Delay(BlockState * state, sample_t * in, sample_t * out, uint32_t size)
+{
+  (void)state;
+
+  //don't use the static size here
+  static sample_t lastbuf0[1024];
+  static sample_t lastbuf1[1024];
+  static sample_t lastbuf2[1024];
+
+  //add delayed input to input
+  for(uint32_t i=0; i<size; i++){
+    out[i] = in[i] + lastbuf2[i];
+  }
+
+
+  //update delay lines
+  for(uint32_t i=0; i<size; i++){
+    lastbuf2[i] = lastbuf1[i];
+    lastbuf1[i] = lastbuf0[i];
+    lastbuf0[i] = in[i];
+  }
+}
