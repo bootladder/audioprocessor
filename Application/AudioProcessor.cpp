@@ -33,6 +33,7 @@ static GainBlock                gainBlock2(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 static GainBlock                gainBlock3(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 static ClippingDistortionBlock  clippingBlock1(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 static MixerBlock               mixerBlock(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static DelayBlock               delayBlock(MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
 static BlockGraph blockGraph = {
   .start = &gainBlock1,
@@ -48,6 +49,17 @@ static BlockGraph blockGraph = {
   },
   .end = &firBlock2,
 };
+
+static BlockGraph delayTesterGraph = {
+  .start = &gainBlock1,
+  .edges = {
+    {&gainBlock1, &delayBlock},
+  },
+  .end = &delayBlock,
+};
+
+
+static BlockGraph & active_block_graph = delayTesterGraph;
 
 void AudioProcessor::init(void)
 {
@@ -81,16 +93,16 @@ sample_t * AudioProcessor::process(sample_t * sampleBuf)
   mixerBlock.reset();
 
 
-  blockGraph.start->process(sampleBuf);
+  active_block_graph.start->process(sampleBuf);
 
-  auto edges = blockGraph.edges;
+  auto edges = active_block_graph.edges;
   int i=0;
   while(edges[i].block != 0){
     edges[i].next->process(edges[i].block->getOutputBuffer());
     i++;
   }
 
-  return blockGraph.end->getOutputBuffer();
+  return active_block_graph.end->getOutputBuffer();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
