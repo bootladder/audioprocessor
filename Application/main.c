@@ -63,6 +63,19 @@ int main(void)
   int myStackSize = 1024;
 
   // LOWER NUMBER PRIORITIES ARE LOWER PRIORITIES
+
+
+  // This should be the lowest priorty task
+  // Create this task first because other tasks send messages
+  // Remember not to send messages in constructors because the message queue won't be created yet
+
+  xTaskCreate(Monitor_Task,
+              "Monitor Task",
+              myStackSize,
+              NULL, //task params
+              1, //priority
+              NULL ); //task handle
+
   xTaskCreate(My_Audio_Task,
               "My Audio Task",
               myStackSize,
@@ -76,6 +89,7 @@ int main(void)
               NULL, //task params
               2, //priority
               NULL ); //task handle
+
 
 
   vTaskStartScheduler();

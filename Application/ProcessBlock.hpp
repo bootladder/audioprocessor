@@ -8,6 +8,11 @@
 #include "ProcessBlockFunctions.hpp"
 #include "MIDI_Message.h"
 
+extern "C"{
+#include "Monitor_Task.h"
+}
+
+
 typedef void (* ProcessBlockFunctionPointer)(BlockState *, sample_t *, sample_t *, uint32_t);
 
 class MIDIAssignment{
@@ -89,21 +94,15 @@ public:
 
 
 
-extern "C"{
-#include "SerialLogger.h"
-}
-
 class GainBlock : public RealProcessBlock{
 public:
   GainBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_GainParameterized, size){
-    SerialLogger_PrintLiteralString("gainblock constructed");
   }
 };
 
 class ClippingDistortionBlock : public RealProcessBlock{
 public:
   ClippingDistortionBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_ClippingDistortion, size){
-    SerialLogger_PrintLiteralString("clipping block constructed");
   }
 };
 
