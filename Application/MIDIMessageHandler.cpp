@@ -2,7 +2,6 @@ extern "C"{
 #include "MIDIMessageHandler.h"
 #include "BSP_Fast_UART.h"
 #include "MemoryLogger.h"
-#include "SerialLogger.h"
 }
 
 #include "MIDIMessageHandler.hpp"

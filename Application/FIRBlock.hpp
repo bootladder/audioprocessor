@@ -11,7 +11,6 @@
 #include "ProcessBlock.hpp"
 
 extern "C"{
-#include "SerialLogger.h"
 #include "MemoryLogger.h"
 }
 
