@@ -60,7 +60,7 @@ public:
     return outputBuffer;
   }
 
-  void setMIDIParameter(BlockParamIdentifier_t id, int value){
+  virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
     blockState -> setParam(id, value);
   }
 
@@ -120,9 +120,41 @@ public:
   }
 };
 
+
 class DelayBlock : public RealProcessBlock {
+
+  int delayNumSamples;
+  DelayBuffer * delayBuffer;
+
 public:
-  DelayBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_Delay, size){
+  DelayBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_Identity, size){
+    delayBuffer = new DelayBuffer(1024*10);//static 10k
+    delayNumSamples = 0;
+  }
+
+  //for testing
+  int getDelayNumSamples(void){return delayNumSamples;}
+
+  void setMIDIParameter(BlockParamIdentifier_t id, int value){
+    (void)id;
+    float delayNumSamples_float = ((float)value/128.0) * 100.0 * (1.0/1000.0) * (48000.0);
+    delayNumSamples = (int) delayNumSamples_float;
+    Monitor_LogLiteralString(LOGTYPE_EVENT, "DELAY VALUE UPDATED\n");
+  }
+
+
+  void process(sample_t * samplesToProcess)
+  {
+    for(uint32_t i=0; i<num_samples; i++){
+      inputBuffer[i] = samplesToProcess[i];
+    }
+
+    //add delayed input to input
+    //add sample to delayBuffer
+    for(uint32_t i=0; i<num_samples; i++){
+      outputBuffer[i] = inputBuffer[i] + delayBuffer->getDelayedSample(delayNumSamples);
+      delayBuffer->insertSample(inputBuffer[i]);
+    }
   }
 };
 

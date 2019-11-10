@@ -61,34 +61,3 @@ void ProcessBlockFunctions_Mixer(BlockState * state, sample_t * in, sample_t * o
     out[i] = out[i] + in[i];
   }
 }
-
-void ProcessBlockFunctions_Delay(BlockState * state, sample_t * in, sample_t * out, uint32_t size)
-{
-  (void)state;
-
-  //don't use the static size here
-  static sample_t lastbuf0[1024];
-  static sample_t lastbuf1[1024];
-  static sample_t lastbuf2[1024];
-  static sample_t lastbuf3[1024];
-  static sample_t lastbuf4[1024];
-  static sample_t lastbuf5[1024];
-  static sample_t lastbuf6[1024];
-
-  //add delayed input to input
-  for(uint32_t i=0; i<size; i++){
-    out[i] = in[i] + lastbuf3[i];
-  }
-
-
-  //update delay lines
-  for(uint32_t i=0; i<size; i++){
-    lastbuf6[i] = lastbuf5[i];
-    lastbuf5[i] = lastbuf4[i];
-    lastbuf4[i] = lastbuf3[i];
-    lastbuf3[i] = lastbuf2[i];
-    lastbuf2[i] = lastbuf1[i];
-    lastbuf1[i] = lastbuf0[i];
-    lastbuf0[i] = in[i];
-  }
-}
