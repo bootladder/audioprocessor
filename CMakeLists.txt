@@ -28,6 +28,7 @@ set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"
   "${SOURCE_ROOT_DIR}/Application/MIDI_Input_Task.c"
   "${SOURCE_ROOT_DIR}/Application/Monitor_Task.c"
+  "${SOURCE_ROOT_DIR}/Application/SerialLogger_Task.c"
 
   "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"
   "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"
@@ -189,7 +190,7 @@ else()
     test/MIDIMapTests.cpp
     test/BlockGraphTests.cpp
     test/FAKE_ProcessBlockFunctions_FIRFilters.cpp
-    test/FAKE_Monitor_Task.c
+    test/FAKE_SerialLogger.c
     )
   include_directories("test/googletest/googletest/include")
   include_directories("test/googletest/googlemock/include")

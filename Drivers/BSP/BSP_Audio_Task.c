@@ -33,6 +33,8 @@ void My_Audio_Task(void * argument)
     xQueueReceive( xQueue_BufferStatus, &bufferStatusMessage, 1000 );
     LOG_ONESHOT("RECEIVED QUEUE ITEM");
 
+    Monitor_ResetTickCount();  //tracks CPU usage
+
     switch(bufferStatusMessage)
     {
     case BUFFER_STATUS_LOWER_HALF_FULL:

@@ -9,7 +9,7 @@
 #include "MIDI_Message.h"
 
 extern "C"{
-#include "Monitor_Task.h"
+#include "SerialLogger.h"
 }
 
 
@@ -139,7 +139,7 @@ public:
     (void)id;
     float delayNumSamples_float = ((float)value/128.0) * 100.0 * (1.0/1000.0) * (48000.0);
     delayNumSamples = (int) delayNumSamples_float;
-    Monitor_LogLiteralString(LOGTYPE_EVENT, "DELAY VALUE UPDATED\n");
+    SerialLogger_LogLiteralString(LOGTYPE_EVENT, "DELAY VALUE UPDATED\n");
   }
 
 

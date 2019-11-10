@@ -1,7 +1,9 @@
-
 #include "SerialLogger.h"
 
-void SerialLogger_PrintBytes(uint8_t * str, uint32_t size)
+#include <stdint.h>
+void SerialLogger_Log(LogType_t type, uint8_t * str, uint32_t size)
 {
-  (void)str;(void)size;
+  (void)type;
+  (void)str;
+  (void)size;
 }

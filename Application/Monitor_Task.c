@@ -1,45 +1,75 @@
 #include "Monitor_Task.h"
-
+#include "SerialLogger.h"
 #include "FreeRTOS.h"
-#include "queue.h"
+#include "task.h"
 
-#include "BSP_Fast_UART.h"
+#include "tinyprintf.h"
 
-typedef struct {
-  LogType_t type;
-  uint8_t * msg;
-  uint32_t size;
-} MonitorMessage_t;
+static void sendMessage(void);
+static int timeToSendMessage(void);
 
-MonitorMessage_t receivedMessage;
-static QueueHandle_t xQueue_MonitorMessages;
+volatile int idleTickCountOfLastCycle;
+volatile int monitorTickCount;
+volatile int monitoringActive;
+volatile int globalTickCount = 0;
+volatile int ticksSinceLastMessage;
 
-void Monitor_Log(LogType_t type, uint8_t * str, uint32_t size)
+void Monitor_ResetTickCount(void)
 {
-  static MonitorMessage_t txMsg;
-  txMsg.type = type;
-  txMsg.msg = str;
-  txMsg.size = size;
-  xQueueSend(xQueue_MonitorMessages, &txMsg, 1000);
+  idleTickCountOfLastCycle = monitorTickCount;
+
+  //monitoring active will stay zero until this task unblocks from the yield
+  monitoringActive = 0;
+  monitorTickCount = 0;
 }
 
+int idleHookReached = 0;
 
 void Monitor_Task(void * argument)
 {
   (void)argument;
 
-  BSP_Fast_UART_Init();
-  static uint8_t txbuf[] = "Monitor Task Ready\n";
-  BSP_Fast_UART_Transmit_Bytes_Blocking(txbuf, sizeof(txbuf));
-
-  xQueue_MonitorMessages = xQueueCreate(32, sizeof(MonitorMessage_t));
+  ticksSinceLastMessage = 0;
+  monitoringActive = 0;
 
   while(1){
-    xQueueReceive(xQueue_MonitorMessages, &receivedMessage, portMAX_DELAY);
+    taskYIELD();
+    monitoringActive = 1;
 
-    uint8_t typeBuf[1];
-    typeBuf[0] = receivedMessage.type;
-    BSP_Fast_UART_Transmit_Bytes_Blocking(typeBuf, 1);
-    BSP_Fast_UART_Transmit_Bytes_Blocking(receivedMessage.msg, receivedMessage.size);
+    if(timeToSendMessage())
+      sendMessage();
   }
+}
+
+static int timeToSendMessage(void){
+  //every second
+  if(ticksSinceLastMessage > 1000){
+    ticksSinceLastMessage = 0;
+    return 1;
+  }
+  return 0;
+}
+
+static void sendMessage(void)
+{
+  static char msg[100];
+  int size = tfp_snprintf(msg, 100, "Idle Tick Count: %d\n", idleTickCountOfLastCycle);
+  SerialLogger_Log(LOGTYPE_EVENT,msg, size);
+}
+
+void vApplicationIdleHook(void);
+void vApplicationTickHook (void);
+
+void vApplicationIdleHook(void)
+{
+  idleHookReached = 1;
+}
+
+void vApplicationTickHook (void)
+{
+  globalTickCount++;
+  ticksSinceLastMessage++;
+
+  if(monitoringActive)
+    monitorTickCount++;
 }

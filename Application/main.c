@@ -2,6 +2,7 @@
 #include "BSP_Bringup.h"
 #include "BSP_Audio_Task.h"
 #include "MIDI_Input_Task.h"
+#include "SerialLogger_Task.h"
 #include "Monitor_Task.h"
 #include "stm32f7xx_hal.h"
 #include "FreeRTOS.h"
@@ -13,8 +14,6 @@ static void MPU_Config(void);
 // Declare these somewhere else?
 void vApplicationMallocFailedHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName );
-void vApplicationIdleHook(void);
-void vApplicationTickHook (void);
 void StartIdleMonitor (void);
 void EndIdleMonitor (void);
 
@@ -69,6 +68,13 @@ int main(void)
   // Create this task first because other tasks send messages
   // Remember not to send messages in constructors because the message queue won't be created yet
 
+  xTaskCreate(SerialLogger_Task,
+              "Serial Logger Task",
+              myStackSize,
+              NULL, //task params
+              2, //priority
+              NULL ); //task handle
+
   xTaskCreate(Monitor_Task,
               "Monitor Task",
               myStackSize,
@@ -80,14 +86,14 @@ int main(void)
               "My Audio Task",
               myStackSize,
               NULL, //task params
-              3,  //priority
+              8,  //priority
               NULL ); //task handle
 
   xTaskCreate(MIDI_Input_Task,
               "MIDI Input Task",
               myStackSize,
               NULL, //task params
-              2, //priority
+              3, //priority
               NULL ); //task handle
 
 
@@ -110,13 +116,8 @@ void vApplicationMallocFailedHook( void )
 {
   while(1);
 }
-void vApplicationIdleHook(void)
-{
-}
 
-void vApplicationTickHook (void)
-{
-}
+//FREERTOS IDLE AND TICK HOOKS ARE IN MONITOR_TASK
 
 void StartIdleMonitor (void)
 {

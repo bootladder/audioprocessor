@@ -13,13 +13,13 @@ MIDIMap * midiMap = 0;
 
 extern "C" void MIDIMessageHandler_Handle(MIDI_Message_t message)
 {
-  Monitor_LogLiteralString(LOGTYPE_EVENT, "MIDI IN: ");
+  SerialLogger_LogLiteralString(LOGTYPE_EVENT, "MIDI IN: ");
 
   ProcessBlock * block = midiMap->lookup(message);
   if(block == 0)
     return;
 
-  Monitor_LogLiteralString(LOGTYPE_EVENT, "MATCH\n");
+  SerialLogger_LogLiteralString(LOGTYPE_EVENT, "MATCH\n");
 
   block->MIDIMessageReceived(message);
 }
