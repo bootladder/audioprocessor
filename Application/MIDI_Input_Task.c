@@ -2,10 +2,11 @@
 
 #include "MIDIMessageHandler.h"
 
-#include "BSP_UART.h"
+#include "BSP_UART.h" // for MIDI input
 #include "FreeRTOS.h"
 #include "queue.h"
 #include "MemoryLogger.h"
+#include "SerialLogger.h"
 
 static void my_app_callback(uint8_t * buf);
 static void Send_Hello_Message(void);
@@ -49,6 +50,6 @@ void my_app_callback(uint8_t * buf){
 
 
 static void Send_Hello_Message(void){
-  static uint8_t helloWorld[] = "MIDI Receiver Up:  115200 Baud \n";
-  BSP_UART_Transmit_Bytes_Blocking(helloWorld, sizeof(helloWorld));
+  //freaking queue isn't up yet
+  //SerialLogger_LogLiteralString(LOGTYPE_EVENT, "MIDI Receiver Up:  115200 Baud \n");
 }

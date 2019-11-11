@@ -5,6 +5,9 @@
 
 typedef enum{
   LOGTYPE_EVENT = 'L',
+  LOGTYPE_IDLE_MONITOR = 'I',
+  LOGTYPE_MIDI_MESSAGE_PROCESSED = 'M',
+  LOGTYPE_BLOCKGRAPH_UPDATE = 'B',
 } LogType_t;
 
 

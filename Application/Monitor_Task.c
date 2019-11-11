@@ -54,7 +54,7 @@ static void sendMessage(void)
 {
   static char msg[100];
   int size = tfp_snprintf(msg, 100, "Idle Tick Count: %d\n", idleTickCountOfLastCycle);
-  SerialLogger_Log(LOGTYPE_EVENT,msg, size);
+  SerialLogger_Log(LOGTYPE_IDLE_MONITOR, msg, size);
 }
 
 void vApplicationIdleHook(void);

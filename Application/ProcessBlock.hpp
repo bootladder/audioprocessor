@@ -10,6 +10,7 @@
 
 extern "C"{
 #include "SerialLogger.h"
+#include "tinyprintf.h"
 }
 
 
@@ -139,7 +140,10 @@ public:
     (void)id;
     float delayNumSamples_float = ((float)value/128.0) * 100.0 * (1.0/1000.0) * (48000.0);
     delayNumSamples = (int) delayNumSamples_float;
-    SerialLogger_LogLiteralString(LOGTYPE_EVENT, "DELAY VALUE UPDATED\n");
+
+    static char str[100];
+    int size = tfp_snprintf(str,100, "%p, Delay, %d\n", this, delayNumSamples);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
   }
 
 
