@@ -64,10 +64,12 @@ class FIRBlock : public RealProcessBlock{
 
 
 public:
-  FIRBlock(uint32_t size, uint32_t cutoff) : RealProcessBlock(ProcessBlockFunctions_Gain2X, size){
+  FIRBlock(const char * name, uint32_t size)
+    : RealProcessBlock(name, ProcessBlockFunctions_Gain2X, size){
+
     filter_coefficients = new float[MAX_NUM_TAPS];
     firStateF32 = new float[MAX_BLOCK_SIZE + MAX_NUM_TAPS - 1];
-    assignCoefficientArray(cutoff);
+    //default coeffs
     arm_fir_init_f32(&S, MAX_NUM_TAPS, (float*)low_pass_filter_coefficients.arr[40],
                      &firStateF32[0], MY_PROCESSING_BUFFER_SIZE_SAMPLES); //blocksize
     MemoryLogger_LogStringLn("FIR Coeffs calcualtd");
@@ -90,6 +92,9 @@ public:
   void setMIDIParameter(BlockParamIdentifier_t id, uint8_t value){
     (void)id;
     assignCoefficientArray(value);
+    static char str[100];
+    int size = tfp_snprintf(str,100, "%s, Cutoff(Hz), %d\n", name, value);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
   }
 
   //need to redefine midimessagereceived, i belive due to early binding

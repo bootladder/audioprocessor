@@ -5,8 +5,8 @@
 
 TEST(BlockGraph, initialize)
 {
-  GainBlock gainBlock1(1024);
-  GainBlock gainBlock2(1024);
+  GainBlock gainBlock1("name", 1024);
+  GainBlock gainBlock2("name", 1024);
   BlockGraph graph = {
     .start = &gainBlock1,
     .edges = {
@@ -15,4 +15,5 @@ TEST(BlockGraph, initialize)
     .end = &gainBlock2,
   };
 
+  (void)graph;
 }

@@ -23,7 +23,16 @@ public:
 };
 
 class ProcessBlock{
+protected:
+  const char * name;
 public:
+  ProcessBlock(void){
+    name = "hurr durr";
+  }
+  ProcessBlock(const char * name_param){
+    name = name_param;
+  }
+  const char * getName(void) {return name;}
   virtual void process(sample_t * samplesToProcess) = 0;
   virtual void MIDIMessageReceived(MIDI_Message_t & msg) = 0;
   virtual sample_t * getOutputBuffer(void) = 0;
@@ -43,6 +52,15 @@ protected:
   int midiAssignmentIndex = 0;
 
 public:
+  RealProcessBlock(const char * name, ProcessBlockFunctionPointer func, uint32_t size)
+    : ProcessBlock(name){
+    processFunc = func;
+    num_samples = size;
+    inputBuffer = new sample_t[size];
+    outputBuffer = new sample_t[size];
+
+    blockState = new BlockState();
+  }
   RealProcessBlock(ProcessBlockFunctionPointer func, uint32_t size){
     processFunc = func;
     num_samples = size;
@@ -63,6 +81,9 @@ public:
 
   virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
     blockState -> setParam(id, value);
+    static char str[100];
+    int size = tfp_snprintf(str,100, "%s, Param, %d\n", name, value);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
   }
 
   BlockState * getBlockState(void){return blockState;}
@@ -97,19 +118,22 @@ public:
 
 class GainBlock : public RealProcessBlock{
 public:
-  GainBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_GainParameterized, size){
+  GainBlock(const char * name, uint32_t size) :
+    RealProcessBlock(name, ProcessBlockFunctions_GainParameterized, size){
   }
 };
 
 class ClippingDistortionBlock : public RealProcessBlock{
 public:
-  ClippingDistortionBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_ClippingDistortion, size){
+  ClippingDistortionBlock(const char * name, uint32_t size) :
+    RealProcessBlock(name, ProcessBlockFunctions_ClippingDistortion, size){
   }
 };
 
 class MixerBlock : public RealProcessBlock {
 public:
-  MixerBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_Mixer, size){
+  MixerBlock(const char * name, uint32_t size) :
+    RealProcessBlock(name, ProcessBlockFunctions_Mixer, size){
     reset();
   }
 
@@ -128,7 +152,8 @@ class DelayBlock : public RealProcessBlock {
   DelayBuffer * delayBuffer;
 
 public:
-  DelayBlock(uint32_t size) : RealProcessBlock(ProcessBlockFunctions_Identity, size){
+  DelayBlock(const char * name, uint32_t size) :
+    RealProcessBlock(name, ProcessBlockFunctions_Identity, size){
     delayBuffer = new DelayBuffer(1024*10);//static 10k
     delayNumSamples = 0;
   }
@@ -142,7 +167,7 @@ public:
     delayNumSamples = (int) delayNumSamples_float;
 
     static char str[100];
-    int size = tfp_snprintf(str,100, "%p, Delay, %d\n", this, delayNumSamples);
+    int size = tfp_snprintf(str,100, "%s, Delay, %d\n", name, delayNumSamples);
     SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
   }
 

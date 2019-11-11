@@ -16,7 +16,7 @@ static void init_testBuf_with_staircase(void){
 
 TEST(ProcessBlock, identity)
 {
-  RealProcessBlock block(ProcessBlockFunctions_Identity, NUM_SAMPLES);
+  RealProcessBlock block("name", ProcessBlockFunctions_Identity, NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
@@ -29,7 +29,7 @@ TEST(ProcessBlock, identity)
 
 TEST(ProcessBlock, gain2x)
 {
-  RealProcessBlock block(ProcessBlockFunctions_Gain2X, NUM_SAMPLES);
+  RealProcessBlock block("name", ProcessBlockFunctions_Gain2X, NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
@@ -43,7 +43,7 @@ TEST(ProcessBlock, gain2x)
 
 TEST(ProcessBlock, gainParameterized)
 {
-  RealProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
+  RealProcessBlock block("name", ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
@@ -59,7 +59,7 @@ TEST(ProcessBlock, gainParameterized)
 
 TEST(ProcessBlock, attenuation)
 {
-  RealProcessBlock block(ProcessBlockFunctions_Attenuation, NUM_SAMPLES);
+  RealProcessBlock block("name", ProcessBlockFunctions_Attenuation, NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
@@ -75,7 +75,7 @@ TEST(ProcessBlock, attenuation)
 
 TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositiveAndNegative)
 {
-  RealProcessBlock block(ProcessBlockFunctions_ClippingDistortion, NUM_SAMPLES);
+  RealProcessBlock block("name", ProcessBlockFunctions_ClippingDistortion, NUM_SAMPLES);
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
     testBuf[i] = -0x8000 + (i*0x10000)/NUM_SAMPLES;
@@ -92,7 +92,7 @@ TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositi
 
 TEST(ProcessBlock, Mixer_2_Inputs_Mixes)
 {
-  MixerBlock mixerBlock(NUM_SAMPLES);
+  MixerBlock mixerBlock("name", NUM_SAMPLES);
 
   sample_t inputBuf1[NUM_SAMPLES];
   sample_t inputBuf2[NUM_SAMPLES];
@@ -116,7 +116,7 @@ TEST(ProcessBlock, Mixer_2_Inputs_Mixes)
 //for now, add a reset() method
 TEST(ProcessBlock, Mixer_CalledTwice_Works)
 {
-  MixerBlock mixerBlock(NUM_SAMPLES);
+  MixerBlock mixerBlock("name", NUM_SAMPLES);
 
   sample_t inputBuf1[NUM_SAMPLES];
   sample_t inputBuf2[NUM_SAMPLES];
@@ -165,7 +165,7 @@ TEST(ProcessBlockDelay, SetMIDIParameter_SetsDelayNumberOfSamples)
   float delayNumSamples_float = (64.0/128.0) * 100.0 * (1.0/1000.0) * (48000.0);
   int delayNumSamples = (int) delayNumSamples_float;
 
-  DelayBlock delayBlock(NUM_SAMPLES);
+  DelayBlock delayBlock("name", NUM_SAMPLES);
   delayBlock.setMIDIParameter(PARAM_0, 64);
 
   ASSERT_EQ(delayNumSamples, delayBlock.getDelayNumSamples());
@@ -248,7 +248,7 @@ TEST(DelayBuffer, FillUpLargeAmount)
 
 TEST(ProcessBlockDelay, DelaysCorrectNumberOfSamples)
 {
-  DelayBlock delayBlock(NUM_SAMPLES);
+  DelayBlock delayBlock("name", NUM_SAMPLES);
 
   //output is equal to the input plus the delayed input
   static sample_t inputBuf[NUM_SAMPLES*8];
@@ -284,7 +284,7 @@ TEST(ProcessBlockDelay, DelaysCorrectNumberOfSamples)
 
 TEST(ProcessBlock_MIDI, MIDIMessageReceived_PassesTheValue)
 {
-  RealProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
+  RealProcessBlock block("name", ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
 
   MIDI_Message_t msg;
   msg.type = 0x9;
@@ -302,7 +302,7 @@ TEST(ProcessBlock_MIDI, MIDIMessageReceived_PassesTheValue)
 
 TEST(ProcessBlock_MIDI, MIDIMessageReceived_TwoMessagesAssigned_PassesTheValue)
 {
-  RealProcessBlock block(ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
+  RealProcessBlock block("name", ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
 
   MIDI_Message_t msg1;
   msg1.type = 0x9;
