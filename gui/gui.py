@@ -6,9 +6,10 @@ import serial
 import networkx as nx
 import networkx.drawing.nx_pydot as nx_pydot
 import subprocess
+import queue
 
 class App:
-    def __init__(self, master):
+    def __init__(self, master, blockGraphQueue):
         self.frame = Frame(master, height=300, width=300)
 
         self.quitButton = Button(self.frame, text="QUIT", fg="red", command=self.frame.quit)
@@ -37,6 +38,7 @@ class App:
         self.graphLabel.grid(row=7, column=0, columnspan=5)
 
         self.static_i = 0
+        self.blockGraphQueue = blockGraphQueue
 
     def say_hi(self):
         print "hi there!"
@@ -58,22 +60,28 @@ class App:
         self.eventLog.see("end")
 
     def updateBlockGraphUpdateLog(self, theText):
-        # modify the graph data structure
-        # export the graph to a .graph dot file
-        # convert the dot file to a png
-        # load the png image
-        blockGraph.nodes['yay']['label'] = '%d' % self.static_i
-        self.static_i = self.static_i + 1
-        write_graph_to_file(blockGraph)
-
-        self.graphImage = PhotoImage(file="/tmp/output.png")
-        self.graphLabel.configure(image=self.graphImage)
-
         self.blockGraphUpdateLog.insert(END, theText)
         self.blockGraphUpdateLog.see("end")
 
+    def updateBlockGraphDisplay(self, pathToGraphImage):
+        self.graphImage = PhotoImage(file=pathToGraphImage)
+        self.graphLabel.configure(image=self.graphImage)
 
-def seriallogger_reader(dispatch, arg2, arg3):
+    def receivedBlockGraphUpdate(self, theText):
+        self.updateBlockGraphUpdateLog(theText)
+        # modify the graph data structure
+        blockGraph.nodes['yay']['label'] = '%d' % self.static_i
+        self.static_i = self.static_i + 1
+
+        # put the updated graph on the queue, to be picked up by the reader thread
+        if self.blockGraphQueue.full():
+            self.blockGraphQueue.get_nowait()
+        self.blockGraphQueue.put_nowait(blockGraph)
+
+
+
+
+def thread_seriallogger_reader(dispatch, arg2, arg3):
 
     with serial.Serial('/dev/ttyUSB0', 921600, timeout=2) as ser:
         while(True):
@@ -84,7 +92,7 @@ def seriallogger_reader(dispatch, arg2, arg3):
             if(line[0] in dispatch.keys()):
                 dispatch[line[0]](line[1:]) # call it
 
-def read_midi_and_pipe_to_ttyUSB(callback, ttyUSB_file, midi_file):
+def thread_read_midi_and_pipe_to_ttyUSB(callback, ttyUSB_file, midi_file):
     midi_device = subprocess.check_output("ls /dev/midi*", shell=True).strip()
     print "Found MIDI Device : " + midi_device
 
@@ -97,35 +105,52 @@ def read_midi_and_pipe_to_ttyUSB(callback, ttyUSB_file, midi_file):
                 ser.write(s)
 
 
-def write_graph_to_file(graph):
-    pydot_graph = nx_pydot.to_pydot(blockGraph)
-    png_str = pydot_graph.create_png(prog='dot')
+def thread_render_block_graph_and_callback(blockGraphQueue, callback):
 
-    #write the png to disk
-    with open("/tmp/output.png", "w") as text_file:
-        text_file.write(png_str)
+    def write_graph_to_file(graph):
+        pydot_graph = nx_pydot.to_pydot(blockGraph)
+        png_str = pydot_graph.create_png(prog='dot')
 
-    #write the dot to disk
-    nx_pydot.write_dot(blockGraph,'/tmp/output.graph')
+        #write the png to disk
+        with open("/tmp/output.png", "w") as text_file:
+            text_file.write(png_str)
+
+        #write the dot to disk
+        nx_pydot.write_dot(blockGraph,'/tmp/output.graph')
+
+    while(True):
+        # blocking read the queue
+        graph = blockGraphQueue.get()
+        write_graph_to_file(graph)
+
+        # update the display
+        callback('/tmp/output.png')
+
 
 root = Tk()
-app = App(root)
+blockGraphQueue = queue.Queue(maxsize=4)
+app = App(root, blockGraphQueue)
 
+# Serial Port Dispatch
 messageDispatch = {
     'I':app.updateIdleTickCount,
     'L':app.updateEventLog,
     'M':app.updateMidiProcessedLog,
-    'B':app.updateBlockGraphUpdateLog,
+    'B':app.receivedBlockGraphUpdate,
 }
 
-thread.start_new_thread(seriallogger_reader, (messageDispatch, 'hurr', 'durr'))
-thread.start_new_thread(read_midi_and_pipe_to_ttyUSB, (app.updateMidiControllerInput, 'hurr', 'durr'))
+thread.start_new_thread(thread_seriallogger_reader, (messageDispatch, 'hurr', 'durr'))
+
+# MIDI Controller Forwarding
+thread.start_new_thread(thread_read_midi_and_pipe_to_ttyUSB, (app.updateMidiControllerInput, 'hurr', 'durr'))
+
+# Block Graph Display Update Thread
+thread.start_new_thread(thread_render_block_graph_and_callback, (blockGraphQueue, app.updateBlockGraphDisplay))
 
 # Read the block graph
 blockGraph = nx_pydot.read_dot('test.graph')
 blockGraph.add_node('yay')
 blockGraph.nodes['yay']['label'] = 'hurr durr'
-write_graph_to_file(blockGraph)
 
 
 root.mainloop()
