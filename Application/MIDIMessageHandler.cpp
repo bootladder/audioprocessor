@@ -17,7 +17,7 @@ extern "C" void MIDIMessageHandler_Handle(MIDI_Message_t message)
 {
   ProcessBlock * block = midiMap->lookup(message);
   if(block == 0){
-    SerialLogger_LogLiteralString(LOGTYPE_MIDI_MESSAGE_PROCESSED, "MIDI IN:  NO MATCH");
+    SerialLogger_LogLiteralString(LOGTYPE_MIDI_MESSAGE_PROCESSED, "MIDI IN:  NO MATCH\n");
     return;
   }
 
