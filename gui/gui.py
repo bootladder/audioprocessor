@@ -5,6 +5,7 @@ import time
 import serial
 import networkx as nx
 import networkx.drawing.nx_pydot as nx_pydot
+import subprocess
 
 class App:
     def __init__(self, master):
@@ -84,8 +85,11 @@ def seriallogger_reader(dispatch, arg2, arg3):
                 dispatch[line[0]](line[1:]) # call it
 
 def read_midi_and_pipe_to_ttyUSB(callback, ttyUSB_file, midi_file):
+    midi_device = subprocess.check_output("ls /dev/midi*", shell=True).strip()
+    print "Found MIDI Device : " + midi_device
+
     with serial.Serial('/dev/ttyUSB1', 9600, timeout=2) as ser:
-        with open('/dev/midi1', 'r') as midi:
+        with open(midi_device, 'r') as midi:
             while(True):
                 s = midi.read(3)
                 print 'got it'
