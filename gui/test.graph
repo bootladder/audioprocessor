@@ -1,0 +1,22 @@
+digraph {
+  rankdir=LR
+  gain1 [shape=record label="gain1|{Gain|2.4}"]
+  gain2 [shape=record label="gain2|{Gain|2.4}"]
+  gain3 [shape=record label="gain3|{Gain|2.4}"]
+  clipping1 [shape=record label="clipping1|{Clip%|50}"]
+  delay [shape=record label="delay|{Millis|32}"]
+  fir1 [shape=record label="FIR LowPass 1|{Cutoff (Hz)|5200}"]
+  fir2 [shape=record label="FIR LowPass 2|{Cutoff (Hz)|1000}"]
+
+  gain1 -> gain2
+  gain1 -> gain3
+  gain3 -> clipping1
+  clipping1 -> delay
+  delay -> mixer
+  gain2 -> mixer
+
+  mixer -> fir1
+  fir1 -> fir2
+
+}
+

@@ -1,0 +1,20 @@
+digraph "G" {
+rankdir=LR;
+gain2 [label="gain2|{Gain|2.4}", shape=record];
+gain3 [label="gain3|{Gain|2.4}", shape=record];
+clipping1 [label="clipping1|{Clip%|50}", shape=record];
+gain1 [label="gain1|{Gain|2.4}", shape=record];
+mixer;
+delay [label="delay|{Millis|32}", shape=record];
+yay;
+fir1 [label="FIR LowPass 1|{Cutoff (Hz)|5200}", shape=record];
+fir2 [label="FIR LowPass 2|{Cutoff (Hz)|1000}", shape=record];
+gain2 -> mixer  [key=0];
+gain3 -> clipping1  [key=0];
+clipping1 -> delay  [key=0];
+gain1 -> gain2  [key=0];
+gain1 -> gain3  [key=0];
+mixer -> fir1  [key=0];
+delay -> mixer  [key=0];
+fir1 -> fir2  [key=0];
+}
