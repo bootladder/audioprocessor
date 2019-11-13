@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 #include "SamplingTypes.hpp"
-#include "BlockState.hpp"
-#include "ProcessBlockFunctions_FIRFilters.hpp"
 #include "MIDI_Message.h"
 
 extern "C"{
@@ -12,8 +10,10 @@ extern "C"{
 #include "tinyprintf.h"
 }
 
-
-typedef void (* ProcessBlockFunctionPointer)(BlockState *, sample_t *, sample_t *, uint32_t);
+enum BlockParamIdentifier_t{
+  PARAM_0 = 0,
+  PARAM_1 = 1,
+};
 
 class MIDIAssignment{
 public:

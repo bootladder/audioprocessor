@@ -1,7 +1,6 @@
 #ifndef __FIRBLOCK_HPP__
 #define __FIRBLOCK_HPP__
 
-#include "ProcessBlockFunctions_FIRFilters.hpp"
 #include "BSP_Audio_Buffer_Interface.h"
 #include "stm32f769xx.h" //identifies device type for FPU_PRESENT
 #include "arm_math.h"
