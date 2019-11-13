@@ -28,38 +28,38 @@ AudioProcessor audioProcessor;
 
 #define createBlock(blockClass, name) static blockClass name(#name,MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
-createBlock(FIRBlock                ,firBlock1        )
-createBlock(FIRBlock                ,firBlock2        )
-createBlock(GainBlock               ,gainBlock1       )
-createBlock(GainBlock               ,gainBlock2       )
-createBlock(GainBlock               ,gainBlock3       )
-createBlock(ClippingDistortionBlock ,clippingBlock1   )
-createBlock(MixerBlock              ,mixerBlock       )
-createBlock(DelayBlock              ,delayBlock       )
+createBlock(FIRBlock                ,fir1        )
+createBlock(FIRBlock                ,fir2        )
+createBlock(GainBlock               ,gain1       )
+createBlock(GainBlock               ,gain2       )
+createBlock(GainBlock               ,gain3       )
+createBlock(ClippingDistortionBlock ,clipping1   )
+createBlock(MixerBlock              ,mixer       )
+createBlock(DelayBlock              ,delay       )
 
 static BlockGraph blockGraph = {
-  .start = &gainBlock1,
+  .start = &gain1,
   .edges = {
-    {&gainBlock1, &gainBlock2},
-    {&gainBlock1, &gainBlock3},
-    {&gainBlock3, &clippingBlock1},
-    {&clippingBlock1, &delayBlock},
-    {&delayBlock, &mixerBlock},
-    {&gainBlock2, &mixerBlock},
+    {&gain1, &gain2},
+    {&gain1, &gain3},
+    {&gain3, &clipping1},
+    {&clipping1, &delay},
+    {&delay, &mixer},
+    {&gain2, &mixer},
 
-    {&mixerBlock, &firBlock1},
-    {&firBlock1, &firBlock2},
+    {&mixer, &fir1},
+    {&fir1, &fir2},
     {0,0}, // null terminator
   },
-  .end = &firBlock2,
+  .end = &fir2,
 };
 
 static BlockGraph delayTesterGraph = {
-  .start = &gainBlock1,
+  .start = &gain1,
   .edges = {
-    {&gainBlock1, &delayBlock},
+    {&gain1, &delay},
   },
-  .end = &delayBlock,
+  .end = &delay,
 };
 
 
@@ -68,38 +68,38 @@ static BlockGraph & active_block_graph = blockGraph;
 void AudioProcessor::init(void)
 {
   //midi map assigns messages to blocks
-  MIDI_Message_t gainBlock1_midi_message = {MIDI_CONTROL_CHANGE,1,1};
-  MIDI_Message_t gainBlock2_midi_message = {MIDI_CONTROL_CHANGE,2,1};
-  MIDI_Message_t gainBlock3_midi_message = {MIDI_CONTROL_CHANGE,3,1};
-  MIDI_Message_t firBlock1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
-  MIDI_Message_t delayBlock_midi_message = {MIDI_CONTROL_CHANGE,6,1};
-  midiMap.addEntry(gainBlock1_midi_message, gainBlock1);
-  midiMap.addEntry(gainBlock2_midi_message, gainBlock2);
-  midiMap.addEntry(gainBlock3_midi_message, gainBlock3);
-  midiMap.addEntry(firBlock1_midi_message, firBlock1);
-  midiMap.addEntry(delayBlock_midi_message, delayBlock);
+  MIDI_Message_t gain1_midi_message = {MIDI_CONTROL_CHANGE,1,1};
+  MIDI_Message_t gain2_midi_message = {MIDI_CONTROL_CHANGE,2,1};
+  MIDI_Message_t gain3_midi_message = {MIDI_CONTROL_CHANGE,3,1};
+  MIDI_Message_t fir1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
+  MIDI_Message_t delay_midi_message = {MIDI_CONTROL_CHANGE,6,1};
+  midiMap.addEntry(gain1_midi_message, gain1);
+  midiMap.addEntry(gain2_midi_message, gain2);
+  midiMap.addEntry(gain3_midi_message, gain3);
+  midiMap.addEntry(fir1_midi_message, fir1);
+  midiMap.addEntry(delay_midi_message, delay);
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
 
   //block MIDI assignments assign messages to block params
-  gainBlock1.assignMIDIMessageToParameter(gainBlock1_midi_message, PARAM_0);
-  gainBlock2.assignMIDIMessageToParameter(gainBlock2_midi_message, PARAM_0);
-  gainBlock3.assignMIDIMessageToParameter(gainBlock3_midi_message, PARAM_0);
-  firBlock1.assignMIDIMessageToParameter(firBlock1_midi_message, PARAM_0);
-  delayBlock.assignMIDIMessageToParameter(delayBlock_midi_message, PARAM_0);
+  gain1.assignMIDIMessageToParameter(gain1_midi_message, PARAM_0);
+  gain2.assignMIDIMessageToParameter(gain2_midi_message, PARAM_0);
+  gain3.assignMIDIMessageToParameter(gain3_midi_message, PARAM_0);
+  fir1.assignMIDIMessageToParameter(fir1_midi_message, PARAM_0);
+  delay.assignMIDIMessageToParameter(delay_midi_message, PARAM_0);
 
 
   // DURRR these will block the queue because they run too early
   //initial block params, these are MIDI values, ie 0 to 127
-  //gainBlock1.setMIDIParameter(PARAM_0, 16);
-  //gainBlock2.setMIDIParameter(PARAM_0, 16);
-  //gainBlock3.setMIDIParameter(PARAM_0, 16);
+  //gain1.setMIDIParameter(PARAM_0, 16);
+  //gain2.setMIDIParameter(PARAM_0, 16);
+  //gain3.setMIDIParameter(PARAM_0, 16);
 }
 
 sample_t * AudioProcessor::process(sample_t * sampleBuf)
 {
   // call reset() on all of the blocks (particularly to reset the mixers' accumulators)
-  mixerBlock.reset();
+  mixer.reset();
 
 
   active_block_graph.start->process(sampleBuf);
