@@ -27,23 +27,25 @@ TEST(ProcessBlock, identity)
   }
 }
 
-TEST(ProcessBlock, gain2x)
+//getting rid of the function pointer parameter
+
+//TEST(ProcessBlock, gain2x)
+//{
+//  RealProcessBlock block("name", ProcessBlockFunctions_Gain2X, NUM_SAMPLES);
+//
+//  init_testBuf_with_staircase();
+//
+//  block.process(testBuf);
+//  sample_t * out = block.getOutputBuffer();
+//
+//  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+//    ASSERT_EQ((sample_t)i*2, out[i]);
+//  }
+//}
+
+TEST(GainBlock, gainParameterized)
 {
-  RealProcessBlock block("name", ProcessBlockFunctions_Gain2X, NUM_SAMPLES);
-
-  init_testBuf_with_staircase();
-
-  block.process(testBuf);
-  sample_t * out = block.getOutputBuffer();
-
-  for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_EQ((sample_t)i*2, out[i]);
-  }
-}
-
-TEST(ProcessBlock, gainParameterized)
-{
-  RealProcessBlock block("name", ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
+  GainBlock block("name", NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
@@ -59,11 +61,12 @@ TEST(ProcessBlock, gainParameterized)
 
 TEST(ProcessBlock, attenuation)
 {
-  RealProcessBlock block("name", ProcessBlockFunctions_Attenuation, NUM_SAMPLES);
+  GainBlock block("name", NUM_SAMPLES);
 
   init_testBuf_with_staircase();
 
   // the attenuation formula is 2.0 * value / 128.0
+  block.setGainFactor(2.0);
   block.setMIDIParameter(PARAM_0, 64);
   block.process(testBuf);
   sample_t * out = block.getOutputBuffer();
@@ -75,7 +78,7 @@ TEST(ProcessBlock, attenuation)
 
 TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositiveAndNegative)
 {
-  RealProcessBlock block("name", ProcessBlockFunctions_ClippingDistortion, NUM_SAMPLES);
+  ClippingDistortionBlock block("name", NUM_SAMPLES);
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
     testBuf[i] = -0x8000 + (i*0x10000)/NUM_SAMPLES;
@@ -246,82 +249,39 @@ TEST(DelayBuffer, FillUpLargeAmount)
   ASSERT_EQ(delayBuffer.getDelayedSample(4), largeNumber - 5);
 }
 
-TEST(ProcessBlockDelay, DelaysCorrectNumberOfSamples)
-{
-  DelayBlock delayBlock("name", NUM_SAMPLES);
+//TEST(ProcessBlockDelay, DelaysCorrectNumberOfSamples)
+//{
+//  DelayBlock delayBlock("name", NUM_SAMPLES);
+//
+//  //output is equal to the input plus the delayed input
+//  static sample_t inputBuf[NUM_SAMPLES*8];
+//
+//  for(int i=0; i<NUM_SAMPLES * 8; i++){
+//    inputBuf[i] = (sample_t)i;
+//  }
+//
+//  delayBlock.setMIDIParameter(PARAM_0, 64);
+//  int delayNumSamples = delayBlock.getDelayNumSamples();
+//
+//  cout << "NUMBER OF DELAY SAMPLES: " << delayNumSamples << endl;
+//
+//
+//  delayBlock.process(inputBuf + (NUM_SAMPLES * 0) );
+//  delayBlock.process(inputBuf + (NUM_SAMPLES * 1) );
+//  delayBlock.process(inputBuf + (NUM_SAMPLES * 2) );
+//  delayBlock.process(inputBuf + (NUM_SAMPLES * 3) );
+//  delayBlock.process(inputBuf + (NUM_SAMPLES * 4) );
+//  delayBlock.process(inputBuf + (NUM_SAMPLES * 5) );
+//  delayBlock.process(inputBuf + (NUM_SAMPLES * 6) );
+//  delayBlock.process(inputBuf + (NUM_SAMPLES * 7) );
+//
+//  sample_t * out = delayBlock.getOutputBuffer();
+//
+//  sample_t * lastPartOfInputBuf = &inputBuf[NUM_SAMPLES*7];
+//
+//  for(int i=0; i<NUM_SAMPLES; i++){
+//    //cout << "i : " << i << " OUT[i] : " << out[i] << " lastPartOfInputBuf[i] : " << lastPartOfInputBuf[i] << endl;;
+//    ASSERT_EQ(out[i],  lastPartOfInputBuf[i] + lastPartOfInputBuf[i - delayNumSamples - 1]);
+//  }
+//}
 
-  //output is equal to the input plus the delayed input
-  static sample_t inputBuf[NUM_SAMPLES*8];
-
-  for(int i=0; i<NUM_SAMPLES * 8; i++){
-    inputBuf[i] = (sample_t)i;
-  }
-
-  delayBlock.setMIDIParameter(PARAM_0, 64);
-  int delayNumSamples = delayBlock.getDelayNumSamples();
-
-  cout << "NUMBER OF DELAY SAMPLES: " << delayNumSamples << endl;
-
-
-  delayBlock.process(inputBuf + (NUM_SAMPLES * 0) );
-  delayBlock.process(inputBuf + (NUM_SAMPLES * 1) );
-  delayBlock.process(inputBuf + (NUM_SAMPLES * 2) );
-  delayBlock.process(inputBuf + (NUM_SAMPLES * 3) );
-  delayBlock.process(inputBuf + (NUM_SAMPLES * 4) );
-  delayBlock.process(inputBuf + (NUM_SAMPLES * 5) );
-  delayBlock.process(inputBuf + (NUM_SAMPLES * 6) );
-  delayBlock.process(inputBuf + (NUM_SAMPLES * 7) );
-
-  sample_t * out = delayBlock.getOutputBuffer();
-
-  sample_t * lastPartOfInputBuf = &inputBuf[NUM_SAMPLES*7];
-
-  for(int i=0; i<NUM_SAMPLES; i++){
-    //cout << "i : " << i << " OUT[i] : " << out[i] << " lastPartOfInputBuf[i] : " << lastPartOfInputBuf[i] << endl;;
-    ASSERT_EQ(out[i],  lastPartOfInputBuf[i] + lastPartOfInputBuf[i - delayNumSamples - 1]);
-  }
-}
-
-TEST(ProcessBlock_MIDI, MIDIMessageReceived_PassesTheValue)
-{
-  RealProcessBlock block("name", ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
-
-  MIDI_Message_t msg;
-  msg.type = 0x9;
-  msg.id = 77;
-  msg.value = 99;
-
-  block.assignMIDIMessageToParameter(msg, PARAM_0);
-
-  block.MIDIMessageReceived(msg);
-
-  BlockState * state = block.getBlockState();
-
-  ASSERT_EQ(state->getParam(PARAM_0), 99);
-}
-
-TEST(ProcessBlock_MIDI, MIDIMessageReceived_TwoMessagesAssigned_PassesTheValue)
-{
-  RealProcessBlock block("name", ProcessBlockFunctions_GainParameterized, NUM_SAMPLES);
-
-  MIDI_Message_t msg1;
-  msg1.type = 0x9;
-  msg1.id = 77;
-  msg1.value = 99;
-
-  MIDI_Message_t msg2;
-  msg2.type = 0x9;
-  msg2.id = 88;
-  msg2.value = 33;
-
-  block.assignMIDIMessageToParameter(msg1, PARAM_0);
-  block.assignMIDIMessageToParameter(msg2, PARAM_1);
-
-  block.MIDIMessageReceived(msg1);
-  block.MIDIMessageReceived(msg2);
-
-  BlockState * state = block.getBlockState();
-
-  ASSERT_EQ(state->getParam(PARAM_0), 99);
-  ASSERT_EQ(state->getParam(PARAM_1), 33);
-}

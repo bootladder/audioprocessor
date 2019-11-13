@@ -25,6 +25,9 @@ public:
 class ProcessBlock{
 protected:
   const char * name;
+  MIDIAssignment midiAssignments[16];  //hard coded
+  int midiAssignmentIndex = 0;
+
 public:
   ProcessBlock(void){
     name = "hurr durr";
@@ -37,6 +40,13 @@ public:
   virtual void MIDIMessageReceived(MIDI_Message_t & msg) = 0;
   virtual sample_t * getOutputBuffer(void) = 0;
   virtual ~ProcessBlock() {};
+
+
+  void assignMIDIMessageToParameter(MIDI_Message_t & msg, BlockParamIdentifier_t id){
+    midiAssignments[midiAssignmentIndex].msg = msg;
+    midiAssignments[midiAssignmentIndex].paramId = id;
+    midiAssignmentIndex++;
+  }
 };
 
 class RealProcessBlock : public ProcessBlock{
@@ -47,10 +57,7 @@ protected:
   sample_t * outputBuffer;
   uint32_t num_samples;
 
-  BlockState * blockState;
-  MIDIAssignment midiAssignments[16];  //hard coded
-  int midiAssignmentIndex = 0;
-
+  //BlockState * blockState;
 public:
   RealProcessBlock(const char * name, ProcessBlockFunctionPointer func, uint32_t size)
     : ProcessBlock(name){
@@ -59,7 +66,7 @@ public:
     inputBuffer = new sample_t[size];
     outputBuffer = new sample_t[size];
 
-    blockState = new BlockState();
+    //blockState = new BlockState();
   }
   RealProcessBlock(ProcessBlockFunctionPointer func, uint32_t size){
     processFunc = func;
@@ -67,7 +74,7 @@ public:
     inputBuffer = new sample_t[size];
     outputBuffer = new sample_t[size];
 
-    blockState = new BlockState();
+    //blockState = new BlockState();
   }
 
   ~RealProcessBlock(){
@@ -80,20 +87,22 @@ public:
   }
 
   virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
-    blockState -> setParam(id, value);
-    static char str[100];
-    int size = tfp_snprintf(str,100, "%s, Param, %d\n", name, value);
-    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
+    //    blockState -> setParam(id, value);
+    //    static char str[100];
+    //    int size = tfp_snprintf(str,100, "%s, Param, %d\n", name, value);
+    //    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
   }
 
-  BlockState * getBlockState(void){return blockState;}
+  //BlockState * getBlockState(void){return blockState;}
 
   void process(sample_t * samplesToProcess){
     for(uint32_t i=0; i<num_samples; i++){
       inputBuffer[i] = samplesToProcess[i];
+      outputBuffer[i] = inputBuffer[i];
     }
 
-    processFunc(blockState, inputBuffer, outputBuffer, num_samples);
+    //default function is identity
+    //processFunc(blockState, inputBuffer, outputBuffer, num_samples);
   }
 
   void MIDIMessageReceived(MIDI_Message_t & msg){
@@ -107,19 +116,45 @@ public:
     }
   }
 
-  void assignMIDIMessageToParameter(MIDI_Message_t & msg, BlockParamIdentifier_t id){
-    midiAssignments[midiAssignmentIndex].msg = msg;
-    midiAssignments[midiAssignmentIndex].paramId = id;
-    midiAssignmentIndex++;
-  }
 };
 
 
+// delete this
+#include <iostream>
+using namespace std;
 
 class GainBlock : public RealProcessBlock{
+  float gain;
+  float gainFactor;
 public:
   GainBlock(const char * name, uint32_t size) :
     RealProcessBlock(name, ProcessBlockFunctions_GainParameterized, size){
+    gain = 1.0;
+    gainFactor = 8.0;
+  }
+
+  void setGainFactor(float factor){
+    gainFactor = factor;
+  }
+
+  void setMIDIParameter(BlockParamIdentifier_t id, int value){
+    (void)id;
+
+    gain = (float)value * gainFactor /128.0;
+
+    static char str[100];
+    int size = tfp_snprintf(str,100, "%s, Gain, %d\n", name, value);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
+  }
+
+  void process(sample_t * samplesToProcess)
+  {
+    for(uint32_t i=0; i<num_samples; i++){
+      inputBuffer[i] = samplesToProcess[i];
+    }
+    for(uint32_t i=0; i<num_samples; i++){
+      outputBuffer[i] = inputBuffer[i] * gain;
+    }
   }
 };
 
@@ -127,6 +162,26 @@ class ClippingDistortionBlock : public RealProcessBlock{
 public:
   ClippingDistortionBlock(const char * name, uint32_t size) :
     RealProcessBlock(name, ProcessBlockFunctions_ClippingDistortion, size){
+  }
+
+  void process(sample_t * samplesToProcess)
+  {
+    for(uint32_t i=0; i<num_samples; i++){
+      inputBuffer[i] = samplesToProcess[i];
+    }
+
+    //clip half way, both ends
+    sample_t max = (sample_t) 0x4000/2;
+    sample_t min = (sample_t) -(0x4000/2);
+
+    for(uint32_t i=0; i<num_samples; i++){
+      if(inputBuffer[i] > max)
+        outputBuffer[i] = max;
+      else if(inputBuffer[i] < min)
+        outputBuffer[i] = min;
+      else
+        outputBuffer[i] = inputBuffer[i];
+    }
   }
 };
 
@@ -141,6 +196,17 @@ public:
   void reset(void){
     for(uint32_t i=0; i<num_samples; i++){
       outputBuffer[i] = (sample_t) 0;
+    }
+  }
+
+  void process(sample_t * samplesToProcess)
+  {
+    for(uint32_t i=0; i<num_samples; i++){
+      inputBuffer[i] = samplesToProcess[i];
+    }
+
+    for(uint32_t i=0; i<num_samples; i++){
+      outputBuffer[i] = outputBuffer[i] + inputBuffer[i];
     }
   }
 };
@@ -181,7 +247,11 @@ public:
     //add delayed input to input
     //add sample to delayBuffer
     for(uint32_t i=0; i<num_samples; i++){
-      outputBuffer[i] = inputBuffer[i] + delayBuffer->getDelayedSample(delayNumSamples);
+      outputBuffer[i] = inputBuffer[i]
+        + 0.5* delayBuffer->getDelayedSample(delayNumSamples)
+        + 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)
+        + 0.5* delayBuffer->getDelayedSample(delayNumSamples*4)
+        ;
       delayBuffer->insertSample(inputBuffer[i]);
     }
   }

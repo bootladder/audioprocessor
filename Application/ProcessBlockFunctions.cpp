@@ -13,6 +13,8 @@ void ProcessBlockFunctions_Gain2X(BlockState * state, sample_t * in, sample_t * 
   }
 }
 
+
+//getting rid of this
 void ProcessBlockFunctions_GainParameterized(BlockState * state, sample_t * in, sample_t * out, uint32_t size)
 {
 
