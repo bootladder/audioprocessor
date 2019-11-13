@@ -69,8 +69,20 @@ class App:
 
     def receivedBlockGraphUpdate(self, theText):
         self.updateBlockGraphUpdateLog(theText)
+
         # modify the graph data structure
-        blockGraph.nodes['yay']['label'] = '%d' % self.static_i
+        items = theText.strip().split(',')
+        node_name = items[0]
+        if node_name not in blockGraph.nodes:
+            print 'name : ' + node_name + 'not in nodes: '
+            print blockGraph.nodes.items()
+            return
+
+        def make_graphviz_label(name, param, value):
+            label = "%s|{%s|%s}" %(name, param, value)
+            return label
+
+        blockGraph.nodes[node_name]['label'] = '%s' % make_graphviz_label(items[0], items[1], items[2])
         self.static_i = self.static_i + 1
 
         # put the updated graph on the queue, to be picked up by the reader thread
