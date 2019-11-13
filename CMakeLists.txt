@@ -18,7 +18,6 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(SOURCE_ROOT_DIR "../")
 
 set(C_SOURCES_FOR_TESTING
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlockFunctions.cpp"
   "${SOURCE_ROOT_DIR}/Application/MIDIMessageHandler.cpp"
   "${SOURCE_ROOT_DIR}/Help/MemoryLogger.c"
   "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
@@ -187,7 +186,6 @@ else()
     test/ExampleTests.cpp
     test/ProcessBlockTests.cpp
     test/MIDIMessageHandlerTests.cpp
-    test/MIDIMapTests.cpp
     test/BlockGraphTests.cpp
     test/FAKE_ProcessBlockFunctions_FIRFilters.cpp
     test/FAKE_SerialLogger.c

@@ -3,7 +3,6 @@ using namespace std;
 #include "gtest/gtest.h"
 
 #include "ProcessBlock.hpp"
-#include "ProcessBlockFunctions.hpp"
 
 #define NUM_SAMPLES 1024
 static sample_t testBuf[NUM_SAMPLES];
@@ -13,35 +12,6 @@ static void init_testBuf_with_staircase(void){
     testBuf[i] = i;
   }
 }
-
-TEST(ProcessBlock, identity)
-{
-  RealProcessBlock block("name", ProcessBlockFunctions_Identity, NUM_SAMPLES);
-
-  init_testBuf_with_staircase();
-
-  block.process(testBuf);
-
-  for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_EQ((sample_t)i, testBuf[i]);
-  }
-}
-
-//getting rid of the function pointer parameter
-
-//TEST(ProcessBlock, gain2x)
-//{
-//  RealProcessBlock block("name", ProcessBlockFunctions_Gain2X, NUM_SAMPLES);
-//
-//  init_testBuf_with_staircase();
-//
-//  block.process(testBuf);
-//  sample_t * out = block.getOutputBuffer();
-//
-//  for(uint32_t i=0; i<NUM_SAMPLES; i++){
-//    ASSERT_EQ((sample_t)i*2, out[i]);
-//  }
-//}
 
 TEST(GainBlock, gainParameterized)
 {

@@ -5,7 +5,6 @@ extern "C" {
 #include "SamplingTypes.hpp"
 #include "BSP_Audio_Buffer_Interface.h"
 #include "ProcessBlock.hpp"
-#include "ProcessBlockFunctions.hpp"
 #include "ProcessBlockFunctions_FIRFilters.hpp"
 #include "FIRBlock.hpp"
 #include "MIDIMap.hpp"

@@ -5,7 +5,6 @@
 #include "SamplingTypes.hpp"
 #include "BlockState.hpp"
 #include "ProcessBlockFunctions_FIRFilters.hpp"
-#include "ProcessBlockFunctions.hpp"
 #include "MIDI_Message.h"
 
 extern "C"{
@@ -38,6 +37,10 @@ public:
   const char * getName(void) {return name;}
   virtual void process(sample_t * samplesToProcess) = 0;
   virtual void MIDIMessageReceived(MIDI_Message_t & msg) = 0;
+
+  virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
+    (void)id;(void)value;
+  }
   virtual sample_t * getOutputBuffer(void) = 0;
   virtual ~ProcessBlock() {};
 
@@ -52,29 +55,16 @@ public:
 class RealProcessBlock : public ProcessBlock{
 
 protected:
-  ProcessBlockFunctionPointer processFunc;
   sample_t * inputBuffer;
   sample_t * outputBuffer;
   uint32_t num_samples;
 
-  //BlockState * blockState;
 public:
-  RealProcessBlock(const char * name, ProcessBlockFunctionPointer func, uint32_t size)
+  RealProcessBlock(const char * name, uint32_t size)
     : ProcessBlock(name){
-    processFunc = func;
     num_samples = size;
     inputBuffer = new sample_t[size];
     outputBuffer = new sample_t[size];
-
-    //blockState = new BlockState();
-  }
-  RealProcessBlock(ProcessBlockFunctionPointer func, uint32_t size){
-    processFunc = func;
-    num_samples = size;
-    inputBuffer = new sample_t[size];
-    outputBuffer = new sample_t[size];
-
-    //blockState = new BlockState();
   }
 
   ~RealProcessBlock(){
@@ -86,23 +76,12 @@ public:
     return outputBuffer;
   }
 
-  virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
-    //    blockState -> setParam(id, value);
-    //    static char str[100];
-    //    int size = tfp_snprintf(str,100, "%s, Param, %d\n", name, value);
-    //    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
-  }
-
-  //BlockState * getBlockState(void){return blockState;}
-
   void process(sample_t * samplesToProcess){
     for(uint32_t i=0; i<num_samples; i++){
       inputBuffer[i] = samplesToProcess[i];
       outputBuffer[i] = inputBuffer[i];
     }
-
     //default function is identity
-    //processFunc(blockState, inputBuffer, outputBuffer, num_samples);
   }
 
   void MIDIMessageReceived(MIDI_Message_t & msg){
@@ -119,16 +98,12 @@ public:
 };
 
 
-// delete this
-#include <iostream>
-using namespace std;
-
 class GainBlock : public RealProcessBlock{
   float gain;
   float gainFactor;
 public:
   GainBlock(const char * name, uint32_t size) :
-    RealProcessBlock(name, ProcessBlockFunctions_GainParameterized, size){
+    RealProcessBlock(name, size){
     gain = 1.0;
     gainFactor = 8.0;
   }
@@ -161,7 +136,7 @@ public:
 class ClippingDistortionBlock : public RealProcessBlock{
 public:
   ClippingDistortionBlock(const char * name, uint32_t size) :
-    RealProcessBlock(name, ProcessBlockFunctions_ClippingDistortion, size){
+    RealProcessBlock(name, size){
   }
 
   void process(sample_t * samplesToProcess)
@@ -188,7 +163,7 @@ public:
 class MixerBlock : public RealProcessBlock {
 public:
   MixerBlock(const char * name, uint32_t size) :
-    RealProcessBlock(name, ProcessBlockFunctions_Mixer, size){
+    RealProcessBlock(name, size){
     reset();
   }
 
@@ -212,6 +187,45 @@ public:
 };
 
 
+
+
+
+class DelayBuffer{
+  sample_t * delayBuffer;
+  int index; //points to where the newest sample is
+  int size ;
+public:
+  DelayBuffer(int size_param){
+    delayBuffer = new sample_t[size_param];
+    size = size_param;
+    index = 0;
+  }
+
+  void insertSample(sample_t sample){
+    index++;
+    if(index >= size){
+      index = 0;
+    }
+
+    delayBuffer[index] = sample;
+  }
+
+  sample_t getDelayedSample(int delay){
+
+    int indexToReturn;
+    if(delay <= index){
+      indexToReturn = (index - delay);
+      return delayBuffer[indexToReturn];
+    }
+
+    else{
+      indexToReturn = (size) - (delay - index);
+      return delayBuffer[indexToReturn];
+    }
+
+  }
+};
+
 class DelayBlock : public RealProcessBlock {
 
   int delayNumSamples;
@@ -219,7 +233,7 @@ class DelayBlock : public RealProcessBlock {
 
 public:
   DelayBlock(const char * name, uint32_t size) :
-    RealProcessBlock(name, ProcessBlockFunctions_Identity, size){
+    RealProcessBlock(name, size){
     delayBuffer = new DelayBuffer(1024*10);//static 10k
     delayNumSamples = 0;
   }
