@@ -45,11 +45,11 @@ static BlockGraph blockGraph = {
     {&delay, &mixer},
     {&gain2, &mixer},
 
-    {&mixer, &fir1},
-    {&fir1, &fir2},
+    //    {&mixer, &fir1},
+    //    {&fir1, &fir2},
     {0,0}, // null terminator
   },
-  .end = &fir2,
+  .end = &mixer,
 };
 
 static BlockGraph delayTesterGraph = {
@@ -85,13 +85,6 @@ void AudioProcessor::init(void)
   gain3.assignMIDIMessageToParameter(gain3_midi_message, PARAM_0);
   fir1.assignMIDIMessageToParameter(fir1_midi_message, PARAM_0);
   delay.assignMIDIMessageToParameter(delay_midi_message, PARAM_0);
-
-
-  // DURRR these will block the queue because they run too early
-  //initial block params, these are MIDI values, ie 0 to 127
-  //gain1.setMIDIParameter(PARAM_0, 16);
-  //gain2.setMIDIParameter(PARAM_0, 16);
-  //gain3.setMIDIParameter(PARAM_0, 16);
 }
 
 sample_t * AudioProcessor::process(sample_t * sampleBuf)

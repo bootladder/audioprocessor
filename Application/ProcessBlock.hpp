@@ -97,7 +97,6 @@ public:
 
 };
 
-
 class GainBlock : public RealProcessBlock{
   float gain;
   float gainFactor;
@@ -111,6 +110,18 @@ public:
   void setGainFactor(float factor){
     gainFactor = factor;
   }
+  char * paramToString(BlockParamIdentifier_t id){
+    (void)id;
+    static char str[10];
+    int gainFirstDigit = (int)gain;
+    tfp_snprintf(str, 10, "%d", gainFirstDigit);
+    float gainFirstDecimalfloat = (gain - gainFirstDigit) * 10.0;
+    int gainFirstDecimal = int(gainFirstDecimalfloat);
+    str[1] = '.';
+    tfp_snprintf(&str[2], 7, "%d", gainFirstDecimal);
+    str[9] = 0;
+    return str;
+  }
 
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
     (void)id;
@@ -118,7 +129,7 @@ public:
     gain = (float)value * gainFactor /128.0;
 
     static char str[100];
-    int size = tfp_snprintf(str,100, "%s, Gain, %d\n", name, value);
+    int size = tfp_snprintf(str,100, "%s, Gain, %s\n", name, paramToString(id));
     SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
   }
 
@@ -234,7 +245,7 @@ class DelayBlock : public RealProcessBlock {
 public:
   DelayBlock(const char * name, uint32_t size) :
     RealProcessBlock(name, size){
-    delayBuffer = new DelayBuffer(1024*10);//static 10k
+    delayBuffer = new DelayBuffer(1024*40);//static 20k
     delayNumSamples = 0;
   }
 
@@ -262,9 +273,12 @@ public:
     //add sample to delayBuffer
     for(uint32_t i=0; i<num_samples; i++){
       outputBuffer[i] = inputBuffer[i]
-        + 0.5* delayBuffer->getDelayedSample(delayNumSamples)
+        + 0.7* delayBuffer->getDelayedSample(delayNumSamples)
         + 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)
-        + 0.5* delayBuffer->getDelayedSample(delayNumSamples*4)
+        + 0.3* delayBuffer->getDelayedSample(delayNumSamples*3)
+        + 0.2* delayBuffer->getDelayedSample(delayNumSamples*4)
+        + 0.1* delayBuffer->getDelayedSample(delayNumSamples*5)
+        + 0.1* delayBuffer->getDelayedSample(delayNumSamples*6)
         ;
       delayBuffer->insertSample(inputBuffer[i]);
     }
