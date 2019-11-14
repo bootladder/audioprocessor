@@ -1,11 +1,13 @@
 #include "Monitor_Task.h"
+#include "AudioProcessor.h"
 #include "SerialLogger.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
 #include "tinyprintf.h"
 
-static void sendMessage(void);
+static void sendIdleTickCountMessage(void);
+static void sendEdgeListMessage(void);
 static int timeToSendMessage(void);
 
 volatile int idleTickCountOfLastCycle;
@@ -36,8 +38,10 @@ void Monitor_Task(void * argument)
     taskYIELD();
     monitoringActive = 1;
 
-    if(timeToSendMessage())
-      sendMessage();
+    if(timeToSendMessage()){
+      sendIdleTickCountMessage();
+      sendEdgeListMessage();
+    }
   }
 }
 
@@ -50,11 +54,18 @@ static int timeToSendMessage(void){
   return 0;
 }
 
-static void sendMessage(void)
+static void sendIdleTickCountMessage(void)
 {
   static char msg[100];
   int size = tfp_snprintf(msg, 100, "Idle Tick Count: %d\n", idleTickCountOfLastCycle);
   SerialLogger_Log(LOGTYPE_IDLE_MONITOR, msg, size);
+}
+
+static void sendEdgeListMessage(void)
+{
+  char * msg = AudioProcessor_GetActiveBlockGraphEdgeListToString();
+  int size = strlen(msg);
+  SerialLogger_Log(LOGTYPE_EVENT, msg, size);
 }
 
 void vApplicationIdleHook(void);

@@ -142,3 +142,10 @@ extern "C" void AudioProcessor_Init(void)
   audioProcessor.init();
 }
 
+
+// Called by the monitor task to print out the edge list of the active block graph
+extern "C" char * AudioProcessor_GetActiveBlockGraphEdgeListToString(void)
+{
+  return active_block_graph.toEdgeListJSONString();
+}
+
