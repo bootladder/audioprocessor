@@ -33,7 +33,7 @@ char * BlockGraph::toEdgeListJSONString(void)
 
   static const char * edge_format =
     "{"
-    "\"block\":\"%s\""
+    "\"block\":\"%s\","
     "\"next\":\"%s\""
     "}"
     "%s";  //for the stupid comma

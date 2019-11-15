@@ -65,7 +65,7 @@ static void sendEdgeListMessage(void)
 {
   char * msg = AudioProcessor_GetActiveBlockGraphEdgeListToString();
   int size = strlen(msg);
-  SerialLogger_Log(LOGTYPE_EVENT, msg, size);
+  SerialLogger_Log(LOGTYPE_BLOCKGRAPH_EDGELIST_UPDATE, msg, size);
 }
 
 void vApplicationIdleHook(void);

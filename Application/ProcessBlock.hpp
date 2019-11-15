@@ -130,7 +130,7 @@ public:
 
     static char str[100];
     int size = tfp_snprintf(str,100, "%s, Gain, %s\n", name, paramToString(id));
-    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
   }
 
   void process(sample_t * samplesToProcess)
