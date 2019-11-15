@@ -7,6 +7,7 @@ import networkx as nx
 import networkx.drawing.nx_pydot as nx_pydot
 import subprocess
 import queue
+import json
 
 class App:
     def __init__(self, master, blockGraphQueue):
@@ -19,7 +20,9 @@ class App:
         self.midiControllerInput = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=45)
         self.midiProcessedLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=45)
         self.eventLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=50)
-        self.blockGraphUpdateLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=50)
+        self.nodeUpdateLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=50)
+        self.edgeListUpdateLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=50)
+
 
         self.graphImage = PhotoImage(file="graph.png")
         self.graphLabel = Label(self.frame, image=self.graphImage)
@@ -34,7 +37,8 @@ class App:
         self.midiControllerInput.grid(row=5, column=1,sticky=W)
         self.midiProcessedLog.grid(row=5, column=2,sticky=W)
         self.eventLog.grid(row=5, column=3,sticky=W)
-        self.blockGraphUpdateLog.grid(row=6, column=0, sticky=W)
+        self.nodeUpdateLog.grid(row=6, column=0, sticky=W)
+        self.edgeListUpdateLog.grid(row=6, column=2, sticky=W)
         self.graphLabel.grid(row=7, column=0, columnspan=5)
 
         self.static_i = 0
@@ -59,16 +63,21 @@ class App:
         self.eventLog.insert(END, theText)
         self.eventLog.see("end")
 
-    def updateBlockGraphUpdateLog(self, theText):
-        self.blockGraphUpdateLog.insert(END, theText)
-        self.blockGraphUpdateLog.see("end")
+    def updateNodeUpdateLog(self, theText):
+        self.nodeUpdateLog.insert(END, theText)
+        self.nodeUpdateLog.see("end")
+
+    def updateEdgeListUpdateLog(self, theText):
+        self.edgeListUpdateLog.insert(END,theText)
+        self.edgeListUpdateLog.see("end")
+
 
     def updateBlockGraphDisplay(self, pathToGraphImage):
         self.graphImage = PhotoImage(file=pathToGraphImage)
         self.graphLabel.configure(image=self.graphImage)
 
-    def receivedBlockGraphUpdate(self, theText):
-        self.updateBlockGraphUpdateLog(theText)
+    def receivedNodeUpdate(self, theText):
+        self.updateNodeUpdateLog(theText)
 
         # modify the graph data structure
         items = theText.strip().split(',')
@@ -89,6 +98,24 @@ class App:
         if self.blockGraphQueue.full():
             self.blockGraphQueue.get_nowait()
         self.blockGraphQueue.put_nowait(blockGraph)
+
+    def receivedEdgeListUpdate(self, theText):
+        self.updateEdgeListUpdateLog(theText)
+
+        # remove all edges
+        for edge in blockGraph.edges():
+            blockGraph.remove_edge(edge[0], edge[1]) #terrible API
+
+        # load them back in
+        edges = json.loads(theText)
+        for edge in edges:
+            blockGraph.add_edge(edge['block'], edge['next'])
+
+        # put the updated graph on the queue, to be picked up by the reader thread
+        if self.blockGraphQueue.full():
+            self.blockGraphQueue.get_nowait()
+        self.blockGraphQueue.put_nowait(blockGraph)
+
 
 
 
@@ -117,10 +144,10 @@ def thread_read_midi_and_pipe_to_ttyUSB(callback, ttyUSB_file, midi_file):
                 ser.write(s)
 
 
-def thread_render_block_graph_and_callback(blockGraphQueue, callback):
+def thread_render_block_graph_and_callback(queue, callback):
 
     def write_graph_to_file(graph):
-        pydot_graph = nx_pydot.to_pydot(blockGraph)
+        pydot_graph = nx_pydot.to_pydot(graph)
         png_str = pydot_graph.create_png(prog='dot')
 
         #write the png to disk
@@ -128,11 +155,12 @@ def thread_render_block_graph_and_callback(blockGraphQueue, callback):
             text_file.write(png_str)
 
         #write the dot to disk
-        nx_pydot.write_dot(blockGraph,'/tmp/output.graph')
+        nx_pydot.write_dot(graph,'/tmp/output.graph')
 
     while(True):
         # blocking read the queue
-        graph = blockGraphQueue.get()
+        graph = queue.get()
+
         write_graph_to_file(graph)
 
         # update the display
@@ -148,7 +176,8 @@ messageDispatch = {
     'I':app.updateIdleTickCount,
     'L':app.updateEventLog,
     'M':app.updateMidiProcessedLog,
-    'B':app.receivedBlockGraphUpdate,
+    'B':app.receivedNodeUpdate,
+    'E':app.receivedEdgeListUpdate,
 }
 
 thread.start_new_thread(thread_seriallogger_reader, (messageDispatch, 'hurr', 'durr'))
