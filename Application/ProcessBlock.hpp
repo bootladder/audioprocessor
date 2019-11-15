@@ -240,6 +240,7 @@ public:
 class DelayBlock : public RealProcessBlock {
 
   int delayNumSamples;
+  int delayMillis; //for printing
   DelayBuffer * delayBuffer;
 
 public:
@@ -256,10 +257,11 @@ public:
     (void)id;
     float delayNumSamples_float = ((float)value/128.0) * 100.0 * (1.0/1000.0) * (48000.0);
     delayNumSamples = (int) delayNumSamples_float;
+    delayMillis = (int)(((float)value/128.0) * 100.0);
 
     static char str[100];
-    int size = tfp_snprintf(str,100, "%s, Delay, %d\n", name, delayNumSamples);
-    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
+    int size = tfp_snprintf(str,100, "%s, Delay(ms), %d\n", name, delayMillis);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
   }
 
 

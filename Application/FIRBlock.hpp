@@ -17,6 +17,11 @@ extern "C"{
 #define MAX_BLOCK_SIZE 2048
 #define MAX_NUM_TAPS 512
 
+
+constexpr int midi_value_to_cutoff(int value){
+  return (value*100) + 1;
+}
+
 struct LowPassFilterCoefficients {
 
   float arr[128][MAX_NUM_TAPS]; //128 different MIDI values
@@ -26,7 +31,7 @@ struct LowPassFilterCoefficients {
 
       float * coeffs = arr[i];
 
-      uint32_t cutoff = i * 100 + 1;
+      uint32_t cutoff = midi_value_to_cutoff(i);
 
       float fc_normalized = (float) (cutoff / SAMPLE_FREQUENCY);
       float coefficient_sum = 0.0; //running total for normalization
@@ -91,8 +96,8 @@ public:
     (void)id;
     assignCoefficientArray(value);
     static char str[100];
-    int size = tfp_snprintf(str,100, "%s, Cutoff(Hz), %d\n", name, value);
-    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_UPDATE, (uint8_t *)str, size);
+    int size = tfp_snprintf(str,100, "%s, Cutoff(Hz), %d\n", name, midi_value_to_cutoff(value));
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
   }
 };
 
