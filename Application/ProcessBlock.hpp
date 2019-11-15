@@ -145,9 +145,11 @@ public:
 };
 
 class ClippingDistortionBlock : public RealProcessBlock{
+  float clipping_percent;
 public:
   ClippingDistortionBlock(const char * name, uint32_t size) :
     RealProcessBlock(name, size){
+    clipping_percent = 0.5;
   }
 
   void process(sample_t * samplesToProcess)
@@ -157,8 +159,8 @@ public:
     }
 
     //clip half way, both ends
-    sample_t max = (sample_t) 0x4000/2;
-    sample_t min = (sample_t) -(0x4000/2);
+    sample_t max = (sample_t) ((float)0x8000 * (clipping_percent));
+    sample_t min = (sample_t) ((float) -0x8000 * (clipping_percent));
 
     for(uint32_t i=0; i<num_samples; i++){
       if(inputBuffer[i] > max)
@@ -168,6 +170,16 @@ public:
       else
         outputBuffer[i] = inputBuffer[i];
     }
+  }
+
+  void setMIDIParameter(BlockParamIdentifier_t id, int value){
+    (void)id;
+
+    clipping_percent = ((float)value/128.0);
+    int clipping_percent_int = (int) (clipping_percent*100.0);
+    static char str[100];
+    int size = tfp_snprintf(str,100, "%s, Clip(%%), %d\n", name, clipping_percent_int);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
   }
 };
 

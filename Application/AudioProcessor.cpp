@@ -69,11 +69,13 @@ void AudioProcessor::init(void)
   MIDI_Message_t gain1_midi_message = {MIDI_CONTROL_CHANGE,1,1};
   MIDI_Message_t gain2_midi_message = {MIDI_CONTROL_CHANGE,2,1};
   MIDI_Message_t gain3_midi_message = {MIDI_CONTROL_CHANGE,3,1};
+  MIDI_Message_t clipping1_midi_message = {MIDI_CONTROL_CHANGE,4,1};
   MIDI_Message_t fir1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
   MIDI_Message_t delay_midi_message = {MIDI_CONTROL_CHANGE,6,1};
   midiMap.addEntry(gain1_midi_message, gain1);
   midiMap.addEntry(gain2_midi_message, gain2);
   midiMap.addEntry(gain3_midi_message, gain3);
+  midiMap.addEntry(clipping1_midi_message, clipping1);
   midiMap.addEntry(fir1_midi_message, fir1);
   midiMap.addEntry(delay_midi_message, delay);
 
@@ -83,6 +85,7 @@ void AudioProcessor::init(void)
   gain1.assignMIDIMessageToParameter(gain1_midi_message, PARAM_0);
   gain2.assignMIDIMessageToParameter(gain2_midi_message, PARAM_0);
   gain3.assignMIDIMessageToParameter(gain3_midi_message, PARAM_0);
+  clipping1.assignMIDIMessageToParameter(clipping1_midi_message, PARAM_0);
   fir1.assignMIDIMessageToParameter(fir1_midi_message, PARAM_0);
   delay.assignMIDIMessageToParameter(delay_midi_message, PARAM_0);
 }
