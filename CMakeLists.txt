@@ -184,6 +184,7 @@ else()
 
   set(Sources
     test/ExampleTests.cpp
+    test/FFTBlockTests.cpp
     test/ProcessBlockTests.cpp
     test/MIDIMessageHandlerTests.cpp
     test/BlockGraphTests.cpp
