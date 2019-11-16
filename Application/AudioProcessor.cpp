@@ -2,10 +2,12 @@ extern "C" {
 #include "AudioProcessor.h"  //Audio_Task uses this interface to pass control to AudioProcessor
 }
 
-#include "SamplingTypes.hpp"
+#include "SamplingTypes.h"
 #include "BSP_Audio_Buffer_Interface.h"
 #include "ProcessBlock.hpp"
 #include "FIRBlock.hpp"
+#include "FFTBlock.hpp"
+#include "ARMDSPFFTProcessor.hpp"
 #include "MIDIMap.hpp"
 #include "MIDIMessageHandler.hpp"
 #include "BlockGraph.hpp"
@@ -35,33 +37,46 @@ createBlock(ClippingDistortionBlock ,clipping1   )
 createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
 
-static BlockGraph blockGraph = {
+static ARMDSPFFTProcessor armDSPFFTProcessor;
+static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 4*1024, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+
+//static BlockGraph blockGraph = {
+//  .start = &gain1,
+//  .edges = {
+//    //    {&gain1, &gain2},
+//    //    {&gain1, &gain3},
+//    //    {&gain1, &fft1},
+//    //    {&gain3, &clipping1},
+//    //    {&clipping1, &delay},
+//    //    {&delay, &mixer},
+//    //    {&gain2, &mixer},
+//
+//    //    {&mixer, &fir1},
+//    //    {&fir1, &fir2},
+//    {0,0}, // null terminator
+//  },
+//  .end = &mixer,
+//}
+
+//static BlockGraph delayTesterGraph = {
+//  .start = &gain1,
+//  .edges = {
+//    {&gain1, &delay},
+//  },
+//  .end = &delay,
+//};
+
+static BlockGraph fftTesterGraph = {
   .start = &gain1,
   .edges = {
-    {&gain1, &gain2},
-    {&gain1, &gain3},
-    {&gain3, &clipping1},
-    {&clipping1, &delay},
-    {&delay, &mixer},
-    {&gain2, &mixer},
-
-    //    {&mixer, &fir1},
-    //    {&fir1, &fir2},
-    {0,0}, // null terminator
+    {&gain1, &fft1},
   },
-  .end = &mixer,
-};
-
-static BlockGraph delayTesterGraph = {
-  .start = &gain1,
-  .edges = {
-    {&gain1, &delay},
-  },
-  .end = &delay,
+  .end = &gain1,
 };
 
 
-static BlockGraph & active_block_graph = blockGraph;
+//static BlockGraph & active_block_graph = blockGraph;
+static BlockGraph & active_block_graph = fftTesterGraph;
 
 void AudioProcessor::init(void)
 {
@@ -152,3 +167,8 @@ extern "C" char * AudioProcessor_GetActiveBlockGraphEdgeListToString(void)
   return active_block_graph.toEdgeListJSONString();
 }
 
+// Called by the monitor task
+extern "C" sample_t * AudioProcessor_GetFFTSpectrum(void)
+{
+  return fft1.getSpectrum();
+}

@@ -2,7 +2,7 @@
 #define __PROCESSBLOCK_HPP__
 
 #include <stdint.h>
-#include "SamplingTypes.hpp"
+#include "SamplingTypes.h"
 #include "MIDI_Message.h"
 
 extern "C"{
