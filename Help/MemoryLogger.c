@@ -5,42 +5,35 @@
 static char log_buffer[BUFFER_SIZE];
 static char * log_ptr = log_buffer;
 
+static void _memorylogger_snprintf(const char * const format, ...);
 
 
-void MemoryLogger_LogString(char * const str)
-{
-  int bytesWritten = tfp_snprintf(log_ptr, BUFFER_SIZE, "%s", str);
-  log_ptr += bytesWritten;
+void MemoryLogger_LogString(char * const str){
+  _memorylogger_snprintf("%s", str);
 }
 
-void MemoryLogger_LogStringLn(const char * const str)
-{
-  //don't allow writing past the buffer
+void MemoryLogger_LogStringLn(const char * const str){
+  _memorylogger_snprintf("%s\n", str);
+}
 
+void MemoryLogger_LogFilenameAndLine(const char * const str, int line){
+  _memorylogger_snprintf("%s:%d ", str, line);
+}
+
+
+static void _memorylogger_snprintf(const char * const format, ...){
+
+  //don't allow writing past the buffer
   if(log_ptr >= log_buffer + BUFFER_SIZE){
     return;
   }
-  int bytesWritten = tfp_snprintf(log_ptr, BUFFER_SIZE - (log_ptr - log_buffer), "%s\n", str);
+  va_list args;
+  va_start(args, format);
+
+  int bytesWritten = tfp_vsnprintf(log_ptr, BUFFER_SIZE - (log_ptr - log_buffer), format, args);
   log_ptr += bytesWritten;
-}
 
-void MemoryLogger_LogFilenameAndLine(char * const str, int line)
-{
-  //don't allow writing past the buffer
-
-  if(log_ptr >= log_buffer + BUFFER_SIZE){
-    return;
-  }
-  int bytesWritten = tfp_snprintf(log_ptr, BUFFER_SIZE - (log_ptr - log_buffer), "%s:%d ", str, line);
-  log_ptr += bytesWritten;
+  va_end(args);
 }
 
 
-
-
-char * logger_oneshotstrings[100];
-
-void MemoryLogger_SetOneTime(MY_LOGGER_ONESHOTS index, char * const str)
-{
-  logger_oneshotstrings[index] = str;
-}
