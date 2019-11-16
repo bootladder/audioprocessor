@@ -8,7 +8,7 @@ static char * log_ptr = log_buffer;
 static void _memorylogger_snprintf(const char * const format, ...);
 
 
-void MemoryLogger_LogString(char * const str){
+void MemoryLogger_LogString(const char * const str){
   _memorylogger_snprintf("%s", str);
 }
 
