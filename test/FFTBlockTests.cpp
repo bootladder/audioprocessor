@@ -10,20 +10,24 @@ using namespace testing;
 class MockFFTProcessor : public FFTProcessor{
 public:
   MockFFTProcessor(){;}
-  MOCK_METHOD(sample_t *, calculateFFT, (sample_t * buf, uint32_t size), (override));
+  MOCK_METHOD(sample_t *, calculateFFT, (sample_t * fft_buf, sample_t * resultSpectrum, uint32_t size), (override));
 };
 
 class FakeFFTProcessor : public FFTProcessor{
 public:
   FakeFFTProcessor(){;}
-  sample_t * calculateFFT(sample_t * buf, uint32_t size){
+
+  sample_t * calculateFFT(sample_t * buf, sample_t * resultSpectrum, uint32_t size){
     //just attempt to write to all the buf locations,
     //to check for segfaults
     for(uint32_t i=0; i<size; i++){
       buf[i] = 3;
+      resultSpectrum[i] = 99;
     }
+    resultSpectrum[37] = 200;
     return buf;
   }
+
 };
 
 #define NUM_SAMPLES 1024
@@ -35,7 +39,7 @@ TEST(FFTBlock, inits_and_calls_calculate)
   static MockFFTProcessor mockFFTProcessor;
   FFTBlock block = FFTBlock("name",mockFFTProcessor, 10000, NUM_SAMPLES); //large number
 
-  EXPECT_CALL(mockFFTProcessor, calculateFFT(_, _));
+  EXPECT_CALL(mockFFTProcessor, calculateFFT(_, _, _));
 
   block.process(testBuf);
 }
@@ -81,6 +85,7 @@ TEST(FFTBlock, applies_fft_on_larger_buffer)
 
   //buffer argument starts with mostly zeros and ends with the sample buffer
   EXPECT_CALL(mockFFTProcessor, calculateFFT(AllOf(IsValidPointer(), IsArrayMostlyZeros(), DoesArrayContainSampleBuf()),
+                                             _,
                                              fft_buf_size));
 
   block.process(testBuf);
@@ -93,4 +98,30 @@ TEST(FFTBlock, fake_fft_does_not_segfault_on_larger_buffer)
   FFTBlock block = FFTBlock("name",fakeFFTProcessor, fft_buf_size, NUM_SAMPLES);
 
   block.process(testBuf);
+}
+
+TEST(FFTBlock, getSpectrum)
+{
+  int fft_buf_size = 2048;;
+  static FakeFFTProcessor fakeFFTProcessor;
+  FFTBlock block = FFTBlock("name", fakeFFTProcessor, fft_buf_size, NUM_SAMPLES);
+  block.process(testBuf);
+
+  sample_t * spectrum = block.getSpectrum();
+
+  ASSERT_EQ(spectrum[0], 99);
+}
+
+TEST(FFTBlock, getSpectrumPeakFreq_and_getSpectrumPeakMagnitude)
+{
+  int fft_buf_size = 2048;;
+  static FakeFFTProcessor fakeFFTProcessor;
+  FFTBlock block = FFTBlock("name", fakeFFTProcessor, fft_buf_size, NUM_SAMPLES);
+  block.process(testBuf);
+
+  int peakFreq = block.getSpectrumPeakFreq();
+  int peakMag = block.getSpectrumPeakMagnitude();
+
+  ASSERT_EQ(peakFreq, 37);
+  ASSERT_EQ(peakMag, 200);
 }
