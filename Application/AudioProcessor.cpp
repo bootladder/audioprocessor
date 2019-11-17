@@ -38,8 +38,9 @@ createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
 
 static ARMDSPFFTProcessor armDSPFFTProcessor;
-static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 4*1024, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 2*1024, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
+__attribute__ ((unused))
 static BlockGraph blockGraph = {
   .start = &gain1,
   .edges = {
@@ -66,7 +67,6 @@ __attribute__ ((unused))
 static BlockGraph fftTesterGraph = {
   .start = &gain1,
   .edges = {
-    {&gain1, &fft1},
   },
   .end = &gain1,
 };

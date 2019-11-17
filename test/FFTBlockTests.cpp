@@ -65,12 +65,13 @@ MATCHER(IsArrayMostlyZeros, "") {
   return true;
 }
 
-MATCHER(DoesArrayContainSampleBuf, "") {
-  for(int i=0; i<4096; i++){
-    if(arg[i] == 6)
-      return true;
+MATCHER_P2(DoesArrayContainBufAtIndex, buf, index, "") {
+  for(int i=0; i<NUM_SAMPLES/8; i++){
+    //cout << "arg is " << arg[index+i] << "and buf is " << buf[i] << endl;
+    if(arg[index + i] != buf[i])
+      return false;
   }
-  return false;
+  return true;
 }
 
 TEST(FFTBlock, applies_fft_on_larger_buffer)
@@ -79,13 +80,24 @@ TEST(FFTBlock, applies_fft_on_larger_buffer)
   static MockFFTProcessor mockFFTProcessor;
   FFTBlock block = FFTBlock("name",mockFFTProcessor, fft_buf_size, NUM_SAMPLES);
 
+  //input a staircase into the FFT block.
   for(int i=0;i<NUM_SAMPLES;i++){
-    testBuf[i] = 6;
+    testBuf[i] = i;
   }
 
+  //input should be downsampled by 8 before running the FFT
+  static sample_t downSampledTestBuf[NUM_SAMPLES/8];
+  for(int i=0;i<NUM_SAMPLES/8;i++){
+    downSampledTestBuf[i] = i * 8;
+  }
+
+
   //buffer argument starts with mostly zeros and ends with the sample buffer
-  EXPECT_CALL(mockFFTProcessor, calculateFFT(AllOf(IsValidPointer(), IsArrayMostlyZeros(), DoesArrayContainSampleBuf()),
-                                             _,
+  EXPECT_CALL(mockFFTProcessor, calculateFFT(AllOf(IsValidPointer(),
+                                                   IsArrayMostlyZeros(),
+                                                   DoesArrayContainBufAtIndex(downSampledTestBuf, 1024*4 - NUM_SAMPLES/8)
+                                                   ),
+                                             _,  //don't car about spectrum param
                                              fft_buf_size));
 
   block.process(testBuf);

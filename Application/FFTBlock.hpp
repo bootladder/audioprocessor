@@ -40,13 +40,19 @@ public:
 
   void process(sample_t * samplesToProcess)
   {
+    //downsample the sample buffer by 8        HARD CODED 8!!!!
+    for(uint32_t i=0; i<num_samples/8; i++){
+      samplesToProcess[i] = samplesToProcess[i*8];
+    }
+
+
     //zero pad the lower part of the FFT buffer
-    for(uint32_t i=0; i < (fft_buf_size - num_samples); i++){
+    for(uint32_t i=0; i < (fft_buf_size - (num_samples/8)) ; i++){
       fft_buf[i] = 0;
     }
 
     // load the upper part of the FFT buffer with the sample buffer
-    for(int i=(fft_buf_size - num_samples), j=0; i<fft_buf_size; i++){
+    for(int i=(fft_buf_size - (num_samples/8)), j=0; i<fft_buf_size; i++){
       fft_buf[i] = samplesToProcess[j++];
     }
 
@@ -63,8 +69,12 @@ public:
     }
     //max = max / fft_buf_size; //scale it down
 
+    //freq bins are sample rate / fft size
+    float freqfloat = max_index *(48000.0/8) /2048.0;
+    int freq = (int)freqfloat;
+
     static char str[100];
-    int size = tfp_snprintf(str,100, "Mag:  %08d,  Index:  %08d\n", max, max_index);
+    int size = tfp_snprintf(str,100, "Mag:  %08d,  Index:  %04d, Freq: %04d\n", max, max_index, freq);
     SerialLogger_Log(LOGTYPE_EVENT, (uint8_t *)str, size);
   }
 
