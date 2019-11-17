@@ -1,4 +1,20 @@
 #include "FIRBlock.hpp"
+
+#include "BSP_Audio_Buffer_Interface.h"
+
+#include "constexpr_arm_sin_f32.hpp"
+
+
+extern "C"{
+#include "MemoryLogger.h"
+}
+
+#define SAMPLE_FREQUENCY 48000.0
+#define MAX_BLOCK_SIZE 2048
+#define MAX_NUM_TAPS 512
+
+
+
 #include "LowPassFilterCoefficients.hpp"
 
 static constexpr struct LowPassFilterCoefficients low_pass_filter_coefficients = LowPassFilterCoefficients();
@@ -29,3 +45,10 @@ void FIRBlock::setMIDIParameter(BlockParamIdentifier_t id, int value){
   SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
 }
 
+
+void FIRBlock::process(sample_t * samplesToProcess){
+  for(uint32_t i=0; i<num_samples; i++){
+    inputBuffer[i] = samplesToProcess[i];
+  }
+  arm_fir_f32(&S, inputBuffer, outputBuffer, num_samples);
+}
