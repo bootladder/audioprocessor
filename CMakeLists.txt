@@ -25,6 +25,7 @@ set(C_SOURCES_FOR_TESTING
 
 set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"
+  "${SOURCE_ROOT_DIR}/Application/FIRBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/MIDI_Input_Task.c"
   "${SOURCE_ROOT_DIR}/Application/Monitor_Task.c"
   "${SOURCE_ROOT_DIR}/Application/SerialLogger_Task.c"

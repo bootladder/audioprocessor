@@ -18,48 +18,6 @@ extern "C"{
 #define MAX_NUM_TAPS 512
 
 
-constexpr int midi_value_to_cutoff(int value){
-  return (value*100) + 1;
-}
-
-struct LowPassFilterCoefficients {
-
-  float arr[128][MAX_NUM_TAPS]; //128 different MIDI values
-
-  constexpr LowPassFilterCoefficients() : arr() {
-    for(auto i=0; i<128; i++){
-
-      float * coeffs = arr[i];
-
-      uint32_t cutoff = midi_value_to_cutoff(i);
-
-      float fc_normalized = (float) (cutoff / SAMPLE_FREQUENCY);
-      float coefficient_sum = 0.0; //running total for normalization
-      int numTaps = MAX_NUM_TAPS;
-
-      for(int i=0; i<numTaps;i++)
-        {
-          int n = i - (numTaps/2);  //apply a time shift of numTaps/2
-          if(n==0){  //sinc(1) = 1
-            coeffs[i] = 1;
-            coefficient_sum += coeffs[i];  //keep running sum
-            continue;
-          }
-          float x = 3.1415927*fc_normalized*(float)n;
-          coeffs[i] = fc_normalized * constexpr_arm_sin_f32(x) / x;
-
-          coefficient_sum += coeffs[i];//keep running sum
-        }
-
-      //normalize coefficients to 1
-      for(int i=0;i<numTaps;i++){
-        coeffs[i] = coeffs[i] / coefficient_sum;
-      }
-    }
-  }
-};
-
-static constexpr struct LowPassFilterCoefficients low_pass_filter_coefficients = LowPassFilterCoefficients();
 
 class FIRBlock : public RealProcessBlock{
   float * filter_coefficients;
@@ -67,16 +25,7 @@ class FIRBlock : public RealProcessBlock{
   arm_fir_instance_f32 S;
 
 public:
-  FIRBlock(const char * name, uint32_t size)
-    : RealProcessBlock(name, size){
-
-    filter_coefficients = new float[MAX_NUM_TAPS];
-    firStateF32 = new float[MAX_BLOCK_SIZE + MAX_NUM_TAPS - 1];
-    arm_fir_init_f32(&S, MAX_NUM_TAPS, (float*)low_pass_filter_coefficients.arr[40],
-                     &firStateF32[0], MY_PROCESSING_BUFFER_SIZE_SAMPLES); //blocksize
-
-    MemoryLogger_LogStringLn("FIR Coeffs calcualtd");
-  }
+  FIRBlock(const char * name, uint32_t size);
 
   void process(sample_t * samplesToProcess){
     for(uint32_t i=0; i<num_samples; i++){
@@ -85,20 +34,9 @@ public:
     arm_fir_f32(&S, inputBuffer, outputBuffer, num_samples);
   }
 
-  void assignCoefficientArray(uint8_t midivalue)
-  {
-    S.pCoeffs = (float * )low_pass_filter_coefficients.arr[midivalue];
-  }
+  void assignCoefficientArray(uint8_t midivalue);
+  void setMIDIParameter(BlockParamIdentifier_t id, int value);
 
-  //overriding setMIDIParameter to update coefficients here
-  //now there's only 1 parameter but there could be other parameters in this block
-  void setMIDIParameter(BlockParamIdentifier_t id, int value){
-    (void)id;
-    assignCoefficientArray(value);
-    static char str[100];
-    int size = tfp_snprintf(str,100, "%s, Cutoff(Hz), %d\n", name, midi_value_to_cutoff(value));
-    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
-  }
 };
 
 
