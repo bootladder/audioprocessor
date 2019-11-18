@@ -6,6 +6,7 @@ extern "C" {
 #include "BSP_Audio_Buffer_Interface.h"
 #include "ProcessBlock.hpp"
 #include "FIRBlock.hpp"
+#include "OscillatorBlock.hpp"
 #include "FFTBlock.hpp"
 #include "ARMDSPFFTProcessor.hpp"
 #include "MIDIMap.hpp"
@@ -40,11 +41,20 @@ createBlock(DelayBlock              ,delay       )
 static ARMDSPFFTProcessor armDSPFFTProcessor;
 static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 2*1024, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
+float return_constant_440hz(void){return (float)fft1.getSpectrumPeakFreq();}
+float return_some_amplitude(void){return (float)fft1.getSpectrumPeakMagnitude();}
+
+OscillatorBlock square1("square1", MY_PROCESSING_BUFFER_SIZE_SAMPLES,
+                        OSCILLATOR_SQUARE,
+                        return_constant_440hz,
+                        return_some_amplitude);
+
 __attribute__ ((unused))
 static BlockGraph blockGraph = {
   .start = &gain1,
   .edges = {
-  {&gain1, &gain2},
+  {&gain1, &square1},
+  {&square1, &gain2},
   {&gain1, &gain3},
   {&gain1, &fft1},
   {&gain3, &clipping1},
@@ -56,19 +66,13 @@ static BlockGraph blockGraph = {
   .end = &mixer,
 };
 
-//static BlockGraph delayTesterGraph = {
-//  .start = &gain1,
-//  .edges = {
-//    {&gain1, &delay},
-//  },
-//  .end = &delay,
-//};
 __attribute__ ((unused))
-static BlockGraph fftTesterGraph = {
+static BlockGraph testerGraph = {
   .start = &gain1,
   .edges = {
+    {&gain1, &square1},
   },
-  .end = &gain1,
+  .end = &square1,
 };
 
 

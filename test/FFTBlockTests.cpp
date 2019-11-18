@@ -6,7 +6,6 @@ using namespace testing;
 
 #include "FFTBlock.hpp"
 
-
 class MockFFTProcessor : public FFTProcessor{
 public:
   MockFFTProcessor(){;}
@@ -24,7 +23,7 @@ public:
       buf[i] = 3;
       resultSpectrum[i] = 99;
     }
-    resultSpectrum[37] = 200;
+    resultSpectrum[37] = 20480; // fake max
     return buf;
   }
 
@@ -132,8 +131,11 @@ TEST(FFTBlock, getSpectrumPeakFreq_and_getSpectrumPeakMagnitude)
   block.process(testBuf);
 
   int peakFreq = block.getSpectrumPeakFreq();
-  int peakMag = block.getSpectrumPeakMagnitude();
+  int expectedPeakFreq = 37.0*48000.0/8.0/fft_buf_size;
+  ASSERT_EQ(peakFreq, expectedPeakFreq);
 
-  ASSERT_EQ(peakFreq, 37);
-  ASSERT_EQ(peakMag, 200);
+  int peakMag = block.getSpectrumPeakMagnitude();
+  int expectedMag = 20480 * 8 / NUM_SAMPLES;
+
+  ASSERT_EQ(peakMag, expectedMag);
 }

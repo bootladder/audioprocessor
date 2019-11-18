@@ -67,21 +67,24 @@ public:
         max_index = i;
       }
     }
-    //max = max / fft_buf_size; //scale it down
-
-    //freq bins are sample rate / fft size
-    float freqfloat = max_index *(48000.0/8) /2048.0;
-    int freq = (int)freqfloat;
+    max = max / fft_buf_size; //scale it down
+    //multiply by duty cycle, ie. ratio of zero pad
+    float duty_num_samples = num_samples/8;
+    float factor = fft_buf_size / duty_num_samples;
+    max = max * factor;
 
     static char str[100];
-    int size = tfp_snprintf(str,100, "Mag:  %08d,  Index:  %04d, Freq: %04d\n", max, max_index, freq);
+    int size = tfp_snprintf(str,100, "Mag:  %08d,  Index:  %04d, Freq: %04d\n", max, max_index, getSpectrumPeakFreq());
     SerialLogger_Log(LOGTYPE_EVENT, (uint8_t *)str, size);
   }
 
   sample_t * getSpectrum(){return spectrum;}
 
   int getSpectrumPeakFreq(){
-    return max_index;
+    //freq bins are sample rate / fft size
+    float freqfloat = max_index *(48000.0/8) /2048.0;
+    int freq = (int)freqfloat;
+    return freq;
   }
   int getSpectrumPeakMagnitude(){
     return max;
