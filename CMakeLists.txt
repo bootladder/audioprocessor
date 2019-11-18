@@ -187,6 +187,7 @@ else()
     test/ExampleTests.cpp
     test/FFTBlockTests.cpp
     test/ProcessBlockTests.cpp
+    test/OscillatorBlockTests.cpp
     test/MIDIMessageHandlerTests.cpp
     test/BlockGraphTests.cpp
     test/FAKE_SerialLogger.c
