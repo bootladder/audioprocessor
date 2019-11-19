@@ -1,0 +1,5 @@
+digraph {
+  rankdir=LR
+  hurrdurr [shape=record label="hurr durr"]
+}
+

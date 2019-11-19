@@ -41,7 +41,6 @@ class App:
         self.edgeListUpdateLog.grid(row=6, column=2, sticky=W)
         self.graphLabel.grid(row=7, column=0, columnspan=5)
 
-        self.static_i = 0
         self.blockGraphQueue = blockGraphQueue
 
     def say_hi(self):
@@ -92,7 +91,7 @@ class App:
             return label
 
         blockGraph.nodes[node_name]['label'] = '%s' % make_graphviz_label(items[0], items[1], items[2])
-        self.static_i = self.static_i + 1
+        blockGraph.nodes[node_name]['shape'] = 'record'
 
         # put the updated graph on the queue, to be picked up by the reader thread
         if self.blockGraphQueue.full():
@@ -167,6 +166,8 @@ def thread_render_block_graph_and_callback(queue, callback):
         callback('/tmp/output.png')
 
 
+###################### MAIN #########################
+
 root = Tk()
 blockGraphQueue = queue.Queue(maxsize=4)
 app = App(root, blockGraphQueue)
@@ -188,11 +189,9 @@ thread.start_new_thread(thread_read_midi_and_pipe_to_ttyUSB, (app.updateMidiCont
 # Block Graph Display Update Thread
 thread.start_new_thread(thread_render_block_graph_and_callback, (blockGraphQueue, app.updateBlockGraphDisplay))
 
-# Read the block graph
-blockGraph = nx_pydot.read_dot('test.graph')
-blockGraph.add_node('yay')
-blockGraph.nodes['yay']['label'] = 'hurr durr'
-
+# Read the initial block graph (currently blank)
+# Don't know why I can't just create a new graph here...
+blockGraph = nx_pydot.read_dot('blank.graph')
 
 root.mainloop()
 root.destroy()
