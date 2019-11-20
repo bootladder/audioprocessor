@@ -8,6 +8,7 @@ import networkx.drawing.nx_pydot as nx_pydot
 import subprocess
 import queue
 import json
+import select
 
 class App:
     def __init__(self, master, blockGraphQueue):
@@ -130,14 +131,22 @@ def thread_seriallogger_reader(dispatch, arg2, arg3):
             if(line[0] in dispatch.keys()):
                 dispatch[line[0]](line[1:]) # call it
 
-def thread_read_midi_and_pipe_to_ttyUSB(callback, ttyUSB_file, midi_file):
-    midi_device = subprocess.check_output("ls /dev/midi*", shell=True).strip()
-    print "Found MIDI Device : " + midi_device
+
+# Open all /dev/midi* devices, pipe them all into the serial port output
+def thread_read_midi_and_pipe_to_ttyUSB(callback):
+    output = subprocess.check_output("ls /dev/midi*", shell=True)
+    midi_devices = output.strip().split('\n')
+    midi_descriptors = []
+    for device in midi_devices:
+        print "Found MIDI Device : " + device
+        d = open(device, 'r')
+        midi_descriptors.append(d)
 
     with serial.Serial('/dev/ttyUSB1', 9600, timeout=2) as ser:
-        with open(midi_device, 'r') as midi:
-            while(True):
-                s = midi.read(3)
+        while(True):
+            readable, _, _ = select.select(midi_descriptors, [], [])
+            for descriptor in readable:
+                s = descriptor.read(3)
                 print 'got it'
                 callback("MIDI IN:  %d   %d   %d\n" % (ord(s[0]),ord(s[1]),ord(s[2])))
                 ser.write(s)
@@ -184,7 +193,7 @@ messageDispatch = {
 thread.start_new_thread(thread_seriallogger_reader, (messageDispatch, 'hurr', 'durr'))
 
 # MIDI Controller Forwarding
-thread.start_new_thread(thread_read_midi_and_pipe_to_ttyUSB, (app.updateMidiControllerInput, 'hurr', 'durr'))
+thread.start_new_thread(thread_read_midi_and_pipe_to_ttyUSB, (app.updateMidiControllerInput,))
 
 # Block Graph Display Update Thread
 thread.start_new_thread(thread_render_block_graph_and_callback, (blockGraphQueue, app.updateBlockGraphDisplay))
