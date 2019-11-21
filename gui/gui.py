@@ -47,29 +47,32 @@ class App:
     def say_hi(self):
         print "hi there!"
 
+    def updateTextWidgetWithMaxLineCount(self, widget, maxlines, theText):
+        endlinecol = widget.index(END)
+        linenum = int(endlinecol.split('.')[0])
+        if linenum > 200:
+            widget.delete(1.0,END)
+
+        widget.insert(END, theText)
+        widget.see("end")
+
     def updateIdleTickCount(self, theText):
-        self.idleTickCount.insert(END, theText)
-        self.idleTickCount.see("end")
+        self.updateTextWidgetWithMaxLineCount(self.idleTickCount, 200, theText)
 
     def updateMidiControllerInput(self, theText):
-        self.midiControllerInput.insert(END, theText)
-        self.midiControllerInput.see("end")
+        self.updateTextWidgetWithMaxLineCount(self.midiControllerInput, 200, theText)
 
     def updateMidiProcessedLog(self, theText):
-        self.midiProcessedLog.insert(END, theText)
-        self.midiProcessedLog.see("end")
+        self.updateTextWidgetWithMaxLineCount(self.midiProcessedLog, 200, theText)
 
     def updateEventLog(self, theText):
-        self.eventLog.insert(END, theText)
-        self.eventLog.see("end")
+        self.updateTextWidgetWithMaxLineCount(self.eventLog, 200, theText)
 
     def updateNodeUpdateLog(self, theText):
-        self.nodeUpdateLog.insert(END, theText)
-        self.nodeUpdateLog.see("end")
+        self.updateTextWidgetWithMaxLineCount(self.nodeUpdateLog, 200, theText)
 
     def updateEdgeListUpdateLog(self, theText):
-        self.edgeListUpdateLog.insert(END,theText)
-        self.edgeListUpdateLog.see("end")
+        self.updateTextWidgetWithMaxLineCount(self.edgeListUpdateLog, 200, theText)
 
 
     def updateBlockGraphDisplay(self, pathToGraphImage):
