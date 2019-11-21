@@ -1,10 +1,14 @@
 #!/bin/bash
 set -e
 
-echo $(dirname $0)/build-test
-cd $(dirname $0)/build-test
+THISDIR=$(dirname $0)
+TESTSDIR=$(dirname $0)/../build-test
+
+cd $TESTSDIR
 cmake .. -DBUILD_TEST=ON
 make
 bin/unit-tests.elf
-cd ..
+
+
+cd ../scripts
 ./host_build_prod.sh
