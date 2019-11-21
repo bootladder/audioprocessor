@@ -12,6 +12,7 @@ project(audio-processor)
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
+
 ########################################
 # SOURCE
 #######################################
@@ -98,10 +99,6 @@ include_directories(${INCLUDES_FOR_TESTING})
 set(COMMON_FLAGS " ")
 string(APPEND COMMON_FLAGS " -Wall   -Wextra   -g                   ")
 
-set(TARGET_SPECIFIC_FLAGS " ")
-string(APPEND TARGET_SPECIFIC_FLAGS "  -mcpu=cortex-m7 -mthumb  -DARM_MATH_CM7 ")
-string(APPEND TARGET_SPECIFIC_FLAGS " -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
-
 set(CMAKE_C_FLAGS "  -std=c99                      ")
 set(CMAKE_CXX_FLAGS "  -std=c++14                      ")
 string(APPEND CMAKE_C_FLAGS ${COMMON_FLAGS})
@@ -110,9 +107,13 @@ string(APPEND CMAKE_CXX_FLAGS ${COMMON_FLAGS})
 set(TARGET_LINK_FLAGS "")
 string(APPEND TARGET_LINK_FLAGS " -Wl,-Map=output.map  ")
 
-if(BUILD_TEST)
+# Cross Compiler specific flags
+if(TOOLCHAIN STREQUAL "CROSS")
 
-else()
+  set(TARGET_SPECIFIC_FLAGS " ")
+  string(APPEND TARGET_SPECIFIC_FLAGS "  -mcpu=cortex-m7 -mthumb  -DARM_MATH_CM7 ")
+  string(APPEND TARGET_SPECIFIC_FLAGS " -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
+
   string(APPEND CMAKE_C_FLAGS ${TARGET_SPECIFIC_FLAGS})
   string(APPEND CMAKE_CXX_FLAGS ${TARGET_SPECIFIC_FLAGS})
 
@@ -132,9 +133,11 @@ endif()
 ########################################
 # TOOLCHAIN
 #######################################
-if(BUILD_TEST)
+if(TOOLCHAIN STREQUAL "HOST")
   #do nothing, use default system tools
-else()
+
+elseif(TOOLCHAIN STREQUAL "CROSS")
+
   set(TOOLCHAIN_PATH "/opt/gcc-arm-none-eabi-7-2018-q2-update/bin")
   set(CMAKE_C_COMPILER   "${TOOLCHAIN_PATH}/arm-none-eabi-gcc")
   set(CMAKE_CXX_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-g++")
@@ -142,12 +145,51 @@ else()
   set(CMAKE_ASM_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-as")
   set(CMAKE_AR           "${TOOLCHAIN_PATH}/arm-none-eabi-ar")
   enable_language(ASM)
+
+else()
+  MESSAGE(FATAL_ERROR "NEED TO SPECIFY TOOLCHAIN -DTOOLCHAIN=HOST   or   -DTOOLCHAIN=CROSS")
 endif()
 
+
+
 #############################################################
-# EXECUTABLE (CROSS COMPILE)
+# COMMON EXECUTABLE CONFIGURATION    (i can't figure out how to move this into another file)
+# Set the filename to include build info
+# Add post-build steps for size and objcopy
 ############################################################
-if(NOT BUILD_TEST)
+
+function(COMMON_EXE_CONFIG TARGET_NAME)
+
+  EXEC_PROGRAM(
+    "echo $(git rev-parse --abbrev-ref HEAD)_$(git rev-parse --short HEAD)" 
+    OUTPUT_VARIABLE gitrepoinfo
+    )
+
+  set(output_exe_basename ${TARGET_NAME}-${THIS_BUILD_VERSION}_${gitrepoinfo})
+  set(output_exe_elfname  "${output_exe_basename}.elf")
+  set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME ${output_exe_elfname})
+
+  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+    COMMAND size ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname}
+    )
+  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+    COMMAND cp ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname} ${EXECUTABLE_OUTPUT_PATH}/latest.elf
+    )
+endfunction()
+
+
+##########################################################################
+#
+#   Executables:
+#      There are 3 types of executables
+#        - Production cross compiled (runs on target)
+#        - Tests cross compiled (runs on target)
+#        - Tests host compiled (runs on host)
+
+#############################################################
+# PRODUCTION EXECUTABLE (CROSS COMPILE)
+############################################################
+if(NOT BUILD_TEST AND TOOLCHAIN STREQUAL "CROSS")
   add_executable(${TARGET_BASENAME}  ${C_SOURCES} ${ASM_SOURCES})
   target_link_libraries(${TARGET_BASENAME} "-L../static-libs/" "-l:libarm_cortexM7lfdp_math.a")
 
@@ -169,18 +211,30 @@ if(NOT BUILD_TEST)
     COMMAND cp ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname} ${EXECUTABLE_OUTPUT_PATH}/latest.elf
   )
 
+#############################################################
+# TEST EXECUTABLE (CROSS COMPILE)
+############################################################
+elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "CROSS")
+  set(CROSS_TEST_TARGET_BASENAME ${TARGET_BASENAME}-cross-tests)
+
+  list(FILTER C_SOURCES EXCLUDE REGEX main.c)
+  list(APPEND C_SOURCES test/test-on-target/main.c)
+
+  add_executable(${CROSS_TEST_TARGET_BASENAME}  ${C_SOURCES} ${ASM_SOURCES})
+  target_link_libraries(${CROSS_TEST_TARGET_BASENAME} "-L../static-libs/" "-l:libarm_cortexM7lfdp_math.a")
+  set_target_properties(${CROSS_TEST_TARGET_BASENAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
+
+  COMMON_EXE_CONFIG(${CROSS_TEST_TARGET_BASENAME})
+
+
 
 #############################################################
-# SOURCE LIBRARY FOR TESTING
+# TEST EXECUTABLE (HOST COMPILE)
+#        Also build source library for testing
 ############################################################
-else()
-  set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
-
+elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
   add_library(${TARGET_BASENAME}-for-testing STATIC ${C_SOURCES_FOR_TESTING})
 
-#############################################################
-# TEST EXECUTABLE (HOST COMPILED)
-############################################################
 
   set(UNIT_TEST_TARGET_BASENAME ${TARGET_BASENAME}-unit-tests)
 
@@ -206,4 +260,7 @@ else()
     COMMAND cp ${EXECUTABLE_OUTPUT_PATH}/${UNIT_TEST_TARGET_BASENAME} ${EXECUTABLE_OUTPUT_PATH}/unit-tests.elf
   )
 
+else()
+  message( FATAL_ERROR "fatal error message" )
 endif()
+

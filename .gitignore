@@ -1,5 +1,6 @@
 build-test/
 build-prod/
+build-cross-tests/
 test/googletest
 TAGS
 
