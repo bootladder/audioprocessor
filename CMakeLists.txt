@@ -73,6 +73,7 @@ LIST(APPEND C_SOURCES ${C_SOURCES_NOT_FOR_TESTING})
 #######################################
 SET(INCLUDES_FOR_TESTING
   "./Application"
+  "./Application/ProcessBlocks"
   "./Help"
   )
 

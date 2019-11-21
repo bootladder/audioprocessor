@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "BlockGraph.hpp"
+#include "SuperSimpleProcessBlocks.hpp"
 
 TEST(BlockGraph, initialize)
 {

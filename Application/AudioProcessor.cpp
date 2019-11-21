@@ -12,6 +12,9 @@ extern "C" {
 #include "MIDIMap.hpp"
 #include "MIDIMessageHandler.hpp"
 #include "BlockGraph.hpp"
+#include "SuperSimpleProcessBlocks.hpp"
+#include "DelayBlock.hpp"
+#include "MixerBlock.hpp"
 
 class AudioProcessor{
   MIDIMap midiMap;
@@ -58,7 +61,8 @@ static BlockGraph blockGraph = {
   {&gain1, &gain3},
   {&gain1, &fft1},
   {&gain3, &clipping1},
-  {&clipping1, &delay},
+  {&clipping1, &fir2},
+  {&fir2, &delay},
   {&delay, &mixer},
   {&gain2, &mixer},
   {0,0}, // null terminator
@@ -87,11 +91,13 @@ void AudioProcessor::init(void)
   MIDI_Message_t clipping1_midi_message = {MIDI_CONTROL_CHANGE,4,1};
   MIDI_Message_t fir1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
   MIDI_Message_t delay_midi_message = {MIDI_CONTROL_CHANGE,6,1};
+  MIDI_Message_t fir2_midi_message = {MIDI_CONTROL_CHANGE,9,1};
   midiMap.addEntry(gain1_midi_message, gain1);
   midiMap.addEntry(gain2_midi_message, gain2);
   midiMap.addEntry(gain3_midi_message, gain3);
   midiMap.addEntry(clipping1_midi_message, clipping1);
   midiMap.addEntry(fir1_midi_message, fir1);
+  midiMap.addEntry(fir2_midi_message, fir2);
   midiMap.addEntry(delay_midi_message, delay);
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
@@ -102,6 +108,7 @@ void AudioProcessor::init(void)
   gain3.assignMIDIMessageToParameter(gain3_midi_message, PARAM_0);
   clipping1.assignMIDIMessageToParameter(clipping1_midi_message, PARAM_0);
   fir1.assignMIDIMessageToParameter(fir1_midi_message, PARAM_0);
+  fir2.assignMIDIMessageToParameter(fir2_midi_message, PARAM_0);
   delay.assignMIDIMessageToParameter(delay_midi_message, PARAM_0);
 }
 

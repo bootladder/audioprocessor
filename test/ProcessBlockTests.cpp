@@ -3,6 +3,9 @@ using namespace std;
 #include "gtest/gtest.h"
 
 #include "ProcessBlock.hpp"
+#include "SuperSimpleProcessBlocks.hpp"
+#include "DelayBlock.hpp"
+#include "MixerBlock.hpp"
 
 #define NUM_SAMPLES 1024
 static sample_t testBuf[NUM_SAMPLES];
@@ -218,6 +221,11 @@ TEST(DelayBuffer, FillUpLargeAmount)
   ASSERT_EQ(delayBuffer.getDelayedSample(3), largeNumber - 4);
   ASSERT_EQ(delayBuffer.getDelayedSample(4), largeNumber - 5);
 }
+
+
+
+// Currently the delay is being implemented completely heuristically
+// Will test later
 
 //TEST(ProcessBlockDelay, DelaysCorrectNumberOfSamples)
 //{
