@@ -220,6 +220,11 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "CROSS")
   list(FILTER C_SOURCES EXCLUDE REGEX main.c)
   list(APPEND C_SOURCES test/test-on-target/main.c)
 
+  list(APPEND C_SOURCES test/test-on-target/Testing_Task.cpp)
+
+  include_directories("test/test-on-target")
+
+
   add_executable(${CROSS_TEST_TARGET_BASENAME}  ${C_SOURCES} ${ASM_SOURCES})
   target_link_libraries(${CROSS_TEST_TARGET_BASENAME} "-L../static-libs/" "-l:libarm_cortexM7lfdp_math.a")
   set_target_properties(${CROSS_TEST_TARGET_BASENAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )

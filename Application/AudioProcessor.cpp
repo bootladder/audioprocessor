@@ -32,8 +32,6 @@ AudioProcessor audioProcessor;
 
 #define createBlock(blockClass, name) static blockClass name(#name,MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
-createBlock(FIRBlock                ,fir1        )
-createBlock(FIRBlock                ,fir2        )
 createBlock(GainBlock               ,gain1       )
 createBlock(GainBlock               ,gain2       )
 createBlock(GainBlock               ,gain3       )
@@ -41,8 +39,17 @@ createBlock(ClippingDistortionBlock ,clipping1   )
 createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
 
+
+CircularFIRProcessor cfirp;
+static FIRBlock  fir1("fir1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, cfirp);
+static FIRBlock  fir2("fir2", MY_PROCESSING_BUFFER_SIZE_SAMPLES, cfirp);
+
+//////////////////////////////////
+
 static ARMDSPFFTProcessor armDSPFFTProcessor;
 static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 2*1024, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+
+//////////////////////////////////
 
 float return_constant_440hz(void){return (float)fft1.getSpectrumPeakFreq();}
 float return_some_amplitude(void){return (float)fft1.getSpectrumPeakMagnitude();}

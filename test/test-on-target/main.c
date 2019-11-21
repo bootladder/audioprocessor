@@ -1,9 +1,6 @@
 #include "MemoryLogger.h"
 #include "BSP_Bringup.h"
-#include "BSP_Audio_Task.h"
-#include "MIDI_Input_Task.h"
-#include "SerialLogger_Task.h"
-#include "Monitor_Task.h"
+#include "Testing_Task.h"
 #include "stm32f7xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -53,7 +50,12 @@ int main(void)
 
   int myStackSize = 1024;
 
-  // LOWER NUMBER PRIORITIES ARE LOWER PRIORITIES
+  xTaskCreate(Testing_Task,
+              "TESTING Task",
+              myStackSize,
+              NULL, //task params
+              2, //priority
+              NULL ); //task handle
 
 
 

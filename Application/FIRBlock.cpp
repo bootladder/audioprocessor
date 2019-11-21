@@ -19,8 +19,11 @@ extern "C"{
 
 static constexpr struct LowPassFilterCoefficients low_pass_filter_coefficients = LowPassFilterCoefficients();
 
-FIRBlock::FIRBlock(const char * name, uint32_t size)
-  : ProcessBlock(name, size){
+
+FIRBlock::FIRBlock(const char * name, uint32_t size, FIRProcessor & cfirp)
+: ProcessBlock(name, size),
+  firProcessor(cfirp)
+{
 
   filter_coefficients = new float[MAX_NUM_TAPS];
   firStateF32 = new float[MAX_BLOCK_SIZE + MAX_NUM_TAPS - 1];
