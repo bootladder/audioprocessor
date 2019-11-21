@@ -22,27 +22,39 @@ public:
 };
 
 class ProcessBlock{
+
 protected:
   const char * name;
   MIDIAssignment midiAssignments[16];  //hard coded
   int midiAssignmentIndex = 0;
+  sample_t * inputBuffer;
+  sample_t * outputBuffer;
+  uint32_t num_samples;
 
 public:
-  ProcessBlock(void){
-    name = "hurr durr";
-  }
-  ProcessBlock(const char * name_param){
-    name = name_param;
-  }
-  const char * getName(void) {return name;}
-  virtual void process(sample_t * samplesToProcess) = 0;
-  virtual void MIDIMessageReceived(MIDI_Message_t & msg) = 0;
 
-  virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
-    (void)id;(void)value;
+  ProcessBlock(const char * name_param, uint32_t size){
+    name = name_param;
+    inputBuffer = new sample_t[size];
+    outputBuffer = new sample_t[size];
+    num_samples = size;
   }
-  virtual sample_t * getOutputBuffer(void) = 0;
-  virtual ~ProcessBlock() {};
+  virtual ~ProcessBlock() {
+    delete []inputBuffer;
+    delete []outputBuffer;
+  };
+
+  const char * getName(void) {return name;}
+  sample_t * getOutputBuffer(void){return outputBuffer;}
+
+
+  //default process function is identity (pass thru)
+  virtual void process(sample_t * samplesToProcess){
+    for(uint32_t i=0; i<num_samples; i++){
+      inputBuffer[i] = samplesToProcess[i];
+      outputBuffer[i] = inputBuffer[i];
+    }
+  }
 
 
   void assignMIDIMessageToParameter(MIDI_Message_t & msg, BlockParamIdentifier_t id){
@@ -50,41 +62,8 @@ public:
     midiAssignments[midiAssignmentIndex].paramId = id;
     midiAssignmentIndex++;
   }
-};
 
-class RealProcessBlock : public ProcessBlock{
-
-protected:
-  sample_t * inputBuffer;
-  sample_t * outputBuffer;
-  uint32_t num_samples;
-
-public:
-  RealProcessBlock(const char * name, uint32_t size)
-    : ProcessBlock(name){
-    num_samples = size;
-    inputBuffer = new sample_t[size];
-    outputBuffer = new sample_t[size];
-  }
-
-  ~RealProcessBlock(){
-    delete []inputBuffer;
-    delete []outputBuffer;
-  }
-
-  sample_t * getOutputBuffer(void){
-    return outputBuffer;
-  }
-
-  void process(sample_t * samplesToProcess){
-    for(uint32_t i=0; i<num_samples; i++){
-      inputBuffer[i] = samplesToProcess[i];
-      outputBuffer[i] = inputBuffer[i];
-    }
-    //default function is identity
-  }
-
-  void MIDIMessageReceived(MIDI_Message_t & msg){
+  virtual void MIDIMessageReceived(MIDI_Message_t & msg){
     for(int i=0; i<midiAssignmentIndex; i++){
       if(midiAssignments[i].msg.type != msg.type)
         continue;
@@ -95,14 +74,19 @@ public:
     }
   }
 
+  virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
+    (void)id;(void)value;
+  }
+
 };
 
-class GainBlock : public RealProcessBlock{
+
+class GainBlock : public ProcessBlock{
   float gain;
   float gainFactor;
 public:
   GainBlock(const char * name, uint32_t size) :
-    RealProcessBlock(name, size){
+    ProcessBlock(name, size){
     gain = 1.0;
     gainFactor = 8.0;
   }
@@ -144,11 +128,11 @@ public:
   }
 };
 
-class ClippingDistortionBlock : public RealProcessBlock{
+class ClippingDistortionBlock : public ProcessBlock{
   float clipping_percent;
 public:
   ClippingDistortionBlock(const char * name, uint32_t size) :
-    RealProcessBlock(name, size){
+    ProcessBlock(name, size){
     clipping_percent = 0.5;
   }
 
@@ -183,10 +167,10 @@ public:
   }
 };
 
-class MixerBlock : public RealProcessBlock {
+class MixerBlock : public ProcessBlock {
 public:
   MixerBlock(const char * name, uint32_t size) :
-    RealProcessBlock(name, size){
+    ProcessBlock(name, size){
     reset();
   }
 
@@ -268,7 +252,7 @@ public:
   }
 };
 
-class DelayBlock : public RealProcessBlock {
+class DelayBlock : public ProcessBlock {
 
   int delayNumSamples;
   int delayMillis; //for printing
@@ -276,7 +260,7 @@ class DelayBlock : public RealProcessBlock {
 
 public:
   DelayBlock(const char * name, uint32_t size) :
-    RealProcessBlock(name, size){
+    ProcessBlock(name, size){
     delayBuffer = new DelayBuffer(1024*40);//static 20k
     delayNumSamples = 0;
   }

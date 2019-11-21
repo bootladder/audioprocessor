@@ -7,7 +7,7 @@ typedef enum {
   OSCILLATOR_SQUARE,
 } OscillatorType;
 
-class OscillatorBlock : public RealProcessBlock {
+class OscillatorBlock : public ProcessBlock {
 
 private:
   GetFrequencyFunction getFrequencyFunction;
@@ -25,7 +25,7 @@ private:
 
 public:
   OscillatorBlock(const char * name, uint32_t size, OscillatorType t, GetFrequencyFunction ff, GetAmplitudeFunction fa) :
-    RealProcessBlock(name, size){
+    ProcessBlock(name, size){
     getFrequencyFunction = ff;
     getAmplitudeFunction = fa;
     oscillatorType = t;

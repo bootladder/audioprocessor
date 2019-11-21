@@ -13,7 +13,7 @@ public:
 };
 
 
-class FFTBlock : public RealProcessBlock
+class FFTBlock : public ProcessBlock
 {
 private:
   FFTProcessor & fftProcessor;
@@ -27,7 +27,7 @@ private:
 
 public:
   FFTBlock(const char * name, FFTProcessor & f, int fftBufSize, uint32_t size) :
-    RealProcessBlock(name, size),
+    ProcessBlock(name, size),
     fftProcessor(f),
     fft_buf_size(fftBufSize)
   {

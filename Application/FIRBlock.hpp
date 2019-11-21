@@ -6,7 +6,7 @@
 #include "stm32f769xx.h" //identifies device type for FPU_PRESENT
 #include "arm_math.h"
 
-class FIRBlock : public RealProcessBlock{
+class FIRBlock : public ProcessBlock{
   float * filter_coefficients;
   float * firStateF32;
   arm_fir_instance_f32 S;
