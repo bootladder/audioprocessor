@@ -5,11 +5,6 @@
 #include "SamplingTypes.h"
 #include "MIDI_Message.h"
 
-extern "C"{
-#include "SerialLogger.h"
-#include "tinyprintf.h"
-}
-
 enum BlockParamIdentifier_t{
   PARAM_0 = 0,
   PARAM_1 = 1,

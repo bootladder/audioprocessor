@@ -2,28 +2,14 @@
 #define __FIRBLOCK_HPP__
 
 #include "ProcessBlock.hpp"
-
-#include "stm32f769xx.h" //identifies device type for FPU_PRESENT
-#include "arm_math.h"
-
-class FIRProcessor {
-  
-};
-
-class CircularFIRProcessor : public FIRProcessor{
-  
-};
-
-class ARMDSPFIRProcessor : public FIRProcessor{
-  
-};
-
+#include "FIRCoefficients.hpp"
+#include "FIRProcessor.hpp"
 
 
 class FIRBlock : public ProcessBlock{
+
   float * filter_coefficients;
-  float * firStateF32;
-  arm_fir_instance_f32 S;
+  FIRCoefficients * coeffs;
   FIRProcessor & firProcessor;
 
 public:
@@ -31,6 +17,7 @@ public:
   FIRBlock(const char * name, uint32_t size, FIRProcessor & cfirp);
 
   void process(sample_t * samplesToProcess);
+  void setCoeffs(FIRCoefficients * c) { coeffs = c;}
   void assignCoefficientArray(uint8_t midivalue);
   void setMIDIParameter(BlockParamIdentifier_t id, int value);
 };

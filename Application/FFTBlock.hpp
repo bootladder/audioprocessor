@@ -4,7 +4,9 @@
 #include "ProcessBlock.hpp"
 
 extern "C"{
-  #include "MemoryLogger.h"
+#include "MemoryLogger.h"
+#include "SerialLogger.h"
+#include "tinyprintf.h"
 }
 
 class FFTProcessor {
@@ -62,7 +64,7 @@ public:
     //don't look higher than range
     max = 0;
     for(int i=0; i<binRange; i++){
-      if( abs(spectrum[i]) > max){
+      if( abs(spectrum[i]) > max){ //need portable absd
         max = (int)spectrum[i];
         max_index = i;
       }

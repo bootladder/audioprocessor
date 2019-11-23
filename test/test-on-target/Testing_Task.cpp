@@ -3,6 +3,8 @@ extern "C"{
 #include "tinyprintf.h"
 #include "stm32f7xx_hal.h"
 }
+#include "ARMDSPFIRProcessor.hpp"
+#include "CircularFIRProcessor.hpp"
 
 static void test_firblocks(void);
 static void print_global_tick_count(void);
@@ -17,11 +19,9 @@ extern "C" void Testing_Task(void * params)
   BSP_Fast_UART_Transmit_Bytes_Blocking(txbuf, sizeof(txbuf));
 
 
-  print_global_tick_count();
 
   test_firblocks();
 
-  print_global_tick_count();
 
   while(1){
   }
@@ -32,32 +32,35 @@ extern "C" void Testing_Task(void * params)
 // Tests
 
 #include "FIRBlock.hpp"
+#include "DelayBlock.hpp"
 
 #define TEST_LENGTH 1024
 sample_t testbuf[TEST_LENGTH];
 static void test_firblocks(void)
 {
-  ARMDSPFIRProcessor armdspfirp;
-  FIRBlock fir1("name", TEST_LENGTH, armdspfirp);
+  static sample_t coeffValues[512];
+  static FIRCoefficients coeffs(coeffValues, 512);
+
+  static ARMDSPFIRProcessor armdspfirp;
+  static FIRBlock fir1("name", TEST_LENGTH, armdspfirp);
+  fir1.setCoeffs(&coeffs);
+
+  static DelayBuffer delayBuffer(1024);
+  static CircularFIRProcessor cfirp(delayBuffer);
+  static FIRBlock fir2("name", TEST_LENGTH, cfirp);
+  fir2.setCoeffs(&coeffs);
 
   for(int i=0;i<TEST_LENGTH;i++){
-    testbuf[i] = 3;
+    testbuf[i] = 10;
   }
 
-  fir1.process(testbuf);
-  fir1.process(testbuf);
-  fir1.process(testbuf);
-  fir1.process(testbuf);
+  print_global_tick_count();
   fir1.process(testbuf);
 
-  CircularFIRProcessor cfirp;
-  FIRBlock fir2("name", TEST_LENGTH, cfirp);
+  print_global_tick_count();
+  fir2.process(testbuf);
 
-  fir2.process(testbuf);
-  fir2.process(testbuf);
-  fir2.process(testbuf);
-  fir2.process(testbuf);
-  fir2.process(testbuf);
+  print_global_tick_count();
 }
 
 // Tests

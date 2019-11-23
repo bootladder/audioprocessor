@@ -3,6 +3,7 @@ extern "C"{
 #include "BSP_Fast_UART.h"
 #include "MemoryLogger.h"
 #include "tinyprintf.h"
+#include "SerialLogger.h"
 }
 
 #include "MIDIMessageHandler.hpp"

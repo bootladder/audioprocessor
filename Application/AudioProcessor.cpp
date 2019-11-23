@@ -6,6 +6,7 @@ extern "C" {
 #include "BSP_Audio_Buffer_Interface.h"
 #include "ProcessBlock.hpp"
 #include "FIRBlock.hpp"
+#include "ARMDSPFIRProcessor.hpp"
 #include "OscillatorBlock.hpp"
 #include "FFTBlock.hpp"
 #include "ARMDSPFFTProcessor.hpp"
@@ -40,9 +41,9 @@ createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
 
 
-CircularFIRProcessor cfirp;
-static FIRBlock  fir1("fir1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, cfirp);
-static FIRBlock  fir2("fir2", MY_PROCESSING_BUFFER_SIZE_SAMPLES, cfirp);
+ARMDSPFIRProcessor armdspfirp;
+static FIRBlock  fir1("fir1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp);
+static FIRBlock  fir2("fir2", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp);
 
 //////////////////////////////////
 

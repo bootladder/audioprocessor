@@ -1,4 +1,9 @@
 #include "ProcessBlock.hpp"
+extern "C"{
+#include "MemoryLogger.h"
+#include "SerialLogger.h"
+#include "tinyprintf.h"
+}
 
 class GainBlock : public ProcessBlock{
   float gain;
