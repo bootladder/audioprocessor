@@ -22,11 +22,11 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/MIDIMessageHandler.cpp"
   "${SOURCE_ROOT_DIR}/Help/MemoryLogger.c"
   "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
+  "${SOURCE_ROOT_DIR}/Application/FIRBlock.cpp"
   )
 
 set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"
-  "${SOURCE_ROOT_DIR}/Application/FIRBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/MIDI_Input_Task.c"
   "${SOURCE_ROOT_DIR}/Application/Monitor_Task.c"
   "${SOURCE_ROOT_DIR}/Application/SerialLogger_Task.c"
@@ -97,7 +97,7 @@ include_directories(${INCLUDES_FOR_TESTING})
 # FLAGS
 #######################################
 set(COMMON_FLAGS " ")
-string(APPEND COMMON_FLAGS " -Wall   -Wextra   -g                   ")
+string(APPEND COMMON_FLAGS " -Wall   -Wextra   -g  -O3                 ")
 
 set(CMAKE_C_FLAGS "  -std=c99                      ")
 set(CMAKE_CXX_FLAGS "  -std=c++14                      ")
@@ -244,19 +244,21 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
   set(UNIT_TEST_TARGET_BASENAME ${TARGET_BASENAME}-unit-tests)
 
   set(Sources
-    test/ExampleTests.cpp
-    test/FFTBlockTests.cpp
-    test/ProcessBlockTests.cpp
-    test/OscillatorBlockTests.cpp
-    test/MIDIMessageHandlerTests.cpp
-    test/BlockGraphTests.cpp
-    test/FAKE_SerialLogger.c
+    test/test-on-host/ExampleTests.cpp
+    test/test-on-host/FFTBlockTests.cpp
+    test/test-on-host/FIRBlockTests.cpp
+    test/test-on-host/CircularFIRProcessorTests.cpp
+    test/test-on-host/ProcessBlockTests.cpp
+    test/test-on-host/OscillatorBlockTests.cpp
+    test/test-on-host/MIDIMessageHandlerTests.cpp
+    test/test-on-host/BlockGraphTests.cpp
+    test/test-on-host/FAKE_SerialLogger.c
     )
-  include_directories("test/googletest/googletest/include")
-  include_directories("test/googletest/googlemock/include")
+  include_directories("test/test-on-host/googletest/googletest/include")
+  include_directories("test/test-on-host/googletest/googlemock/include")
 
   add_executable(${UNIT_TEST_TARGET_BASENAME} ${Sources})
-  target_link_libraries(${UNIT_TEST_TARGET_BASENAME} PUBLIC gtest_main gtest gmock pthread "-L../test/googletest/build/lib" ${TARGET_BASENAME}-for-testing)
+  target_link_libraries(${UNIT_TEST_TARGET_BASENAME} PUBLIC gtest_main gtest gmock pthread "-L../test/test-on-host/googletest/build/lib" ${TARGET_BASENAME}-for-testing)
 
   add_custom_command(TARGET ${UNIT_TEST_TARGET_BASENAME} POST_BUILD
     COMMAND size ${EXECUTABLE_OUTPUT_PATH}/${UNIT_TEST_TARGET_BASENAME}
