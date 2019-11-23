@@ -23,20 +23,13 @@ uint8_t  ucHeap[configTOTAL_HEAP_SIZE];
 
 int main(void)
 {
-  /* Configure the MPU attributes */
   MPU_Config();
-
-  /* Invalidate I-Cache : ICIALLU register*/
   SCB_InvalidateICache();
 
-  /* Enable branch prediction */
-  SCB->CCR |= (1 <<18);
+  SCB->CCR |= (1 <<18); /* Enable branch prediction */
   __DSB();
 
-  /* Invalidate I-Cache : ICIALLU register*/
   SCB_InvalidateICache();
-
-  /* Enable I-Cache */
   SCB_EnableICache();
 
   SCB_InvalidateDCache();
@@ -50,11 +43,10 @@ int main(void)
   */
   HAL_Init();
 
-
   // DO NOT ADD CODE WITH DELAYS BETWEEN HAL_Init() AND STARTING THE SCHEDULER!!!!!
+  // YOU HAVE 1 MILLISECOND TO START THE SCHEDULER OR THE PROGRAM WILL CRASH
 
-  /* Configure the system clock @ 200 Mhz */
-  SystemClock_Config();
+  SystemClock_Config();/* Configure the system clock @ 200 Mhz */
 
 
   My_BSP_Bringup();
