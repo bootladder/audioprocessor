@@ -13,6 +13,11 @@ void BSP_Fast_UART_Transmit_Bytes_Blocking(uint8_t * buf, uint16_t size)
   HAL_UART_Transmit(&UartHandle, buf, size, 1000);
 }
 
+void BSP_Fast_UART_Transmit_Bytes_NonBlocking(uint8_t * buf, uint16_t size)
+{
+  HAL_UART_Transmit_DMA(&UartHandle, buf, size);
+}
+
 //not using interrupts yet
 //void USART6_IRQHandler(void){
 //  HAL_UART_IRQHandler(&UartHandle);
@@ -48,6 +53,8 @@ static void BSP_Fast_UART_MspInit(void)
 
   __USART6_CLK_ENABLE();
 
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
   /* UART TX GPIO pin configuration  */
   GPIO_InitStruct.Pin       = GPIO_PIN_6;
   GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
@@ -59,7 +66,66 @@ static void BSP_Fast_UART_MspInit(void)
 
   //not using Rx for now
 
+  //dma
+  static DMA_HandleTypeDef hdma_tx;
+#define USARTx_TX_DMA_STREAM              DMA2_Stream6
+#define USARTx_TX_DMA_CHANNEL             DMA_CHANNEL_5
+#define USARTx_DMA_TX_IRQn                DMA2_Stream6_IRQn
+#define USARTx_DMA_TX_IRQHandler          DMA2_Stream6_IRQHandler
+#define USARTx_IRQn                      USART6_IRQn
+#define USARTx_IRQHandler                USART6_IRQHandler
+
+  hdma_tx.Instance                 = USARTx_TX_DMA_STREAM;
+  hdma_tx.Init.Channel             = USARTx_TX_DMA_CHANNEL;
+  hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+  hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+  hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+  hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+  hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+  hdma_tx.Init.Mode                = DMA_NORMAL;
+  hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+
+  HAL_DMA_Init(&hdma_tx);
+  __HAL_LINKDMA(&UartHandle, hdmatx, hdma_tx);
+
   //// No interrupts for now
   //HAL_NVIC_SetPriority(USART6_IRQn, 7, 8); //priority, subpriority
   //HAL_NVIC_EnableIRQ(USART6_IRQn);
+
+  /*##-4- Configure the NVIC for DMA #########################################*/
+  /* NVIC configuration for DMA transfer complete interrupt (USART6_TX) */
+  HAL_NVIC_SetPriority(USARTx_DMA_TX_IRQn, 0, 1);
+  HAL_NVIC_EnableIRQ(USARTx_DMA_TX_IRQn);
+
+  /* NVIC for USART, to catch the TX complete */
+  HAL_NVIC_SetPriority(USARTx_IRQn, 0, 1);
+  HAL_NVIC_EnableIRQ(USARTx_IRQn);
+}
+
+
+#include "MemoryLogger.h"
+
+void USARTx_DMA_TX_IRQHandler(void)
+{
+  LOG_ONESHOT("DMATXIRQ\n");
+  HAL_DMA_IRQHandler(UartHandle.hdmatx);
+}
+
+void USARTx_IRQHandler(void)
+{
+  LOG_ONESHOT("USAERTTXIRQ\n");
+  HAL_UART_IRQHandler(&UartHandle);
+}
+
+/**
+ * @brief  Tx Transfer completed callback
+ * @param  UartHandle: UART handle. 
+ * @note   This example shows a simple way to report end of DMA Tx transfer, and 
+ *         you can add your own implementation. 
+ * @retval None
+ */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+  (void)UartHandle;
+  LOG_ONESHOT("UARTTXCPLTCALLBACK\n");
 }

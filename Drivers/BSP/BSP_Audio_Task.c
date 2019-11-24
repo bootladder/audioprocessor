@@ -7,6 +7,8 @@
 #include "queue.h"
 #include "MemoryLogger.h"
 
+#include "SerialLogger.h"
+
 
 enum {
   BUFFER_STATUS_LOWER_HALF_FULL,
@@ -31,9 +33,13 @@ void My_Audio_Task(void * argument)
   while (1)
   {
     xQueueReceive( xQueue_BufferStatus, &bufferStatusMessage, 1000 );
+
+    //Signal other tasks
+    SerialLogger_Signal();
+    Monitor_ResetTickCount();  //tracks CPU usage
+
     LOG_ONESHOT("RECEIVED QUEUE ITEM");
 
-    Monitor_ResetTickCount();  //tracks CPU usage
 
     switch(bufferStatusMessage)
     {
