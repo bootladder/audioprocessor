@@ -7,6 +7,7 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+#include "tinyprintf.h"
 #include "BSP_Fast_UART.h"
 
 
@@ -16,8 +17,12 @@ typedef struct {
   uint32_t size;
 } SerialLoggerMessage_t;
 
-SerialLoggerMessage_t receivedMessage;
+static SerialLoggerMessage_t receivedMessage;
 static QueueHandle_t xQueue_SerialLoggerMessages;
+
+#define TXBUFSIZE 1024*10
+static uint8_t bulkTransmitBuffer[TXBUFSIZE];
+
 
 void SerialLogger_Log(LogType_t type, uint8_t * str, uint32_t size)
 {
@@ -44,13 +49,18 @@ void SerialLogger_Task(void * params)
     xQueuePeek(xQueue_SerialLoggerMessages, &receivedMessage, portMAX_DELAY);
 
     UBaseType_t num = uxQueueMessagesWaiting(xQueue_SerialLoggerMessages);
+    int index = 0;
     for(unsigned i=0; i<num; i++){
       xQueueReceive(xQueue_SerialLoggerMessages, &receivedMessage, portMAX_DELAY);
-      uint8_t typeBuf[1];
-      typeBuf[0] = receivedMessage.type;
-      BSP_Fast_UART_Transmit_Bytes_Blocking(typeBuf, 1);
-      BSP_Fast_UART_Transmit_Bytes_Blocking(receivedMessage.msg, receivedMessage.size);
+
+      bulkTransmitBuffer[index] = receivedMessage.type;
+      index++;
+      int size = tfp_snprintf(&bulkTransmitBuffer[index], TXBUFSIZE - index,
+                              receivedMessage.msg, receivedMessage.size);
+      index += size;
+
     }
 
+    BSP_Fast_UART_Transmit_Bytes_Blocking(bulkTransmitBuffer, index);
   }
 }
