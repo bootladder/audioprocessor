@@ -40,11 +40,17 @@ void SerialLogger_Task(void * params)
   xQueue_SerialLoggerMessages = xQueueCreate(32, sizeof(SerialLoggerMessage_t));
 
   while(1){
-    xQueueReceive(xQueue_SerialLoggerMessages, &receivedMessage, portMAX_DELAY);
+    //block until message availbale
+    xQueuePeek(xQueue_SerialLoggerMessages, &receivedMessage, portMAX_DELAY);
 
-    uint8_t typeBuf[1];
-    typeBuf[0] = receivedMessage.type;
-    BSP_Fast_UART_Transmit_Bytes_Blocking(typeBuf, 1);
-    BSP_Fast_UART_Transmit_Bytes_Blocking(receivedMessage.msg, receivedMessage.size);
+    UBaseType_t num = uxQueueMessagesWaiting(xQueue_SerialLoggerMessages);
+    for(unsigned i=0; i<num; i++){
+      xQueueReceive(xQueue_SerialLoggerMessages, &receivedMessage, portMAX_DELAY);
+      uint8_t typeBuf[1];
+      typeBuf[0] = receivedMessage.type;
+      BSP_Fast_UART_Transmit_Bytes_Blocking(typeBuf, 1);
+      BSP_Fast_UART_Transmit_Bytes_Blocking(receivedMessage.msg, receivedMessage.size);
+    }
+
   }
 }
