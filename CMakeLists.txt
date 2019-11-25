@@ -22,7 +22,7 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/MIDIMessageHandler.cpp"
   "${SOURCE_ROOT_DIR}/Help/MemoryLogger.c"
   "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
-  "${SOURCE_ROOT_DIR}/Application/FIRBlock.cpp"
+  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock.cpp"
   )
 
 set(C_SOURCES_NOT_FOR_TESTING
