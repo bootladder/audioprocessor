@@ -6,6 +6,7 @@ using namespace testing;
 
 #include "FIRBlock.hpp"
 #include "CoefficientTable.hpp"
+#include "LowPassCoefficientTable.hpp"
 
 class MockFIRProcessor : public FIRProcessor {
 public:
@@ -49,5 +50,10 @@ TEST(FIRBlock, inits_and_calls_calculate)
                                           _));
 
   block.process(testBuf);
+}
+
+TEST(LowPassCoefficientTable, constructs)
+{
+  static LowPassCoefficientTable lowPassCoefficientTable;
 }
 

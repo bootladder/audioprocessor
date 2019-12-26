@@ -5,8 +5,11 @@ extern "C"{
 }
 #include "ARMDSPFIRProcessor.hpp"
 #include "CircularFIRProcessor.hpp"
+#include "LowPassCoefficientTable.hpp"
 
 static void test_firblocks(void);
+static void test_lowpass_firblock(void);
+
 static void print_global_tick_count(void);
 
 extern volatile int globalTickCount;
@@ -22,7 +25,11 @@ extern "C" void Testing_Task(void * params)
 
   test_firblocks();
 
+  test_lowpass_firblock();
 
+
+  static uint8_t txbuf2[] = "TEST Task DONE\n";
+  BSP_Fast_UART_Transmit_Bytes_Blocking(txbuf2, sizeof(txbuf2));
   while(1){
   }
 }
@@ -61,6 +68,11 @@ static void test_firblocks(void)
 
   print_global_tick_count();
 }
+
+static void test_lowpass_firblock(void){
+  LowPassCoefficientTable lowPassCoefficientTable;
+}
+
 
 // Tests
 //////////////////////////////////////////////////////////
