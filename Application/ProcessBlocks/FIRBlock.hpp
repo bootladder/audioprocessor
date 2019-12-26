@@ -19,6 +19,8 @@ public:
 
   void process(sample_t * samplesToProcess);
   void setCoeffs(FIRCoefficients * c) { coeffs = c;}
+
+  void setCutoffFrequency(int freq);
   void assignCoefficientArray(uint8_t midivalue);
   void setMIDIParameter(BlockParamIdentifier_t id, int value);
 };

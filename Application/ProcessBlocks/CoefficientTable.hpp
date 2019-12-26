@@ -18,7 +18,7 @@ public:
   FakeCoefficientTable():CoefficientTable(){}
   sample_t * lookupCutoffFrequency(int freq){
     (void)freq;
-    return 0;
+    return (sample_t *) 0;
   }
 };
 

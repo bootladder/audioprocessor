@@ -13,17 +13,36 @@ public:
 };
 
 
+class MockCoefficientTable : public CoefficientTable {
+public:
+
+  MOCK_METHOD(sample_t *, lookupCutoffFrequency, (int freq) , (override));
+};
+
+
 #define NUM_SAMPLES 1024
 static sample_t testBuf[NUM_SAMPLES];
+
+
+MATCHER_P(FIRCoefficients_PointerMatches, ptr, "") {
+  return arg.coeffs == ptr;
+}
 
 TEST(FIRBlock, inits_and_calls_calculate)
 {
   MockFIRProcessor mockFIRProcessor;
-  FakeCoefficientTable fakeCoefficientTable;
-  FIRBlock block("name", NUM_SAMPLES, mockFIRProcessor, fakeCoefficientTable);
+  MockCoefficientTable mockCoefficientTable;
+  FIRBlock block("name", NUM_SAMPLES, mockFIRProcessor, mockCoefficientTable);
 
-  EXPECT_CALL(mockFIRProcessor, calculate(_, _, _, _));
+  sample_t * coefficientsPointer = (sample_t *) 3333;
 
+  EXPECT_CALL(mockCoefficientTable, lookupCutoffFrequency(1000)).WillOnce(Return(coefficientsPointer));
+  EXPECT_CALL(mockFIRProcessor, calculate(_, _,
+
+                                          FIRCoefficients_PointerMatches(coefficientsPointer),
+                                           _));
+
+  block.setCutoffFrequency(1000);
   block.process(testBuf);
 }
 

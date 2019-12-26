@@ -17,12 +17,17 @@ FIRBlock::FIRBlock(const char * name, uint32_t size, FIRProcessor & cfirp, Coeff
   firProcessor(cfirp),
   coefficientTable(table)
 {
+  coeffs = new FIRCoefficients(0,1);
 
 }
 
 void FIRBlock::assignCoefficientArray(uint8_t midivalue)
 {
   (void)midivalue;
+}
+
+void FIRBlock::setCutoffFrequency(int freq){
+  coeffs->coeffs = coefficientTable.lookupCutoffFrequency(freq);
 }
 
 //overriding setMIDIParameter to update coefficients here
