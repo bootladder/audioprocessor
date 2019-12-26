@@ -28,6 +28,7 @@ void FIRBlock::assignCoefficientArray(uint8_t midivalue)
 
 void FIRBlock::setCutoffFrequency(int freq){
   coeffs->coeffs = coefficientTable.lookupCutoffFrequency(freq);
+  coeffs->num_taps = coefficientTable.getNumTaps();
 }
 
 //overriding setMIDIParameter to update coefficients here

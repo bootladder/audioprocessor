@@ -9,6 +9,7 @@ public:
   }
 
   virtual sample_t * lookupCutoffFrequency(int freq) = 0;
+  virtual int getNumTaps() = 0;
 };
 
 
@@ -20,6 +21,8 @@ public:
     (void)freq;
     return (sample_t *) 0;
   }
+
+  int getNumTaps() {return 0;}
 };
 
 #endif /* _COEFFICIENTTABLE_H_ */
