@@ -42,13 +42,12 @@ static void test_firblocks(void)
   static FIRCoefficients coeffs(coeffValues, 512);
 
   static ARMDSPFIRProcessor armdspfirp;
-  static FIRBlock fir1("name", TEST_LENGTH, armdspfirp);
-  fir1.setCoeffs(&coeffs);
+  static FakeCoefficientTable fakeCoefficientTable;
+  static FIRBlock fir1("name", TEST_LENGTH, armdspfirp, fakeCoefficientTable);
 
   static DelayBuffer delayBuffer(1024);
   static CircularFIRProcessor cfirp(delayBuffer);
-  static FIRBlock fir2("name", TEST_LENGTH, cfirp);
-  fir2.setCoeffs(&coeffs);
+  static FIRBlock fir2("name", TEST_LENGTH, cfirp, fakeCoefficientTable);
 
   for(int i=0;i<TEST_LENGTH;i++){
     testbuf[i] = 10;

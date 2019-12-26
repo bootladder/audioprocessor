@@ -4,6 +4,7 @@
 #include "ProcessBlock.hpp"
 #include "FIRCoefficients.hpp"
 #include "FIRProcessor.hpp"
+#include "CoefficientTable.hpp"
 
 
 class FIRBlock : public ProcessBlock{
@@ -11,10 +12,10 @@ class FIRBlock : public ProcessBlock{
   float * filter_coefficients;
   FIRCoefficients * coeffs;
   FIRProcessor & firProcessor;
+  CoefficientTable & coefficientTable;
 
 public:
-  FIRBlock(const char * name, uint32_t size);
-  FIRBlock(const char * name, uint32_t size, FIRProcessor & cfirp);
+  FIRBlock(const char * name, uint32_t size, FIRProcessor & cfirp, CoefficientTable & table);
 
   void process(sample_t * samplesToProcess);
   void setCoeffs(FIRCoefficients * c) { coeffs = c;}

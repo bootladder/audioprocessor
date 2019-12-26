@@ -35,7 +35,7 @@ class ARMDSPFIRProcessor : public FIRProcessor{
 
     //the function modifies the input so have to make a copy
     sample_t *inputCopy = new sample_t[size];
-    for(int i=0;i<size;i++)
+    for(uint32_t i=0;i<size;i++)
       inputCopy[i] = in[i];
 
     arm_fir_f32(&S, inputCopy, out, size);

@@ -12,13 +12,12 @@ extern "C"{
 
 
 
-
-FIRBlock::FIRBlock(const char * name, uint32_t size, FIRProcessor & cfirp)
+FIRBlock::FIRBlock(const char * name, uint32_t size, FIRProcessor & cfirp, CoefficientTable & table)
 : ProcessBlock(name, size),
-  firProcessor(cfirp)
+  firProcessor(cfirp),
+  coefficientTable(table)
 {
 
-  MemoryLogger_LogStringLn("FIR Coeffs calcualtd");
 }
 
 void FIRBlock::assignCoefficientArray(uint8_t midivalue)

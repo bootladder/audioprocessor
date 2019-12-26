@@ -16,6 +16,7 @@ extern "C" {
 #include "SuperSimpleProcessBlocks.hpp"
 #include "DelayBlock.hpp"
 #include "MixerBlock.hpp"
+#include "CoefficientTable.hpp"
 
 class AudioProcessor{
   MIDIMap midiMap;
@@ -42,8 +43,9 @@ createBlock(DelayBlock              ,delay       )
 
 
 ARMDSPFIRProcessor armdspfirp;
-static FIRBlock  fir1("fir1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp);
-static FIRBlock  fir2("fir2", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp);
+FakeCoefficientTable fakeCoefficientTable;
+static FIRBlock  fir1("fir1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp, fakeCoefficientTable);
+static FIRBlock  fir2("fir2", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp, fakeCoefficientTable);
 
 //////////////////////////////////
 
