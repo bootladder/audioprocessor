@@ -5,6 +5,7 @@ using namespace std;
 using namespace testing;
 
 #include "FIRBlock.hpp"
+#include "LowPassFIRBlock.hpp"
 
 class MockFIRProcessor : public FIRProcessor {
 public:
@@ -16,10 +17,17 @@ static sample_t testBuf[NUM_SAMPLES];
 
 TEST(FIRBlock, inits_and_calls_calculate)
 {
-  static MockFIRProcessor mockFIRProcessor;
+  MockFIRProcessor mockFIRProcessor;
   FIRBlock block = FIRBlock("name", NUM_SAMPLES, mockFIRProcessor); //large number
 
   EXPECT_CALL(mockFIRProcessor, calculate(_, _, _, _));
 
+  block.process(testBuf);
+}
+
+TEST(LowPassFIRBlock, inits)
+{
+  MockFIRProcessor mockfirp;
+  FIRBlock block("name", NUM_SAMPLES, mockfirp);
   block.process(testBuf);
 }

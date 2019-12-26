@@ -1,3 +1,10 @@
+#ifndef __LOWPASSFILTERCOEFFICIENTS_HPP__
+#define __LOWPASSFILTERCOEFFICIENTS_HPP__
+#include <stdint.h>
+#include "constexpr_arm_sin_f32.hpp"
+#define MAX_NUM_TAPS 512
+#define SAMPLE_FREQUENCY 48000.0
+
 constexpr int midi_value_to_cutoff(int value){
   return (value*100) + 1;
 }
@@ -39,3 +46,5 @@ struct LowPassFilterCoefficients {
     }
   }
 };
+
+#endif

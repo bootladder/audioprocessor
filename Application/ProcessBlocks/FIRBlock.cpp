@@ -8,9 +8,7 @@ extern "C"{
 #include "tinyprintf.h"
 }
 
-#define SAMPLE_FREQUENCY 48000.0
 #define MAX_BLOCK_SIZE 2048
-#define MAX_NUM_TAPS 512
 
 
 
