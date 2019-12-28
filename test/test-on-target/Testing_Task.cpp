@@ -9,6 +9,7 @@ extern "C"{
 
 static void test_firblocks(void);
 static void test_lowpass_firblock(void);
+static void test_shortlengthcoefficient_firblock(void);
 
 static void print_global_tick_count(void);
 
@@ -24,6 +25,8 @@ extern "C" void Testing_Task(void * params)
 
 
   test_firblocks();
+
+  test_shortlengthcoefficient_firblock();
 
   test_lowpass_firblock();
 
@@ -43,6 +46,8 @@ extern "C" void Testing_Task(void * params)
 
 #define TEST_LENGTH 1024
 sample_t testbuf[TEST_LENGTH];
+
+
 static void test_firblocks(void)
 {
   static sample_t coeffValues[512];
@@ -69,10 +74,52 @@ static void test_firblocks(void)
   print_global_tick_count();
 }
 
-static void test_lowpass_firblock(void){
-  LowPassCoefficientTable lowPassCoefficientTable;
+sample_t short_test_buf[64];
+
+class ShortLengthCoefficientTable : public CoefficientTable {
+
+public:
+  sample_t short_coeffs[8];
+
+  ShortLengthCoefficientTable(){
+    for(int i=0; i<8;i++){
+      short_coeffs[i] = 1.0;
+    }
+  }
+
+  sample_t * lookupCutoffFrequency(int freq){
+    return short_coeffs;
+  }
+  int getNumTaps(){
+    return 8;
+  }
+};
+
+static void test_shortlengthcoefficient_firblock(void){
+  ARMDSPFIRProcessor armdspfirp;
+  ShortLengthCoefficientTable slct;
+  FIRBlock  fir1("fir1", 64, armdspfirp, slct);
+  fir1.setCutoffFrequency(10);
+
+  for(int i=0; i<64;i++){
+    short_test_buf[i] = 4;
+  }
+
+  fir1.process(short_test_buf);
+  sample_t * outBuf = fir1.getOutputBuffer();
+
+  //The outputBuffer shold be all 32 = 4*8, except the first 7 samples
+  for(int i=0; i<64; i++){
+    int myint = (int) outBuf[i];
+    static char buf[100];
+    int size = tfp_snprintf(buf, 100, "Hello: %d\n", myint);
+    BSP_Fast_UART_Transmit_Bytes_Blocking((uint8_t *) buf, size);
+  }
 }
 
+static void test_lowpass_firblock(void)
+{
+}
 
 // Tests
 //////////////////////////////////////////////////////////

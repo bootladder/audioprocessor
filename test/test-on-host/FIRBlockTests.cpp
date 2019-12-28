@@ -52,8 +52,14 @@ TEST(FIRBlock, inits_and_calls_calculate)
   block.process(testBuf);
 }
 
-TEST(LowPassCoefficientTable, constructs)
+TEST(LowPassCoefficientTable, has_good_values)
 {
-  static LowPassCoefficientTable lowPassCoefficientTable;
+  LowPassCoefficientTable lpct;
+  sample_t * coeffs = lpct.lookupCutoffFrequency(10);
+
+  //look at the coefficeints
+  for(int i=200; i<300; i++){
+    //    printf("coeffs[%d]: %f\n", i,coeffs[i]);
+  }
 }
 

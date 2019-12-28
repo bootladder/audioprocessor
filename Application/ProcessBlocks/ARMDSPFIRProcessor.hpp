@@ -24,17 +24,27 @@
 #include "FIRBlock.hpp"
 class ARMDSPFIRProcessor : public FIRProcessor{
 
-  // STATIC... DON'T DO THIS
+public:
+  ARMDSPFIRProcessor(){
+    S.pState = firStateF32;
+  }
+
+private:
   float firStateF32[3000];
   arm_fir_instance_f32 S;
+  sample_t *inputCopy = new sample_t[2048];
 
   void calculate(const sample_t * const in, sample_t * out, const FIRCoefficients & coeffs, const uint32_t size)
   {
-    arm_fir_init_f32(&S, coeffs.num_taps, (float*)coeffs.coeffs,
-                     &firStateF32[0], size); //blocksize
+    //don't init every time
+    // arm_fir_init_f32(&S, coeffs.num_taps, (float*)coeffs.coeffs,
+    //                  &firStateF32[0], size); //blocksize
+
+    S.numTaps = coeffs.num_taps;
+    S.pCoeffs = coeffs.coeffs;
+
 
     //the function modifies the input so have to make a copy
-    sample_t *inputCopy = new sample_t[size];
     for(uint32_t i=0;i<size;i++)
       inputCopy[i] = in[i];
 

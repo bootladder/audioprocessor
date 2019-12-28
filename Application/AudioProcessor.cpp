@@ -16,7 +16,7 @@ extern "C" {
 #include "SuperSimpleProcessBlocks.hpp"
 #include "DelayBlock.hpp"
 #include "MixerBlock.hpp"
-#include "CoefficientTable.hpp"
+#include "LowPassCoefficientTable.hpp"
 
 class AudioProcessor{
   MIDIMap midiMap;
@@ -43,9 +43,9 @@ createBlock(DelayBlock              ,delay       )
 
 
 ARMDSPFIRProcessor armdspfirp;
-FakeCoefficientTable fakeCoefficientTable;
-static FIRBlock  fir1("fir1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp, fakeCoefficientTable);
-static FIRBlock  fir2("fir2", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp, fakeCoefficientTable);
+LowPassCoefficientTable lpct;
+static FIRBlock  fir1("fir1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp, lpct);
+static FIRBlock  fir2("fir2", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp, lpct);
 
 //////////////////////////////////
 
@@ -94,6 +94,12 @@ static BlockGraph & active_block_graph = blockGraph;
 
 void AudioProcessor::init(void)
 {
+  //stuff that shouldn't be here
+  fir1.setCutoffFrequency(1000);
+  fir2.setCutoffFrequency(1000);
+
+
+
   //midi map assigns messages to blocks
   MIDI_Message_t gain1_midi_message = {MIDI_CONTROL_CHANGE,1,1};
   MIDI_Message_t gain2_midi_message = {MIDI_CONTROL_CHANGE,2,1};
