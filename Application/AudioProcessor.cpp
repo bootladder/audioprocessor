@@ -95,8 +95,8 @@ static BlockGraph & active_block_graph = blockGraph;
 void AudioProcessor::init(void)
 {
   //stuff that shouldn't be here
-  fir1.setCutoffFrequency(1000);
-  fir2.setCutoffFrequency(1000);
+  fir1.setCutoffFrequency(10);
+  fir2.setCutoffFrequency(10);
 
 
 
@@ -107,7 +107,7 @@ void AudioProcessor::init(void)
   MIDI_Message_t clipping1_midi_message = {MIDI_CONTROL_CHANGE,4,1};
   MIDI_Message_t fir1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
   MIDI_Message_t delay_midi_message = {MIDI_CONTROL_CHANGE,6,1};
-  MIDI_Message_t fir2_midi_message = {MIDI_CONTROL_CHANGE,9,1};
+  MIDI_Message_t fir2_midi_message = {MIDI_CONTROL_CHANGE,8,1};
   midiMap.addEntry(gain1_midi_message, gain1);
   midiMap.addEntry(gain2_midi_message, gain2);
   midiMap.addEntry(gain3_midi_message, gain3);

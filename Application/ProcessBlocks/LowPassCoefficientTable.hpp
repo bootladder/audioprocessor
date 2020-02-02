@@ -14,10 +14,9 @@ class LowPassCoefficientTable : public CoefficientTable{
 public:
   LowPassCoefficientTable(){
   }
-  sample_t * lookupCutoffFrequency(int freq){
-    (void)freq;
+  sample_t * lookupCutoffFrequency(int value){
 
-    const float * blah = lowPassFilterCoefficients.arr[100];
+    const float * blah = lowPassFilterCoefficients.arr[value];
     return (sample_t *) blah;
   }
   int getNumTaps(){

@@ -26,8 +26,9 @@ void FIRBlock::assignCoefficientArray(uint8_t midivalue)
   (void)midivalue;
 }
 
-void FIRBlock::setCutoffFrequency(int freq){
-  coeffs->coeffs = coefficientTable.lookupCutoffFrequency(freq);
+//still using midi values right now
+void FIRBlock::setCutoffFrequency(int value){
+  coeffs->coeffs = coefficientTable.lookupCutoffFrequency(value);
   coeffs->num_taps = coefficientTable.getNumTaps();
 }
 
@@ -35,7 +36,7 @@ void FIRBlock::setCutoffFrequency(int freq){
 //now there's only 1 parameter but there could be other parameters in this block
 void FIRBlock::setMIDIParameter(BlockParamIdentifier_t id, int value){
   (void)id;
-  assignCoefficientArray(value);
+  setCutoffFrequency(value);
 }
 
 
