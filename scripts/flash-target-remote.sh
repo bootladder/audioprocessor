@@ -1,4 +1,7 @@
 #!/bin/bash
 
-scp build-prod/bin/latest.elf mcbain-home:/tmp/latest.elf
-ssh mcbain-home cheatsheet/flash-tmp-latest.sh
+REMOTETARGET=beaglebone-default
+FLASHCOMMAND=/mnt/flash-latest.sh
+
+scp build-prod/bin/latest.elf $REMOTETARGET:/tmp/latest.elf
+ssh $REMOTETARGET $FLASHCOMMAND
