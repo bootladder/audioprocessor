@@ -14,6 +14,7 @@ extern "C" {
 #include "MIDIMessageHandler.hpp"
 #include "BlockGraph.hpp"
 #include "SuperSimpleProcessBlocks.hpp"
+#include "ClippingDistortionBlock.hpp"
 #include "DelayBlock.hpp"
 #include "MixerBlock.hpp"
 #include "LowPassCoefficientTable.hpp"
@@ -37,10 +38,14 @@ AudioProcessor audioProcessor;
 createBlock(GainBlock               ,gain1       )
 createBlock(GainBlock               ,gain2       )
 createBlock(GainBlock               ,gain3       )
-createBlock(ClippingDistortionBlock ,clipping1   )
 createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
 
+//////////////////////////////////
+
+static ClippingDistortionBlock clipping1("clip1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, ClippingDistortionBlock::CLIPPING_TYPE_SOFT);
+
+//////////////////////////////////
 
 ARMDSPFIRProcessor armdspfirp;
 LowPassCoefficientTable lpct;

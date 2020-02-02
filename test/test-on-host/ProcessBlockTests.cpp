@@ -49,23 +49,6 @@ TEST(ProcessBlock, attenuation)
   }
 }
 
-TEST(ProcessBlock, clippingdistortion_DefaultSettings_ClipsAtHalfAmplitudePositiveAndNegative)
-{
-  ClippingDistortionBlock block("name", NUM_SAMPLES);
-
-  for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    testBuf[i] = -0x8000 + (i*0x10000)/NUM_SAMPLES;
-  }
-
-  block.process(testBuf);
-  sample_t * out = block.getOutputBuffer();
-
-  for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_LE(out[i], 0x8000/2);
-    ASSERT_GE(out[i], -(0x8000/2));
-  }
-}
-
 TEST(ProcessBlock, Mixer_2_Inputs_Mixes)
 {
   MixerBlock mixerBlock("name", NUM_SAMPLES);

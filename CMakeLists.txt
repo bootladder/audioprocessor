@@ -24,6 +24,7 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/LowPassFilterCoefficients.cpp"
+  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/ClippingDistortionBlock/ClippingDistortionBlock.cpp"
   )
 
 set(C_SOURCES_NOT_FOR_TESTING
@@ -76,6 +77,7 @@ LIST(APPEND C_SOURCES ${C_SOURCES_NOT_FOR_TESTING})
 SET(INCLUDES_FOR_TESTING
   "./Application"
   "./Application/ProcessBlocks"
+  "./Application/ProcessBlocks/ClippingDistortionBlock"
   "./Help"
   )
 
@@ -246,13 +248,16 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
 
   set(Sources
     test/test-on-host/ExampleTests.cpp
+    test/test-on-host/ProcessBlockTests.cpp
+    test/test-on-host/ClippingDistortionBlockTests.cpp
+
     test/test-on-host/FFTBlockTests.cpp
     test/test-on-host/FIRBlockTests.cpp
     test/test-on-host/CircularFIRProcessorTests.cpp
-    test/test-on-host/ProcessBlockTests.cpp
     test/test-on-host/OscillatorBlockTests.cpp
     test/test-on-host/MIDIMessageHandlerTests.cpp
     test/test-on-host/BlockGraphTests.cpp
+
     test/test-on-host/FAKE_SerialLogger.c
     )
   include_directories("test/test-on-host/googletest/googletest/include")
