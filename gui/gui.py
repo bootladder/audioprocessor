@@ -1,12 +1,36 @@
-from tkinter import *
-import tkinter.scrolledtext
+#!/usr/bin/python
+
+target = "Host"
+
+# Run on Target
+if target == "Target":
+    print "Running on Target"
+    from Tkinter import *
+    import ScrolledText
+    ScrolledTextWrapper = ScrolledText.ScrolledText
+    import Queue
+    QueueWrapper = Queue.Queue
+
+    midiPathMatcher = "/dev/snd/midi*"
+
+
+# Run on Host
+if target == "Host":
+    print "Running on Host"
+    from tkinter import *
+    import tkinter.scrolledtext
+    ScrolledTextWrapper = tkinter.scrolledtext.ScrolledText
+    import queue
+    QueueWrapper = queue.Queue
+
+    midiPathMatcher = "/dev/midi*"
+
 import thread
 import time
 import serial
 import networkx as nx
 import networkx.drawing.nx_pydot as nx_pydot
 import subprocess
-import queue
 import json
 import select
 
@@ -17,12 +41,12 @@ class App:
         self.quitButton = Button(self.frame, text="QUIT", fg="red", command=self.frame.quit)
         self.helloButton = Button(self.frame, text="Hello", command=self.say_hi)
 
-        self.idleTickCount = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=25)
-        self.midiControllerInput = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=45)
-        self.midiProcessedLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=45)
-        self.eventLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=50)
-        self.nodeUpdateLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=50)
-        self.edgeListUpdateLog = tkinter.scrolledtext.ScrolledText(self.frame, height=12, width=50)
+        self.idleTickCount = ScrolledTextWrapper(self.frame, height=12, width=25)
+        self.midiControllerInput = ScrolledTextWrapper(self.frame, height=12, width=45)
+        self.midiProcessedLog = ScrolledTextWrapper(self.frame, height=12, width=45)
+        self.eventLog = ScrolledTextWrapper(self.frame, height=12, width=50)
+        self.nodeUpdateLog = ScrolledTextWrapper(self.frame, height=12, width=50)
+        self.edgeListUpdateLog = ScrolledTextWrapper(self.frame, height=12, width=50)
 
 
         self.graphImage = PhotoImage(file="graph.png")
@@ -137,7 +161,7 @@ def thread_seriallogger_reader(dispatch, arg2, arg3):
 
 # Open all /dev/midi* devices, pipe them all into the serial port output
 def thread_read_midi_and_pipe_to_ttyUSB(callback):
-    output = subprocess.check_output("ls /dev/midi*", shell=True)
+    output = subprocess.check_output("ls " + midiPathMatcher, shell=True)
     midi_devices = output.strip().split('\n')
     midi_descriptors = []
     for device in midi_devices:
@@ -181,7 +205,7 @@ def thread_render_block_graph_and_callback(queue, callback):
 ###################### MAIN #########################
 
 root = Tk()
-blockGraphQueue = queue.Queue(maxsize=4)
+blockGraphQueue = QueueWrapper(maxsize=4)
 app = App(root, blockGraphQueue)
 
 # Serial Port Dispatch
