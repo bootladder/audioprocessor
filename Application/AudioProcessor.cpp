@@ -89,9 +89,9 @@ __attribute__ ((unused))
 static BlockGraph testerGraph = {
   .start = &gain1,
   .edges = {
-    {&gain1, &square1},
+    {&gain1, &clipping1},
   },
-  .end = &square1,
+  .end = &clipping1,
 };
 
 
@@ -113,6 +113,10 @@ void AudioProcessor::init(void)
   MIDI_Message_t fir1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
   MIDI_Message_t delay_midi_message = {MIDI_CONTROL_CHANGE,6,1};
   MIDI_Message_t fir2_midi_message = {MIDI_CONTROL_CHANGE,8,1};
+
+  MIDI_Message_t footswitch_B_ON_midi_message = {MIDI_NOTE_ON,2,1};
+  MIDI_Message_t footswitch_B_OFF_midi_message = {MIDI_NOTE_OFF,2,1};
+
   midiMap.addEntry(gain1_midi_message, gain1);
   midiMap.addEntry(gain2_midi_message, gain2);
   midiMap.addEntry(gain3_midi_message, gain3);
@@ -120,6 +124,10 @@ void AudioProcessor::init(void)
   midiMap.addEntry(fir1_midi_message, fir1);
   midiMap.addEntry(fir2_midi_message, fir2);
   midiMap.addEntry(delay_midi_message, delay);
+
+  midiMap.addEntry(footswitch_B_ON_midi_message, square1);
+  midiMap.addEntry(footswitch_B_OFF_midi_message, square1);
+
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
 
@@ -131,6 +139,9 @@ void AudioProcessor::init(void)
   fir1.assignMIDIMessageToParameter(fir1_midi_message, PARAM_0);
   fir2.assignMIDIMessageToParameter(fir2_midi_message, PARAM_0);
   delay.assignMIDIMessageToParameter(delay_midi_message, PARAM_0);
+
+  square1.assignMIDIMessageToParameter(footswitch_B_ON_midi_message, PARAM_0);
+  square1.assignMIDIMessageToParameter(footswitch_B_OFF_midi_message, PARAM_1);
 }
 
 sample_t * AudioProcessor::process(sample_t * sampleBuf)

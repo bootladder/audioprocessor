@@ -1,5 +1,10 @@
 #include "ProcessBlock.hpp"
 
+extern "C"{
+#include "SerialLogger.h"
+#include "tinyprintf.h"
+}
+
 typedef float (* GetFrequencyFunction)(void);
 typedef sample_t (* GetAmplitudeFunction)(void);
 
@@ -15,6 +20,7 @@ private:
   OscillatorType oscillatorType;
   uint32_t period_samples;
   uint32_t index;
+  bool muted;
 
   sample_t oscillator_square(uint32_t index, uint32_t period){
     if(index < period/2)
@@ -30,11 +36,33 @@ public:
     getAmplitudeFunction = fa;
     oscillatorType = t;
     index = 0;
+    muted = false;
   }
+
+  void setMIDIParameter(BlockParamIdentifier_t id, int value){
+    (void)value;  //value is always 127.  The ID is note on or off
+    //PARAM_0 is ON, PARAM_1 is OFF
+    if(id == PARAM_0){
+      muted = false;
+    }
+    if(id == PARAM_1){
+      muted = true;
+    }
+
+    static char str[100];
+    int size = tfp_snprintf(str,100, "%s, Oscillator, %d\n", name, id);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
+  }
+
 
   void process(sample_t * samplesToProcess)
   {
     (void)samplesToProcess; //oscillators do not depend on input
+
+    if(muted){
+      muteOutputBuffer();
+      return;
+    }
 
     float freq = getFrequencyFunction();
     float freq_samples = freq/48000.0; //HARD CODED SAMPLE RATE
@@ -45,6 +73,12 @@ public:
       index++;
       if(index > period_samples)
         index = 0;
+    }
+  }
+
+  void muteOutputBuffer(void){
+    for(uint32_t i=0; i<num_samples; i++){
+      outputBuffer[i] = 0;
     }
   }
 };
