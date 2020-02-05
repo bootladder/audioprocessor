@@ -57,11 +57,31 @@ public:
   void clip_soft(void)
   {
     //Normalize and Waveshape
+    //16 bit signed samples max out at 32000.
+    //Wave shaping formula clips after max input
+    // So scale down to.... 0.5?  divide by 64000?
 
+    sample_t factor = 16000.0;
+    sample_t limit = 0.66666666;
     for(uint32_t i=0; i<num_samples; i++){
-      sample_t normalized = inputBuffer[i]/32000.0;  //normalize to 1 so the cubic works
-      sample_t shaped = normalized - (normalized*normalized *normalized / 3);
-      sample_t denormalized = shaped * 32000.0;
+
+
+      sample_t normalized = inputBuffer[i]/factor;  //normalize to 1 so the cubic works
+      sample_t shaped;
+
+      //clip
+      if(normalized > limit){
+        shaped = limit;
+      }
+      else if(normalized < (-1*limit)){
+        shaped = -1*limit;
+      }
+      else{
+        //shape
+        shaped = normalized - (normalized*normalized *normalized / 3);
+      }
+
+      sample_t denormalized = shaped * factor;
       outputBuffer[i] = denormalized;
     }
   }

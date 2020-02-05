@@ -9,7 +9,7 @@ static sample_t testBuf[NUM_SAMPLES];
 
 static void fillTestBufferWithRampFunction(sample_t * buf){
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    buf[i] = (sample_t)(-0x8000 + ((float)i*0x10000)/NUM_SAMPLES);
+    buf[i] = (sample_t)(-0x8000 + ((float)i*0x20000)/NUM_SAMPLES);
   }
 }
 
@@ -42,10 +42,14 @@ TEST(ClippingDistortionBlock, SoftClipping_WithinThreshold_AppliesWaveShapingFun
 
   block.process(testBuf);
   sample_t * out = block.getOutputBuffer();
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    printf("\nin[%d] = %f  ",i, testBuf[i]);
+    printf("out[%d] = %f",i, out[i]);
+  }
 
   // shaping function
-  sample_t testSample = testBuf[500]/32000.0; //normalize to 1
-  sample_t expectedOutput = (testSample - (testSample*testSample*testSample / 3)) * 32000.0;
+  sample_t testSample = testBuf[500]/16000.0; //normalize to 1
+  sample_t expectedOutput = (testSample - (testSample*testSample*testSample / 3)) * 16000.0;
   ASSERT_FLOAT_EQ(out[500], expectedOutput);
 
   // clip .. how to clip?
