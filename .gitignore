@@ -1,3 +1,5 @@
+.vscode
+
 build-test/
 build-prod/
 build-cross-tests/
