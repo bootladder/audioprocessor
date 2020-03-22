@@ -64,7 +64,7 @@ public:
     //don't look higher than range
     max = 0;
     for(int i=0; i<binRange; i++){
-      if( abs(spectrum[i]) > max){ //need portable absd
+      if( my_abs(spectrum[i]) > max){ //need portable absd
         max = (int)spectrum[i];
         max_index = i;
       }
@@ -90,6 +90,14 @@ public:
   }
   int getSpectrumPeakMagnitude(){
     return max;
+  }
+
+  //lol portability
+  sample_t my_abs(sample_t in){
+    if(in < 0){
+      return in*-1.0;
+    }
+    return in;
   }
 };
 

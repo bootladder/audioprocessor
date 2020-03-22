@@ -25,6 +25,7 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/FIRBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/LowPassFilterCoefficients.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/ClippingDistortionBlock/ClippingDistortionBlock.cpp"
+  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FFTBlock.cpp"
   )
 
 set(C_SOURCES_NOT_FOR_TESTING
