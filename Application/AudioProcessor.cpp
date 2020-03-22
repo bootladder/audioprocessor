@@ -18,6 +18,7 @@ extern "C" {
 #include "DelayBlock.hpp"
 #include "MixerBlock.hpp"
 #include "LowPassCoefficientTable.hpp"
+#include "IIRBlock.hpp"
 
 class AudioProcessor{
   MIDIMap midiMap;
@@ -40,6 +41,7 @@ createBlock(GainBlock               ,gain2       )
 createBlock(GainBlock               ,gain3       )
 createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
+createBlock(IIRBlock                ,iir1       )
 
 //////////////////////////////////
 
@@ -76,8 +78,8 @@ static BlockGraph blockGraph = {
   {&gain1, &gain3},
   {&gain1, &fft1},
   {&gain3, &clipping1},
-  {&clipping1, &fir2},
-  {&fir2, &delay},
+  {&clipping1, &iir1},
+  {&iir1, &delay},
   {&delay, &mixer},
   {&gain2, &mixer},
   {0,0}, // null terminator
@@ -90,8 +92,9 @@ static BlockGraph testerGraph = {
   .start = &gain1,
   .edges = {
     {&gain1, &clipping1},
+    {&clipping1, &iir1},
   },
-  .end = &clipping1,
+  .end = &iir1,
 };
 
 
@@ -103,6 +106,7 @@ void AudioProcessor::init(void)
   fir1.setCutoffFrequency(10);
   fir2.setCutoffFrequency(10);
 
+  iir1.setCutoffFrequency(10);
 
 
   //midi map assigns messages to blocks
@@ -113,6 +117,7 @@ void AudioProcessor::init(void)
   MIDI_Message_t fir1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
   MIDI_Message_t delay_midi_message = {MIDI_CONTROL_CHANGE,6,1};
   MIDI_Message_t fir2_midi_message = {MIDI_CONTROL_CHANGE,8,1};
+  MIDI_Message_t iir1_midi_message = {MIDI_CONTROL_CHANGE,7,1};
 
   MIDI_Message_t footswitch_B_ON_midi_message = {MIDI_NOTE_ON,2,1};
   MIDI_Message_t footswitch_B_OFF_midi_message = {MIDI_NOTE_OFF,2,1};
@@ -124,6 +129,7 @@ void AudioProcessor::init(void)
   midiMap.addEntry(fir1_midi_message, fir1);
   midiMap.addEntry(fir2_midi_message, fir2);
   midiMap.addEntry(delay_midi_message, delay);
+  midiMap.addEntry(iir1_midi_message, iir1);
 
   midiMap.addEntry(footswitch_B_ON_midi_message, square1);
   midiMap.addEntry(footswitch_B_OFF_midi_message, square1);
@@ -139,6 +145,7 @@ void AudioProcessor::init(void)
   fir1.assignMIDIMessageToParameter(fir1_midi_message, PARAM_0);
   fir2.assignMIDIMessageToParameter(fir2_midi_message, PARAM_0);
   delay.assignMIDIMessageToParameter(delay_midi_message, PARAM_0);
+  iir1.assignMIDIMessageToParameter(iir1_midi_message, PARAM_0);
 
   square1.assignMIDIMessageToParameter(footswitch_B_ON_midi_message, PARAM_0);
   square1.assignMIDIMessageToParameter(footswitch_B_OFF_midi_message, PARAM_1);

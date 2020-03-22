@@ -6,6 +6,11 @@
 
 #include "ProcessBlock.hpp"
 
+extern "C"{
+#include "SerialLogger.h"
+#include "tinyprintf.h"
+}
+
 typedef enum {
               IIR_COEFF_A1,
               IIR_COEFF_A2,
@@ -29,6 +34,8 @@ public:
   IIRBlock(const char * name, uint32_t size)
   : ProcessBlock(name, size)
   {
+    cutoffFreq = 1500.0;
+    Q = 0.9;
   }
 
   void process(sample_t * samplesToProcess){
@@ -106,6 +113,9 @@ public:
 
   
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
+    static char str[100];
+    int size = tfp_snprintf(str,100, "%s, Cutoff(Hz), %d\n", name, value*10);
+    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
     setCutoffFrequency(value*10);
   }
 
