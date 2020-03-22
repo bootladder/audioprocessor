@@ -87,5 +87,7 @@ TEST(IIRBlock, setMIDIParameter_Cutoff_Works){
   IIRBlock block("name", NUM_SAMPLES);
 
   block.setMIDIParameter(PARAM_0, 100);
-  ASSERT_EQ(1000.0, block.getCutoffFrequency());
+  block.setMIDIParameter(PARAM_1, 100);
+  ASSERT_EQ(2000.0, block.getCutoffFrequency());
+  ASSERT_EQ(10.0, block.getQ());
 }

@@ -113,10 +113,22 @@ public:
 
   
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
-    static char str[100];
-    int size = tfp_snprintf(str,100, "%s, Cutoff(Hz), %d\n", name, value*10);
-    SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
-    setCutoffFrequency(value*10);
+    if(id == PARAM_0){
+      
+      int newCutoff = value*20;
+
+      static char str[100];
+      int size = tfp_snprintf(str,100, "%s, Cutoff(Hz), %d\n", name, newCutoff);
+      SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
+      setCutoffFrequency(newCutoff);
+    }
+    else{
+      sample_t newQ = ((float)value)/10.0;
+      static char str[100];
+      int size = tfp_snprintf(str,100, "%s, Q, %f\n", name, newQ);
+      SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
+      setQ(newQ);
+    }
   }
 
 
