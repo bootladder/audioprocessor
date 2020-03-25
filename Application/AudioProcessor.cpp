@@ -5,8 +5,6 @@ extern "C" {
 #include "SamplingTypes.h"
 #include "BSP_Audio_Buffer_Interface.h"
 #include "ProcessBlock.hpp"
-#include "FIRBlock.hpp"
-#include "ARMDSPFIRProcessor.hpp"
 #include "OscillatorBlock.hpp"
 #include "FFTBlock.hpp"
 #include "ARMDSPFFTProcessor.hpp"
@@ -20,19 +18,12 @@ extern "C" {
 #include "LowPassCoefficientTable.hpp"
 #include "IIRBlock.hpp"
 
-class AudioProcessor{
-  MIDIMap midiMap;
-public:
-  void init(void);
-  sample_t * process(sample_t * sampleBuf);
-};
-
-AudioProcessor audioProcessor;
-
-
 // Currently, everything is configured statically and manually.
 // Eventually there will be some configuration format
 // That will be parsed into the Processing Graph and the MIDI Map.
+
+//////////////////////////////////////////////////////////////////////////
+// BLOCKS
 
 #define createBlock(blockClass, name) static blockClass name(#name,MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
@@ -49,13 +40,6 @@ static ClippingDistortionBlock clipping1("clip1", MY_PROCESSING_BUFFER_SIZE_SAMP
 
 //////////////////////////////////
 
-ARMDSPFIRProcessor armdspfirp;
-LowPassCoefficientTable lpct;
-static FIRBlock  fir1("fir1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp, lpct);
-static FIRBlock  fir2("fir2", MY_PROCESSING_BUFFER_SIZE_SAMPLES, armdspfirp, lpct);
-
-//////////////////////////////////
-
 static ARMDSPFFTProcessor armDSPFFTProcessor;
 static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 2*1024, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
@@ -68,6 +52,10 @@ OscillatorBlock square1("square1", MY_PROCESSING_BUFFER_SIZE_SAMPLES,
                         OSCILLATOR_SQUARE,
                         return_constant_440hz,
                         return_some_amplitude);
+
+
+//////////////////////////////////////////////////////////////////////////
+// GRAPH
 
 __attribute__ ((unused))
 static BlockGraph blockGraph = {
@@ -91,64 +79,53 @@ __attribute__ ((unused))
 static BlockGraph testerGraph = {
   .start = &gain1,
   .edges = {
-    {&gain1, &clipping1},
+    {&gain1, &gain2},
+    {&gain2, &clipping1},
     {&clipping1, &iir1},
+    //{&gain2, &delay},
+    //{&delay, &mixer},
+    {&iir1, &mixer},
+    {0,0}, // null terminator
   },
-  .end = &iir1,
+  .end = &mixer,
 };
 
 
-static BlockGraph & active_block_graph = blockGraph;
+static BlockGraph & active_block_graph = testerGraph;
+
+
+//////////////////////////////////////////////////////////////////////////
+// AudioProcessor Class
+
+class AudioProcessor{
+  MIDIMap midiMap;
+public:
+  void init(void);
+  sample_t * process(sample_t * sampleBuf);
+  void MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId);
+};
+
 
 void AudioProcessor::init(void)
 {
-  //stuff that shouldn't be here
-  fir1.setCutoffFrequency(10);
-  fir2.setCutoffFrequency(10);
-
   iir1.setCutoffFrequency(10);
 
-
-  //midi map assigns messages to blocks
-  MIDI_Message_t gain1_midi_message = {MIDI_CONTROL_CHANGE,1,1};
-  MIDI_Message_t gain2_midi_message = {MIDI_CONTROL_CHANGE,2,1};
-  MIDI_Message_t gain3_midi_message = {MIDI_CONTROL_CHANGE,3,1};
-  MIDI_Message_t clipping1_midi_message = {MIDI_CONTROL_CHANGE,4,1};
-  MIDI_Message_t fir1_midi_message = {MIDI_CONTROL_CHANGE,5,1};
-  MIDI_Message_t delay_midi_message = {MIDI_CONTROL_CHANGE,6,1};
-  MIDI_Message_t fir2_midi_message = {MIDI_CONTROL_CHANGE,8,1};
-  MIDI_Message_t iir1_midi_message = {MIDI_CONTROL_CHANGE,7,1};
-
-  MIDI_Message_t footswitch_B_ON_midi_message = {MIDI_NOTE_ON,2,1};
-  MIDI_Message_t footswitch_B_OFF_midi_message = {MIDI_NOTE_OFF,2,1};
-
-  midiMap.addEntry(gain1_midi_message, gain1);
-  midiMap.addEntry(gain2_midi_message, gain2);
-  midiMap.addEntry(gain3_midi_message, gain3);
-  midiMap.addEntry(clipping1_midi_message, clipping1);
-  midiMap.addEntry(fir1_midi_message, fir1);
-  midiMap.addEntry(fir2_midi_message, fir2);
-  midiMap.addEntry(delay_midi_message, delay);
-  midiMap.addEntry(iir1_midi_message, iir1);
-
-  midiMap.addEntry(footswitch_B_ON_midi_message, square1);
-  midiMap.addEntry(footswitch_B_OFF_midi_message, square1);
-
+  MIDIHookup({MIDI_CONTROL_CHANGE,1,1}, gain1, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,2,1}, gain2, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,3,1}, gain3, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,4,1}, clipping1, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,6,1}, delay, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,9,1}, iir1, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,8,1}, iir1, PARAM_1);
+  MIDIHookup({MIDI_NOTE_ON,2,1}, square1, PARAM_0);
+  MIDIHookup({MIDI_NOTE_OFF,2,1}, square1, PARAM_1);
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
+}
 
-  //block MIDI assignments assign messages to block params
-  gain1.assignMIDIMessageToParameter(gain1_midi_message, PARAM_0);
-  gain2.assignMIDIMessageToParameter(gain2_midi_message, PARAM_0);
-  gain3.assignMIDIMessageToParameter(gain3_midi_message, PARAM_0);
-  clipping1.assignMIDIMessageToParameter(clipping1_midi_message, PARAM_0);
-  fir1.assignMIDIMessageToParameter(fir1_midi_message, PARAM_0);
-  fir2.assignMIDIMessageToParameter(fir2_midi_message, PARAM_0);
-  delay.assignMIDIMessageToParameter(delay_midi_message, PARAM_0);
-  iir1.assignMIDIMessageToParameter(iir1_midi_message, PARAM_0);
-
-  square1.assignMIDIMessageToParameter(footswitch_B_ON_midi_message, PARAM_0);
-  square1.assignMIDIMessageToParameter(footswitch_B_OFF_midi_message, PARAM_1);
+void AudioProcessor::MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId){
+  midiMap.addEntry(msg, block);
+  block.assignMIDIMessageToParameter(msg, paramId);
 }
 
 sample_t * AudioProcessor::process(sample_t * sampleBuf)
@@ -169,7 +146,16 @@ sample_t * AudioProcessor::process(sample_t * sampleBuf)
   return active_block_graph.end->getOutputBuffer();
 }
 
-///////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////
+// C Interface
+
+// The C interface needs static functions to call
+// so we have this global instance of AudioProcessor here.
+AudioProcessor audioProcessor;
+
+
 
 // This is called by the FreeRTOS Audio Task, every time the DMA receive buf fills up.
 // Takes int16_t samples, processes, returns int16_t samples.

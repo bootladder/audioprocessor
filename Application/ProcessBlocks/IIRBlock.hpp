@@ -115,7 +115,7 @@ public:
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
     if(id == PARAM_0){
       
-      int newCutoff = value*20;
+      int newCutoff = 200 + (value*8);
 
       static char str[100];
       int size = tfp_snprintf(str,100, "%s, Cutoff(Hz), %d\n", name, newCutoff);
