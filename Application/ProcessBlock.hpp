@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "SamplingTypes.h"
-#include "MIDI_Message.h"
+#include "MIDI_Message.hpp"
 
 enum BlockParamIdentifier_t{
   PARAM_0 = 0,

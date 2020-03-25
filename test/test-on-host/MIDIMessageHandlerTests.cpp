@@ -8,7 +8,7 @@ extern "C"{
 #include "MIDIMessageHandler.h"
 }
 #include "MIDIMessageHandler.hpp"
-#include "MIDI_Message.h"
+#include "MIDI_Message.hpp"
 #include "MIDIMap.hpp"
 #include "ProcessBlock.hpp"
 

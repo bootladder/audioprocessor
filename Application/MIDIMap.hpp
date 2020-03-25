@@ -1,7 +1,7 @@
 #ifndef __MIDIMAP_HPP__
 #define __MIDIMAP_HPP__
 
-#include "MIDI_Message.h"
+#include "MIDI_Message.hpp"
 #include "ProcessBlock.hpp"
 
 class MIDIMapEntry

@@ -257,6 +257,7 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
     test/test-on-host/CircularFIRProcessorTests.cpp
     test/test-on-host/OscillatorBlockTests.cpp
     test/test-on-host/IIRBlockTests.cpp
+    test/test-on-host/LFOTests.cpp
 
     test/test-on-host/MIDIMessageHandlerTests.cpp
     test/test-on-host/BlockGraphTests.cpp
