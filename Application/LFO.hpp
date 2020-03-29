@@ -11,14 +11,12 @@ extern "C"{
 class LFO;
 
 typedef void (*MIDIMessageHandlerFunc_t)(MIDI_Message_t);
-//typedef void (LFO::*LFOMethod_t) (void);
 typedef void (*StartTimerFunc)(LFO * lfo, int);
 
 class LFO {
 
     const char * name;
     int lfoFreqHz;
-    int midiMessageFreqHz;
     int timerTickPeriodMs;
     int currentLFOValue;
     int ticks;
@@ -38,8 +36,6 @@ public:
 
   void setLFOFrequencyHz(int freq){ lfoFreqHz = freq; }
 
-  void setMIDIMessageFrequencyHz(int freq){ midiMessageFreqHz = freq; }
-
   void setMIDIMessage(MIDI_Message_t msg){ midiMessage = msg; }
 
   void setMIDIMessageHandlerFunc(MIDIMessageHandlerFunc_t func){
@@ -52,8 +48,11 @@ public:
 
   void tickCallback(void){
       ticks++;
-      int sawToothValue = (-127/2) + (127*ticks*timerTickPeriodMs/(1000/lfoFreqHz));
-      currentLFOValue = abs(sawToothValue)*2;
+      int T = 1000/lfoFreqHz/timerTickPeriodMs;
+      if(ticks >= T)
+        ticks = 0;
+      int sawToothValue = (-127) + (127*ticks*2/T);
+      currentLFOValue = abs(sawToothValue);
       midiMessage.value = currentLFOValue;
       midiMessageHandlerFunc(midiMessage);
   }

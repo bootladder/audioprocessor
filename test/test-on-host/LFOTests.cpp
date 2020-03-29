@@ -21,7 +21,6 @@ TEST(LFO, initialize)
 {
     LFO lfo("name");
     lfo.setLFOFrequencyHz(1000);
-    lfo.setMIDIMessageFrequencyHz(100);
     lfo.setMIDIMessage({MIDI_CONTROL_CHANGE,20,1});
     lfo.setMIDIMessageHandlerFunc(mockMIDIMessageHandlerFunc);
 
@@ -45,7 +44,6 @@ TEST(LFO, waveform)
 {
     LFO lfo("name");
     lfo.setLFOFrequencyHz(10);
-    lfo.setMIDIMessageFrequencyHz(100);
     lfo.setMIDIMessage({MIDI_CONTROL_CHANGE,20,1});
     lfo.setMIDIMessageHandlerFunc(mockMIDIMessageHandlerFunc);
 
@@ -53,6 +51,7 @@ TEST(LFO, waveform)
     lfo.startTimerMs(10);
 
     //5 times is half a period to 10hz @ 10ms
+    //down to zero
     for(int i=0; i<5; i++){
         lfo.tickCallback();
     }
@@ -61,10 +60,19 @@ TEST(LFO, waveform)
     ASSERT_EQ(mockMIDIMessage.value, expectedMIDIValue);
 
     //5 MORE times is a FULL period
+    // back up to 127
     for(int i=0; i<5; i++){
         lfo.tickCallback();
     }
 
     expectedMIDIValue = 127;
+    ASSERT_EQ(mockMIDIMessage.value, expectedMIDIValue);
+
+    //5 MORE times is back to zero
+    for(int i=0; i<5; i++){
+        lfo.tickCallback();
+    }
+
+    expectedMIDIValue = 0;
     ASSERT_EQ(mockMIDIMessage.value, expectedMIDIValue);
 }
