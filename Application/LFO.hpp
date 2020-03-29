@@ -11,7 +11,7 @@ extern "C"{
 class LFO;
 
 typedef void (*MIDIMessageHandlerFunc_t)(MIDI_Message_t);
-typedef void (*StartTimerFunc)(LFO * lfo, int);
+typedef void (*StartTimerFunc)(LFO & lfo, int);
 
 class LFO {
 
@@ -59,7 +59,7 @@ public:
 
   void startTimerMs(int ms){
       timerTickPeriodMs = ms;
-      startTimerFunc(this, ms); 
+      startTimerFunc(*this, ms); 
   }
 };
 

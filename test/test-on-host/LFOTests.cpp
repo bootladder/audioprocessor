@@ -13,7 +13,7 @@ void mockMIDIMessageHandlerFunc(MIDI_Message_t message){
 }
 
 bool mockStartTimerMsFunc_called;
-void mockStartTimerMsFunc(LFO * lfo, int ms){
+void mockStartTimerMsFunc(LFO & lfo, int ms){
     mockStartTimerMsFunc_called = true;
 }
 

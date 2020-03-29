@@ -15,8 +15,8 @@ extern "C" {
 #include "ClippingDistortionBlock.hpp"
 #include "DelayBlock.hpp"
 #include "MixerBlock.hpp"
-#include "LowPassCoefficientTable.hpp"
 #include "IIRBlock.hpp"
+#include "LFO.hpp"
 
 // Currently, everything is configured statically and manually.
 // Eventually there will be some configuration format
@@ -82,9 +82,8 @@ static BlockGraph testerGraph = {
     {&gain1, &gain2},
     {&gain2, &clipping1},
     {&clipping1, &iir1},
-    //{&gain2, &delay},
-    //{&delay, &mixer},
-    {&iir1, &mixer},
+    {&iir1, &delay},
+    {&delay, &mixer},
     {0,0}, // null terminator
   },
   .end = &mixer,
@@ -93,6 +92,45 @@ static BlockGraph testerGraph = {
 
 static BlockGraph & active_block_graph = testerGraph;
 
+//////////////////////////////////////////////////////////////////////////
+// LFOs
+
+LFO lfo("LFO");
+
+extern "C"{
+#include "FreeRTOS.h"
+#include "timers.h"
+}
+
+//this sucks
+void vTimerCallback( TimerHandle_t xTimer ){
+  lfo.tickCallback();
+}
+
+// MOVE THIS SOMEWHERE ELSE
+void freertosLFOTimerFunc(LFO & lfo, int ms){
+  TimerHandle_t handle = xTimerCreate
+  (
+    "Timer",
+    /* The timer period in ticks, must be
+    greater than 0. */
+    ms,
+    /* The timers will auto-reload themselves
+    when they expire. */
+    pdTRUE,
+    /* Timer ID */
+    ( void * ) 0,
+    /* Each timer calls the same callback when
+    it expires. */
+    vTimerCallback
+  );
+
+  if( xTimerStart( handle, 0 ) != pdPASS )
+             {
+                 /* The timer could not be set into the Active
+                 state. */
+             }
+}
 
 //////////////////////////////////////////////////////////////////////////
 // AudioProcessor Class
@@ -108,19 +146,25 @@ public:
 
 void AudioProcessor::init(void)
 {
-  iir1.setCutoffFrequency(10);
-
   MIDIHookup({MIDI_CONTROL_CHANGE,1,1}, gain1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,2,1}, gain2, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,3,1}, gain3, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,4,1}, clipping1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,6,1}, delay, PARAM_0);
-  MIDIHookup({MIDI_CONTROL_CHANGE,9,1}, iir1, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,7,1}, iir1, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,20,1}, iir1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,8,1}, iir1, PARAM_1);
   MIDIHookup({MIDI_NOTE_ON,2,1}, square1, PARAM_0);
   MIDIHookup({MIDI_NOTE_OFF,2,1}, square1, PARAM_1);
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
+
+
+
+  lfo.setLFOFrequencyHz(1);
+  lfo.setMIDIMessage({MIDI_CONTROL_CHANGE,20,1});
+  lfo.setStartTimerMsFunc(freertosLFOTimerFunc);
+  lfo.startTimerMs(10);
 }
 
 void AudioProcessor::MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId){
