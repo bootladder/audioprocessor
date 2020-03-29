@@ -95,20 +95,27 @@ static BlockGraph & active_block_graph = testerGraph;
 //////////////////////////////////////////////////////////////////////////
 // LFOs
 
-LFO lfo("LFO");
+LFO lfo1("LFO1");
+LFO lfo2("LFO2");
 
 extern "C"{
 #include "FreeRTOS.h"
 #include "timers.h"
 }
 
+
+int num_lfos = 0;
+LFO * lfos[10];
+
 //this sucks
 void vTimerCallback( TimerHandle_t xTimer ){
-  lfo.tickCallback();
+  auto id = ( uint32_t ) pvTimerGetTimerID( xTimer );
+  lfos[id]->tickCallback();
 }
 
 // MOVE THIS SOMEWHERE ELSE
 void freertosLFOTimerFunc(LFO & lfo, int ms){
+
   TimerHandle_t handle = xTimerCreate
   (
     "Timer",
@@ -119,7 +126,7 @@ void freertosLFOTimerFunc(LFO & lfo, int ms){
     when they expire. */
     pdTRUE,
     /* Timer ID */
-    ( void * ) 0,
+    ( void * ) num_lfos,
     /* Each timer calls the same callback when
     it expires. */
     vTimerCallback
@@ -130,6 +137,10 @@ void freertosLFOTimerFunc(LFO & lfo, int ms){
                  /* The timer could not be set into the Active
                  state. */
              }
+
+
+    lfos[num_lfos] = &lfo;
+    num_lfos++;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -151,6 +162,7 @@ void AudioProcessor::init(void)
   MIDIHookup({MIDI_CONTROL_CHANGE,3,1}, gain3, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,4,1}, clipping1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,6,1}, delay, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, delay, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,7,1}, iir1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,20,1}, iir1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,8,1}, iir1, PARAM_1);
@@ -161,10 +173,15 @@ void AudioProcessor::init(void)
 
 
 
-  lfo.setLFOFrequencyHz(1);
-  lfo.setMIDIMessage({MIDI_CONTROL_CHANGE,20,1});
-  lfo.setStartTimerMsFunc(freertosLFOTimerFunc);
-  lfo.startTimerMs(10);
+  lfo1.setLFOFrequencyHz(1);
+  lfo1.setMIDIMessage({MIDI_CONTROL_CHANGE,90,1});
+  lfo1.setStartTimerMsFunc(freertosLFOTimerFunc);
+  lfo1.startTimerMs(10);
+
+  lfo2.setLFOFrequencyHz(1);
+  lfo2.setMIDIMessage({MIDI_CONTROL_CHANGE,30,1});
+  lfo2.setStartTimerMsFunc(freertosLFOTimerFunc);
+  lfo2.startTimerMs(10);
 }
 
 void AudioProcessor::MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId){
