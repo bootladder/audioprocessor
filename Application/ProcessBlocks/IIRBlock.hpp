@@ -30,6 +30,9 @@ class IIRBlock : public ProcessBlock{
   sample_t Q;
   sample_t cutoffFreq;
 
+  sample_t last_xh;
+  sample_t secondToLast_xh;
+
 public:
   IIRBlock(const char * name, uint32_t size)
   : ProcessBlock(name, size)
@@ -48,8 +51,8 @@ public:
     //xh(1) = x(1) − a1xh(1 − 1) − a2xh(1 − 2) = 0 - a1*1 - a2*0 = -a1
 
     sample_t xh[num_samples];
-    xh[0] = 1;
-    xh[1] = -1*a1;
+    xh[0] = inputBuffer[0] - (a1*last_xh) - (a2*secondToLast_xh); //inputBuffer[0];
+    xh[1] = inputBuffer[1] - (a1*xh[0]) - (a2*last_xh);
     for(uint32_t i=2; i<num_samples; i++){
       xh[i] = inputBuffer[i] - (a1*xh[i-1]) - (a2*xh[i-2]);
     }
@@ -58,12 +61,15 @@ public:
     //y(0) = b0*xh(0) + b1*xh(0 - 1) + b2*xh(0 - 2) = b0*1 = b0
     //y(1) = b0*xh(1) + b1*xh(1 - 1) + b2*xh(1 - 2) = b0*(-a1) + b1*(1) = b0*(-a1) + b1
 
-    outputBuffer[0] = b0;
-    outputBuffer[1] = b0*-1*a1 + b1;
+    outputBuffer[0] = b0*xh[0] + b1*last_xh + b2*secondToLast_xh;
+    outputBuffer[1] = b0*xh[1] + b1*xh[0] + b2*last_xh;
 
     for(uint32_t i=2; i<num_samples; i++){
       outputBuffer[i] = b0*xh[i] + b1*xh[i-1] + b2*xh[i-2];
     }
+
+    last_xh = xh[num_samples-1];
+    secondToLast_xh = xh[num_samples-2];
   }
 
   void setCoefficient(IIRCoefficientID id, sample_t value){
