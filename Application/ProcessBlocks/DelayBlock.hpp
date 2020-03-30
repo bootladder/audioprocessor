@@ -11,6 +11,7 @@ extern "C"{
 class DelayBlock : public ProcessBlock {
 
   int delayNumSamples;
+  int delayNumSamples_lastTimeProcessed; //it can change
   int delayMillis; //for printing
   DelayBuffer * delayBuffer;
 
@@ -42,19 +43,38 @@ public:
       inputBuffer[i] = samplesToProcess[i];
     }
 
-    //add delayed input to input
-    //add sample to delayBuffer
-    for(uint32_t i=0; i<num_samples; i++){
-      outputBuffer[i] = inputBuffer[i]
-        + 0.7* delayBuffer->getDelayedSample(delayNumSamples)
-        + 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)
-        + 0.3* delayBuffer->getDelayedSample(delayNumSamples*3)
-        + 0.2* delayBuffer->getDelayedSample(delayNumSamples*4)
-        + 0.1* delayBuffer->getDelayedSample(delayNumSamples*5)
-        + 0.1* delayBuffer->getDelayedSample(delayNumSamples*6)
-        ;
-      delayBuffer->insertSample(inputBuffer[i]);
+    if(delayNumSamples_lastTimeProcessed == delayNumSamples){
+      //add delayed input to input
+      //add sample to delayBuffer
+      for(uint32_t i=0; i<num_samples; i++){
+        outputBuffer[i] = inputBuffer[i]
+          + 0.7* delayBuffer->getDelayedSample(delayNumSamples)
+          //+ 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)
+          //+ 0.3* delayBuffer->getDelayedSample(delayNumSamples*3)
+          //+ 0.2* delayBuffer->getDelayedSample(delayNumSamples*4)
+          //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*5)
+          //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*6)
+          ;
+        delayBuffer->insertSample(inputBuffer[i]);
+      }
+
     }
+    else{
+      for(uint32_t i=0; i<num_samples; i++){
+        float slope = ((float)delayNumSamples - (float)delayNumSamples_lastTimeProcessed) / (float)num_samples;
+        int interpolatedDelayNumSamples = 
+          delayNumSamples_lastTimeProcessed +
+            i*(slope);
+
+        outputBuffer[i] = inputBuffer[i]
+          + 0.7* delayBuffer->getDelayedSample(interpolatedDelayNumSamples)
+          ;
+        delayBuffer->insertSample(inputBuffer[i]);
+      }
+
+    }
+    
+    delayNumSamples_lastTimeProcessed = delayNumSamples;
   }
 };
 
