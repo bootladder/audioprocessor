@@ -47,14 +47,15 @@ public:
       //add delayed input to input
       //add sample to delayBuffer
       for(uint32_t i=0; i<num_samples; i++){
-        outputBuffer[i] = inputBuffer[i]
-          + 0.7* delayBuffer->getDelayedSample(delayNumSamples)
-          //+ 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)
-          //+ 0.3* delayBuffer->getDelayedSample(delayNumSamples*3)
-          //+ 0.2* delayBuffer->getDelayedSample(delayNumSamples*4)
-          //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*5)
-          //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*6)
-          ;
+        //outputBuffer[i] = inputBuffer[i]
+        //  + 0.7* delayBuffer->getDelayedSample(delayNumSamples)
+        //  //+ 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)
+        //  //+ 0.3* delayBuffer->getDelayedSample(delayNumSamples*3)
+        //  //+ 0.2* delayBuffer->getDelayedSample(delayNumSamples*4)
+        //  //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*5)
+        //  //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*6)
+        //  ;
+        outputBuffer[i] = getSampleAtIndex(i, delayNumSamples);
         delayBuffer->insertSample(inputBuffer[i]);
       }
 
@@ -66,15 +67,27 @@ public:
           delayNumSamples_lastTimeProcessed +
             i*(slope);
 
-        outputBuffer[i] = inputBuffer[i]
-          + 0.7* delayBuffer->getDelayedSample(interpolatedDelayNumSamples)
-          ;
+        outputBuffer[i] = getSampleAtIndex(i, interpolatedDelayNumSamples);
+
+        //outputBuffer[i] = inputBuffer[i]
+        //  + 0.7* delayBuffer->getDelayedSample(interpolatedDelayNumSamples)
+        //  ;
         delayBuffer->insertSample(inputBuffer[i]);
       }
 
     }
     
     delayNumSamples_lastTimeProcessed = delayNumSamples;
+  }
+
+  sample_t getSampleAtIndex(int i, int delayNumSamples){
+        return  inputBuffer[i]
+          + 0.7* delayBuffer->getDelayedSample(delayNumSamples)
+          + 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)
+          + 0.3* delayBuffer->getDelayedSample(delayNumSamples*3)
+          + 0.2* delayBuffer->getDelayedSample(delayNumSamples*4)
+          + 0.1* delayBuffer->getDelayedSample(delayNumSamples*5)
+          + 0.1* delayBuffer->getDelayedSample(delayNumSamples*6);
   }
 };
 

@@ -62,7 +62,7 @@ static int timeToSendMessage(void){
 static void sendIdleTickCountMessage(void)
 {
   static char msg[100];
-  int size = tfp_snprintf(msg, 100, "Idle Tick Count: %d\n", idleTickCountOfLastCycle);
+  int size = tfp_snprintf(msg, 100, "%d\n", idleTickCountOfLastCycle);
   SerialLogger_Log(LOGTYPE_IDLE_MONITOR, (uint8_t *)msg, size);
 }
 

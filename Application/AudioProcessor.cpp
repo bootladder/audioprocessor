@@ -90,7 +90,7 @@ static BlockGraph testerGraph = {
 };
 
 
-static BlockGraph & active_block_graph = testerGraph;
+static BlockGraph & active_block_graph = blockGraph;
 
 //////////////////////////////////////////////////////////////////////////
 // LFOs
@@ -162,26 +162,30 @@ void AudioProcessor::init(void)
   MIDIHookup({MIDI_CONTROL_CHANGE,3,1}, gain3, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,4,1}, clipping1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,6,1}, delay, PARAM_0);
-  MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, delay, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,7,1}, iir1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,20,1}, iir1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,8,1}, iir1, PARAM_1);
+
+  MIDIHookup({MIDI_CONTROL_CHANGE,9,1}, iir1, PARAM_0);
+
   MIDIHookup({MIDI_NOTE_ON,2,1}, square1, PARAM_0);
   MIDIHookup({MIDI_NOTE_OFF,2,1}, square1, PARAM_1);
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
 
+  MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, delay, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,90,1}, gain3, PARAM_0);
 
 
-  lfo1.setLFOFrequencyHz(1);
-  lfo1.setMIDIMessage({MIDI_CONTROL_CHANGE,90,1});
-  lfo1.setStartTimerMsFunc(freertosLFOTimerFunc);
-  lfo1.startTimerMs(10);
+  //lfo1.setLFOFrequencyHz(1);
+  //lfo1.setMIDIMessage({MIDI_CONTROL_CHANGE,90,1});
+  //lfo1.setStartTimerMsFunc(freertosLFOTimerFunc);
+  //lfo1.startTimerMs(10);
 
-  lfo2.setLFOFrequencyHz(1);
-  lfo2.setMIDIMessage({MIDI_CONTROL_CHANGE,30,1});
-  lfo2.setStartTimerMsFunc(freertosLFOTimerFunc);
-  lfo2.startTimerMs(10);
+  //lfo2.setLFOFrequencyHz(1);
+  //lfo2.setMIDIMessage({MIDI_CONTROL_CHANGE,30,1});
+  //lfo2.setStartTimerMsFunc(freertosLFOTimerFunc);
+  //lfo2.startTimerMs(10);
 }
 
 void AudioProcessor::MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId){

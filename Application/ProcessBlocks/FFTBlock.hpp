@@ -75,9 +75,9 @@ public:
     float factor = fft_buf_size / duty_num_samples;
     max = max * factor;
 
-    static char str[100];
-    int size = tfp_snprintf(str,100, "Mag:  %08d,  Index:  %04d, Freq: %04d\n", max, max_index, getSpectrumPeakFreq());
-    SerialLogger_Log(LOGTYPE_EVENT, (uint8_t *)str, size);
+    //static char str[100];
+    //int size = tfp_snprintf(str,100, "Mag:  %08d,  Index:  %04d, Freq: %04d\n", max, max_index, getSpectrumPeakFreq());
+    //SerialLogger_Log(LOGTYPE_FFT, (uint8_t *)str, size);
   }
 
   sample_t * getSpectrum(){return spectrum;}

@@ -37,7 +37,7 @@ public:
     sample_t absmax = max > min ? max : min;
 
     if(absmax > 32700){
-      SerialLogger_LogLiteralString(LOGTYPE_EVENT, "MIXER OVERLOAD\n");
+      SerialLogger_LogLiteralString(LOGTYPE_MIXER_OVERLOAD, "\n");
       for(uint32_t i=0; i<num_samples; i++){
         outputBuffer[i] = outputBuffer[i] * (32700/absmax);
       }

@@ -16,14 +16,18 @@ MIDIMap * midiMap = 0;
 
 extern "C" void MIDIMessageHandler_Handle(MIDI_Message_t message)
 {
+  static char str[100];
+
   ProcessBlock * block = midiMap->lookup(message);
   if(block == 0){
-    SerialLogger_LogLiteralString(LOGTYPE_MIDI_MESSAGE_PROCESSED, "MIDI IN:  NO MATCH\n");
+    int size = tfp_snprintf(str,100, "%d,%d,%d,NO MATCH\n",
+          message.type, message.id, message.value );
+    SerialLogger_Log(LOGTYPE_MIDI_MESSAGE_PROCESSED, (uint8_t *)str, size);
     return;
   }
 
-  static char str[100];
-  int size = tfp_snprintf(str,100, "MIDI MATCH: Block Addr: %p \n", block);
+  int size = tfp_snprintf(str,100, "%d,%d,%d,MATCH\n",
+          message.type, message.id, message.value );
   SerialLogger_Log(LOGTYPE_MIDI_MESSAGE_PROCESSED, (uint8_t *)str, size);
 
   block->MIDIMessageReceived(message);
