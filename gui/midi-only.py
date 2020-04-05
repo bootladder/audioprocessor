@@ -2,7 +2,6 @@ import thread
 import time
 import serial
 import subprocess
-import queue
 import select
 
 

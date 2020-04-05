@@ -1,6 +1,7 @@
 #!/usr/bin/python
-
-target = "Host"
+import os
+import sys
+target = os.getenv('TARGET')
 
 # Run on Target
 if target == "Target":
@@ -15,7 +16,7 @@ if target == "Target":
 
 
 # Run on Host
-if target == "Host":
+elif target == "Host":
     print "Running on Host"
     from tkinter import *
     import tkinter.scrolledtext
@@ -24,6 +25,10 @@ if target == "Host":
     QueueWrapper = queue.Queue
 
     midiPathMatcher = "/dev/midi*"
+
+else:
+    print "no TARGET env supplied:  set either Target or Host"
+    sys.exit(-1)
 
 import thread
 import time
@@ -105,26 +110,26 @@ class App:
 
     def receivedNodeUpdate(self, theText):
         self.updateNodeUpdateLog(theText)
-
-        # modify the graph data structure
-        items = theText.strip().split(',')
-        node_name = items[0]
-        if node_name not in blockGraph.nodes:
-            print 'name : ' + node_name + 'not in nodes: '
-            print blockGraph.nodes.items()
-            return
-
-        def make_graphviz_label(name, param, value):
-            label = "%s|{%s|%s}" %(name, param, value)
-            return label
-
-        blockGraph.nodes[node_name]['label'] = '%s' % make_graphviz_label(items[0], items[1], items[2])
-        blockGraph.nodes[node_name]['shape'] = 'record'
-
-        # put the updated graph on the queue, to be picked up by the reader thread
-        if self.blockGraphQueue.full():
-            self.blockGraphQueue.get_nowait()
-        self.blockGraphQueue.put_nowait(blockGraph)
+        #
+        # # modify the graph data structure
+        # items = theText.strip().split(',')
+        # node_name = items[0]
+        # if node_name not in blockGraph.nodes:
+        #     print 'name : ' + node_name + 'not in nodes: '
+        #     print blockGraph.nodes.items()
+        #     return
+        #
+        # def make_graphviz_label(name, param, value):
+        #     label = "%s|{%s|%s}" %(name, param, value)
+        #     return label
+        #
+        # blockGraph.nodes[node_name]['label'] = '%s' % make_graphviz_label(items[0], items[1], items[2])
+        # blockGraph.nodes[node_name]['shape'] = 'record'
+        #
+        # # put the updated graph on the queue, to be picked up by the reader thread
+        # if self.blockGraphQueue.full():
+        #     self.blockGraphQueue.get_nowait()
+        # self.blockGraphQueue.put_nowait(blockGraph)
 
     def receivedEdgeListUpdate(self, theText):
         self.updateEdgeListUpdateLog(theText)
@@ -155,7 +160,7 @@ def thread_seriallogger_reader(dispatch, arg2, arg3):
             if len(line) == 0:
                 continue
 
-            if(line[0] in dispatch.keys()):
+            if line[0] in dispatch.keys():
                 dispatch[line[0]](line[1:]) # call it
 
 
