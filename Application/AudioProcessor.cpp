@@ -33,6 +33,7 @@ createBlock(GainBlock               ,gain3       )
 createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
 createBlock(IIRBlock                ,iir1       )
+createBlock(IIRBlock                ,iirLFO       )
 
 //////////////////////////////////
 
@@ -79,8 +80,8 @@ __attribute__ ((unused))
 static BlockGraph testerGraph = {
   .start = &gain1,
   .edges = {
-    {&gain1, &gain2},
-    {&gain2, &clipping1},
+    {&gain1, &gain3},
+    {&gain3, &clipping1},
     {&clipping1, &iir1},
     {&iir1, &delay},
     {&delay, &mixer},
@@ -89,8 +90,33 @@ static BlockGraph testerGraph = {
   .end = &mixer,
 };
 
+__attribute__ ((unused))
+static BlockGraph graph_ClippingDelay = {
+  .start = &gain1,
+  .edges = {
+    {&gain1, &gain3},
+    {&gain3, &clipping1},
+    {&clipping1, &delay},
+    {&delay, &mixer},
+    {0,0}, // null terminator
+  },
+  .end = &mixer,
+};
 
-static BlockGraph & active_block_graph = blockGraph;
+__attribute__ ((unused))
+static BlockGraph graph_ClippingDelayIIRLFO = {
+  .start = &gain1,
+  .edges = {
+    {&gain1, &gain3},
+    {&gain3, &clipping1},
+    {&clipping1, &delay},
+    {&delay, &iirLFO},
+    {&iirLFO, &mixer},
+    {0,0}, // null terminator
+  },
+  .end = &mixer,
+};
+
 
 //////////////////////////////////////////////////////////////////////////
 // LFOs
@@ -146,12 +172,24 @@ void freertosLFOTimerFunc(LFO & lfo, int ms){
 //////////////////////////////////////////////////////////////////////////
 // AudioProcessor Class
 
-class AudioProcessor{
+class AudioProcessor : public ProcessBlock{
   MIDIMap midiMap;
+  BlockGraph active_block_graph;// = blockGraph;
+
 public:
+  AudioProcessor(const char * name, uint32_t size):
+    ProcessBlock(name, size){
+      active_block_graph = blockGraph;
+
+    }
+
   void init(void);
-  sample_t * process(sample_t * sampleBuf);
+  void process(sample_t * sampleBuf);
   void MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId);
+
+
+  void setMIDIParameter(BlockParamIdentifier_t id, int value);
+  BlockGraph& getActiveBlockGraph(){return active_block_graph;}
 };
 
 
@@ -173,19 +211,30 @@ void AudioProcessor::init(void)
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
 
-  MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, delay, PARAM_0);
-  MIDIHookup({MIDI_CONTROL_CHANGE,90,1}, gain3, PARAM_0);
+  //self midi hookup?
+  MIDIHookup({MIDI_NOTE_ON,44,1}, *this, PARAM_0);
+  MIDIHookup({MIDI_NOTE_ON,45,1}, *this, PARAM_1);
+  MIDIHookup({MIDI_NOTE_ON,46,1}, *this, PARAM_2);
+  MIDIHookup({MIDI_NOTE_ON,47,1}, *this, PARAM_3);
+  MIDIHookup({MIDI_NOTE_ON,48,1}, *this, PARAM_4);
+  MIDIHookup({MIDI_NOTE_ON,49,1}, *this, PARAM_5);
+  MIDIHookup({MIDI_NOTE_ON,50,1}, *this, PARAM_6);
+  MIDIHookup({MIDI_NOTE_ON,51,1}, *this, PARAM_7);
 
+  // LFO
 
-  //lfo1.setLFOFrequencyHz(1);
-  //lfo1.setMIDIMessage({MIDI_CONTROL_CHANGE,90,1});
-  //lfo1.setStartTimerMsFunc(freertosLFOTimerFunc);
-  //lfo1.startTimerMs(10);
+  lfo1.setLFOFrequencyHz(1);
+  lfo1.setMIDIMessage({MIDI_CONTROL_CHANGE,90,1});
+  lfo1.setStartTimerMsFunc(freertosLFOTimerFunc);
+  lfo1.startTimerMs(10);
 
-  //lfo2.setLFOFrequencyHz(1);
-  //lfo2.setMIDIMessage({MIDI_CONTROL_CHANGE,30,1});
-  //lfo2.setStartTimerMsFunc(freertosLFOTimerFunc);
-  //lfo2.startTimerMs(10);
+  lfo2.setLFOFrequencyHz(1);
+  lfo2.setMIDIMessage({MIDI_CONTROL_CHANGE,30,1});
+  lfo2.setStartTimerMsFunc(freertosLFOTimerFunc);
+  lfo2.startTimerMs(10);
+
+  // LFO MIDI HOOKUP
+  MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, iirLFO, PARAM_0);
 }
 
 void AudioProcessor::MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId){
@@ -193,7 +242,7 @@ void AudioProcessor::MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockPa
   block.assignMIDIMessageToParameter(msg, paramId);
 }
 
-sample_t * AudioProcessor::process(sample_t * sampleBuf)
+void AudioProcessor::process(sample_t * sampleBuf)
 {
   // call reset() on all of the blocks (particularly to reset the mixers' accumulators)
   mixer.reset();
@@ -208,9 +257,24 @@ sample_t * AudioProcessor::process(sample_t * sampleBuf)
     i++;
   }
 
-  return active_block_graph.end->getOutputBuffer();
+  //not copying the output buffer
+  outputBuffer = active_block_graph.end->getOutputBuffer();
+  //return active_block_graph.end->getOutputBuffer();
 }
 
+
+  void AudioProcessor::setMIDIParameter(BlockParamIdentifier_t id, int value){
+    switch(id){
+      case PARAM_0: active_block_graph = blockGraph; break;
+      case PARAM_1: active_block_graph = testerGraph; break;
+      case PARAM_2: active_block_graph = graph_ClippingDelay; break;
+      case PARAM_3: active_block_graph = graph_ClippingDelayIIRLFO; break;
+      case PARAM_4: active_block_graph = blockGraph; break;
+      case PARAM_5: active_block_graph = blockGraph; break;
+      case PARAM_6: active_block_graph = blockGraph; break;
+      case PARAM_7: active_block_graph = blockGraph; break;
+    }
+  }
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -218,7 +282,7 @@ sample_t * AudioProcessor::process(sample_t * sampleBuf)
 
 // The C interface needs static functions to call
 // so we have this global instance of AudioProcessor here.
-AudioProcessor audioProcessor;
+AudioProcessor audioProcessor("procesor", MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
 
 
@@ -228,18 +292,20 @@ AudioProcessor audioProcessor;
 
 // The AudioProcessor MUST be initialized!!
 // Make a call to AudioProcessor_Init() !!!
+static sample_t inputSampleBuffer[MY_PROCESSING_BUFFER_SIZE_SAMPLES];  //max size
+static int16_t outputInt16Buffer[MY_PROCESSING_BUFFER_SIZE_SAMPLES];
+
 extern "C"
 int16_t *
 AudioProcessor_ProcessSampleBuffer(int16_t * sampleBuf, uint32_t num_samples)
 {
-  static sample_t inputSampleBuffer[MY_PROCESSING_BUFFER_SIZE_SAMPLES];  //max size
-  static int16_t outputInt16Buffer[MY_PROCESSING_BUFFER_SIZE_SAMPLES];
 
   for(uint32_t i=0; i<num_samples; i++){
     inputSampleBuffer[i] = (sample_t)sampleBuf[i];
   }
 
-  sample_t * out = audioProcessor.process(inputSampleBuffer);
+  audioProcessor.process(inputSampleBuffer);
+  sample_t * out = audioProcessor.getOutputBuffer();
 
   for(uint32_t i=0; i<num_samples; i++){
     outputInt16Buffer[i] = (int16_t)out[i];
@@ -261,7 +327,7 @@ extern "C" void AudioProcessor_Init(void)
 // Called by the monitor task to print out the edge list of the active block graph
 extern "C" char * AudioProcessor_GetActiveBlockGraphEdgeListToString(void)
 {
-  return active_block_graph.toEdgeListJSONString();
+  return audioProcessor.getActiveBlockGraph().toEdgeListJSONString();
 }
 
 // Called by the monitor task

@@ -8,6 +8,12 @@
 enum BlockParamIdentifier_t{
   PARAM_0 = 0,
   PARAM_1 = 1,
+  PARAM_2 = 2,
+  PARAM_3 = 3,
+  PARAM_4 = 4,
+  PARAM_5 = 5,
+  PARAM_6 = 6,
+  PARAM_7 = 7,
 };
 
 class MIDIAssignment{
