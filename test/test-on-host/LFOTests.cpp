@@ -7,13 +7,13 @@ using namespace testing;
 #include "LFO.hpp"
 #include "MIDI_Message.hpp"
 
-MIDI_Message_t mockMIDIMessage;
-void mockMIDIMessageHandlerFunc(MIDI_Message_t message){
+static MIDI_Message_t mockMIDIMessage;
+static void mockMIDIMessageHandlerFunc(MIDI_Message_t message){
     mockMIDIMessage = message;
 }
 
-bool mockStartTimerMsFunc_called;
-void mockStartTimerMsFunc(LFO & lfo, int ms){
+static bool mockStartTimerMsFunc_called;
+static void mockStartTimerMsFunc(LFO & lfo, int ms){
     mockStartTimerMsFunc_called = true;
 }
 

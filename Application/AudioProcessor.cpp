@@ -17,6 +17,7 @@ extern "C" {
 #include "MixerBlock.hpp"
 #include "IIRBlock.hpp"
 #include "LFO.hpp"
+#include "LambdaLFO.hpp"
 
 // Currently, everything is configured statically and manually.
 // Eventually there will be some configuration format
@@ -34,6 +35,7 @@ createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
 createBlock(IIRBlock                ,iir1       )
 createBlock(IIRBlock                ,iirLFO       )
+createBlock(IIRBlock                ,iirLambdaLFO       )
 
 //////////////////////////////////
 
@@ -57,6 +59,21 @@ OscillatorBlock square1("square1", MY_PROCESSING_BUFFER_SIZE_SAMPLES,
 
 //////////////////////////////////////////////////////////////////////////
 // GRAPH
+
+__attribute__ ((unused))
+static BlockGraph tempTesterGraph = {
+  .start = &gain1,
+  .edges = {
+    {&gain1, &gain3},
+    {&gain3, &clipping1},
+    {&clipping1, &iirLambdaLFO},
+    {&iirLambdaLFO, &delay},
+    {&delay, &mixer},
+    {0,0}, // null terminator
+  },
+  .end = &mixer,
+};
+
 
 __attribute__ ((unused))
 static BlockGraph blockGraph = {
@@ -123,6 +140,7 @@ static BlockGraph graph_ClippingDelayIIRLFO = {
 
 LFO lfo1("LFO1");
 LFO lfo2("LFO2");
+LambdaLFO lambdaLFO1("LambdaLFO1");
 
 extern "C"{
 #include "FreeRTOS.h"
@@ -235,6 +253,18 @@ void AudioProcessor::init(void)
 
   // LFO MIDI HOOKUP
   MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, iirLFO, PARAM_0);
+
+
+
+  // LFO LAMBDA HOOKUP
+  lambdaLFO1.setLFOFrequencyHz(1);
+  lambdaLFO1.setStartTimerMsFunc(freertosLFOTimerFunc);
+  lambdaLFO1.startTimerMs(50);
+  lambdaLFO1.setMidPoint(500);
+  lambdaLFO1.setAmplitude(200);
+
+  auto l = [](int f){iirLambdaLFO.setCutoffFrequency(f);};
+  lambdaLFO1.setLambda(l);
 }
 
 void AudioProcessor::MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId){
@@ -265,11 +295,11 @@ void AudioProcessor::process(sample_t * sampleBuf)
 
   void AudioProcessor::setMIDIParameter(BlockParamIdentifier_t id, int value){
     switch(id){
-      case PARAM_0: active_block_graph = blockGraph; break;
-      case PARAM_1: active_block_graph = testerGraph; break;
-      case PARAM_2: active_block_graph = graph_ClippingDelay; break;
-      case PARAM_3: active_block_graph = graph_ClippingDelayIIRLFO; break;
-      case PARAM_4: active_block_graph = blockGraph; break;
+      case PARAM_0: active_block_graph = tempTesterGraph; break;
+      case PARAM_1: active_block_graph = blockGraph; break;
+      case PARAM_2: active_block_graph = testerGraph; break;
+      case PARAM_3: active_block_graph = graph_ClippingDelay; break;
+      case PARAM_4: active_block_graph = graph_ClippingDelayIIRLFO; break;
       case PARAM_5: active_block_graph = blockGraph; break;
       case PARAM_6: active_block_graph = blockGraph; break;
       case PARAM_7: active_block_graph = blockGraph; break;

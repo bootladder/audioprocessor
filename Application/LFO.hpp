@@ -15,6 +15,7 @@ typedef void (*StartTimerFunc)(LFO & lfo, int);
 
 class LFO {
 
+protected:
     const char * name;
     int lfoFreqHz;
     int timerTickPeriodMs;
@@ -46,7 +47,7 @@ public:
       startTimerFunc = func;
   }
 
-  void tickCallback(void){
+  virtual void tickCallback(void){
       ticks++;
       int T = 1000/lfoFreqHz/timerTickPeriodMs;
       if(ticks >= T)

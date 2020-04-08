@@ -39,6 +39,7 @@ public:
   {
     cutoffFreq = 1500.0;
     Q = 0.9;
+    updateCoeffs();
   }
 
   void process(sample_t * samplesToProcess){

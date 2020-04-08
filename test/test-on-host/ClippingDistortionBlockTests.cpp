@@ -57,7 +57,7 @@ TEST(ClippingDistortionBlock, SoftClipping_setClipFactor_OutputIsClipped)
     ASSERT_LE(out[i], 0x8000 * clippingFactor);
     ASSERT_GE(out[i], -1 * 0x8000 * clippingFactor);
 
-    printf("out[%d] = %f\n", i, out[i]);
+    //printf("out[%d] = %f\n", i, out[i]);
   }
 }
 
