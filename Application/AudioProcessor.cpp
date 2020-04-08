@@ -203,7 +203,7 @@ public:
 
   void init(void);
   void process(sample_t * sampleBuf);
-  void MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId);
+  void MIDIHookup(MIDI_Message_t msg, MIDIReceiver &midiReceiver, BlockParamIdentifier_t paramId);
 
 
   void setMIDIParameter(BlockParamIdentifier_t id, int value);
@@ -251,25 +251,29 @@ void AudioProcessor::init(void)
   lfo2.setStartTimerMsFunc(freertosLFOTimerFunc);
   lfo2.startTimerMs(10);
 
-  // LFO MIDI HOOKUP
+  // LFO OUTPUT TO MIDI HOOKUP
   MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, iirLFO, PARAM_0);
 
 
 
-  // LFO LAMBDA HOOKUP
-  lambdaLFO1.setLFOFrequencyHz(1);
-  lambdaLFO1.setStartTimerMsFunc(freertosLFOTimerFunc);
-  lambdaLFO1.startTimerMs(50);
-  lambdaLFO1.setMidPoint(500);
-  lambdaLFO1.setAmplitude(200);
+    // LFO LAMBDA HOOKUP
+    lambdaLFO1.setLFOFrequencyHz(1);
+    lambdaLFO1.setStartTimerMsFunc(freertosLFOTimerFunc);
+    lambdaLFO1.startTimerMs(50);
+    lambdaLFO1.setMidPoint(500);
+    lambdaLFO1.setAmplitude(200);
 
-  auto l = [](int f){iirLambdaLFO.setCutoffFrequency(f);};
-  lambdaLFO1.setLambda(l);
+    auto l = [](int f){iirLambdaLFO.setCutoffFrequency(f);};
+    lambdaLFO1.setLambda(l);
+
+    // MIDI IN TO LFO HOOKUP
+    MIDIHookup({MIDI_CONTROL_CHANGE,5,1}, lfo2, PARAM_0);
+
 }
 
-void AudioProcessor::MIDIHookup(MIDI_Message_t msg, ProcessBlock &block, BlockParamIdentifier_t paramId){
-  midiMap.addEntry(msg, block);
-  block.assignMIDIMessageToParameter(msg, paramId);
+void AudioProcessor::MIDIHookup(MIDI_Message_t msg, MIDIReceiver &midiReceiver, BlockParamIdentifier_t paramId){
+  midiMap.addEntry(msg, midiReceiver);
+  midiReceiver.assignMIDIMessageToParameter(msg, paramId);
 }
 
 void AudioProcessor::process(sample_t * sampleBuf)

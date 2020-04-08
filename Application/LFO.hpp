@@ -2,6 +2,7 @@
 #define __LFO_HPP__
 
 #include "MIDI_Message.hpp"
+#include "MIDIReceiver.hpp"
 
 
 extern "C"{
@@ -13,7 +14,7 @@ class LFO;
 typedef void (*MIDIMessageHandlerFunc_t)(MIDI_Message_t);
 typedef void (*StartTimerFunc)(LFO & lfo, int);
 
-class LFO {
+class LFO : public MIDIReceiver{
 
 protected:
     const char * name;
@@ -33,6 +34,7 @@ public:
     name = name;
     currentLFOValue = 0;
     ticks = 0;
+    lfoFreqHz = 1;
   }
 
   void setLFOFrequencyHz(int freq){ lfoFreqHz = freq; }
@@ -62,6 +64,17 @@ public:
       timerTickPeriodMs = ms;
       startTimerFunc(*this, ms); 
   }
+
+    int getLFOFrequency() {
+        return lfoFreqHz;
+    }
+
+
+    virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
+        lfoFreqHz = value;
+    }
+
+
 };
 
 #endif

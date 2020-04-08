@@ -65,7 +65,7 @@ TEST(MIDIMap, AddEntry_and_Lookup)
   MIDIMap midiMap;
   midiMap.addEntry(msg, block);
 
-  ProcessBlock * lookedupBlock = midiMap.lookup(msg);
+  MIDIReceiver * lookedupBlock = midiMap.lookup(msg);
 
   ASSERT_EQ(lookedupBlock,&block);
 }
@@ -89,8 +89,8 @@ TEST(MIDIMap, AddEntry_and_Lookup_MultipleEntries)
   midiMap.addEntry(msg1, block1);
   midiMap.addEntry(msg2, block2);
 
-  ProcessBlock * lookedupBlock1 = midiMap.lookup(msg1);
-  ProcessBlock * lookedupBlock2 = midiMap.lookup(msg2);
+  MIDIReceiver * lookedupBlock1 = midiMap.lookup(msg1);
+  MIDIReceiver * lookedupBlock2 = midiMap.lookup(msg2);
 
   ASSERT_EQ(lookedupBlock1,&block1);
   ASSERT_EQ(lookedupBlock2,&block2);

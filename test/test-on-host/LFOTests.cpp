@@ -1,4 +1,6 @@
 #include <iostream>
+#include <MIDIReceiver.hpp>
+
 using namespace std;
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -75,4 +77,14 @@ TEST(LFO, waveform)
 
     expectedMIDIValue = 0;
     ASSERT_EQ(mockMIDIMessage.value, expectedMIDIValue);
+}
+
+TEST(LFO, handlesMIDIMessages) {
+    LFO lfo("name");
+
+    int f = lfo.getLFOFrequency();
+    // changes the frequency to some value
+    lfo.setMIDIParameter(PARAM_0, 30);
+
+    ASSERT_NE(f, lfo.getLFOFrequency());
 }

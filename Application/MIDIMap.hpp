@@ -8,7 +8,7 @@ class MIDIMapEntry
 {
 public:
   MIDI_Message_t msg;
-  ProcessBlock * block;
+  MIDIReceiver * midiReceiver;
 };
 
 class MIDIMap
@@ -18,15 +18,15 @@ class MIDIMap
 
 public:
   MIDIMap(){index = 0;}
-  void addEntry(MIDI_Message_t msg, ProcessBlock &block){
+  void addEntry(MIDI_Message_t msg, MIDIReceiver &midiReceiver){
     MIDIMapEntry e = {
-      msg, &block
+      msg, &midiReceiver
     };
     table[index] = e;
     index++;
   }
 
-  ProcessBlock * lookup(MIDI_Message_t msg){
+    MIDIReceiver * lookup(MIDI_Message_t msg){
     for(int i=0; i<index; i++){
       //check equality with type and ID
       if(table[i].msg.type != msg.type)
@@ -34,7 +34,7 @@ public:
       if(table[i].msg.id != msg.id)
         continue;
 
-      return table[i].block;
+      return table[i].midiReceiver;
     }
     return 0;
   }

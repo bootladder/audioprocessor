@@ -18,7 +18,7 @@ extern "C" void MIDIMessageHandler_Handle(MIDI_Message_t message)
 {
   static char str[100];
 
-  ProcessBlock * block = midiMap->lookup(message);
+  MIDIReceiver * block = midiMap->lookup(message);
   if(block == 0){
     int size = tfp_snprintf(str,100, "%d,%d,%d,NO MATCH\n",
           message.type, message.id, message.value );
