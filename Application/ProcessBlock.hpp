@@ -4,30 +4,14 @@
 #include <stdint.h>
 #include "SamplingTypes.h"
 #include "MIDI_Message.hpp"
+#include "MIDIReceiver.hpp"
 
-enum BlockParamIdentifier_t{
-  PARAM_0 = 0,
-  PARAM_1 = 1,
-  PARAM_2 = 2,
-  PARAM_3 = 3,
-  PARAM_4 = 4,
-  PARAM_5 = 5,
-  PARAM_6 = 6,
-  PARAM_7 = 7,
-};
 
-class MIDIAssignment{
-public:
-  MIDI_Message_t msg;
-  BlockParamIdentifier_t paramId;
-};
 
-class ProcessBlock{
+class ProcessBlock  : public MIDIReceiver {
 
 protected:
   const char * name;
-  MIDIAssignment midiAssignments[16];  //hard coded
-  int midiAssignmentIndex = 0;
   sample_t * inputBuffer;
   sample_t * outputBuffer;
   uint32_t num_samples;
@@ -57,28 +41,6 @@ public:
     }
   }
 
-
-  void assignMIDIMessageToParameter(MIDI_Message_t & msg, BlockParamIdentifier_t id){
-    midiAssignments[midiAssignmentIndex].msg = msg;
-    midiAssignments[midiAssignmentIndex].paramId = id;
-    midiAssignmentIndex++;
-  }
-
-  //This is virtual so the mock can check that it is called by MIDIMessageHandler_Handle
-  virtual void MIDIMessageReceived(MIDI_Message_t & msg){
-    for(int i=0; i<midiAssignmentIndex; i++){
-      if(midiAssignments[i].msg.type != msg.type)
-        continue;
-      if(midiAssignments[i].msg.id != msg.id)
-        continue;
-
-      setMIDIParameter(midiAssignments[i].paramId, msg.value);
-    }
-  }
-
-  virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
-    (void)id;(void)value;
-  }
 
 };
 

@@ -262,6 +262,7 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
     test/test-on-host/DelayBlockTests.cpp
 
     test/test-on-host/MIDIMessageHandlerTests.cpp
+    test/test-on-host/MIDIReceiverTests.cpp
     test/test-on-host/BlockGraphTests.cpp
 
     test/test-on-host/FAKE_SerialLogger.c
