@@ -10,6 +10,7 @@ using namespace testing;
 
 static bool mockStartTimerMsFunc_called;
 static void mockStartTimerMsFunc(LFO & lfo, int ms){
+    (void)lfo; (void)ms;
     mockStartTimerMsFunc_called = true;
 }
 
@@ -55,8 +56,8 @@ TEST(LambdaLFO, canSetBounds)
     ASSERT_GE(lfo.getCurrentLFOValue(), 400);
 
     for(int i=0; i<1000;i++){
-    lfo.tickCallback();
-    printf("lfo value[%d] = %d\n", i, lfo.getCurrentLFOValue());
+      lfo.tickCallback();
+      //printf("lfo value[%d] = %d\n", i, lfo.getCurrentLFOValue());
     }
 }
 

@@ -31,8 +31,8 @@ TEST(ClippingDistortionBlock, clippingdistortion_setClipFactor_outputIsClipped)
   //ASSERT_EQ(0x4000, 0x8000 * clippingFactor);
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_LE(out[i], 0x8000 * clippingFactor);
-    ASSERT_GE(out[i], -1 * 0x8000 * clippingFactor);
+    ASSERT_LE(out[i], max);
+    ASSERT_GE(out[i], min);
   }
 }
 
@@ -63,12 +63,12 @@ TEST(ClippingDistortionBlock, SoftClipping_setClipFactor_OutputIsClipped)
 
 TEST(ClippingDistortionBlock, SoftClipping_WithinThreshold_AppliesWaveShapingFunction)
 {
-  ClippingDistortionBlock block("name", NUM_SAMPLES, ClippingDistortionBlock::CLIPPING_TYPE_SOFT);
-
-  fillTestBufferWithRampFunction(testBuf);
-
-  block.process(testBuf);
-  sample_t * out = block.getOutputBuffer();
+//  ClippingDistortionBlock block("name", NUM_SAMPLES, ClippingDistortionBlock::CLIPPING_TYPE_SOFT);
+//
+//  fillTestBufferWithRampFunction(testBuf);
+//
+//  block.process(testBuf);
+//  sample_t * out = block.getOutputBuffer();
 
   // shaping function
   //sample_t testSample = testBuf[500]/32000.0; //normalize to 1

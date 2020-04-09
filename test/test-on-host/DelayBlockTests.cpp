@@ -5,7 +5,6 @@ using namespace std;
 #include "DelayBlock.hpp"
 
 #define NUM_SAMPLES 1024
-static sample_t testBuf[NUM_SAMPLES];
 
 TEST(ProcessBlockDelay, SetMIDIParameter_SetsDelayNumberOfSamples)
 {

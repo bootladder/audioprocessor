@@ -103,6 +103,7 @@ include_directories(${INCLUDES_FOR_TESTING})
 #######################################
 set(COMMON_FLAGS " ")
 string(APPEND COMMON_FLAGS " -Wall   -Wextra   -g  -O3                 ")
+string(APPEND COMMON_FLAGS " -Wconversion                 ")
 
 set(CMAKE_C_FLAGS "  -std=c99                      ")
 set(CMAKE_CXX_FLAGS "  -std=c++14                      ")

@@ -244,12 +244,12 @@ void AudioProcessor::init(void)
   lfo1.setLFOFrequencyHz(1);
   lfo1.setMIDIMessage({MIDI_CONTROL_CHANGE,90,1});
   lfo1.setStartTimerMsFunc(freertosLFOTimerFunc);
-  lfo1.startTimerMs(10);
+  lfo1.startTimerMs(5);
 
   lfo2.setLFOFrequencyHz(1);
   lfo2.setMIDIMessage({MIDI_CONTROL_CHANGE,30,1});
   lfo2.setStartTimerMsFunc(freertosLFOTimerFunc);
-  lfo2.startTimerMs(10);
+  lfo2.startTimerMs(5);
 
   // LFO OUTPUT TO MIDI HOOKUP
   MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, iirLFO, PARAM_0);

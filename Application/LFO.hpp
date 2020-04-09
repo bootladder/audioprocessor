@@ -18,7 +18,7 @@ class LFO : public MIDIReceiver{
 
 protected:
     const char * name;
-    int lfoFreqHz;
+    float lfoFreqHz;
     int timerTickPeriodMs;
     int currentLFOValue;
     int ticks;
@@ -37,7 +37,7 @@ public:
     lfoFreqHz = 1;
   }
 
-  void setLFOFrequencyHz(int freq){ lfoFreqHz = freq; }
+  void setLFOFrequencyHz(float freq){ lfoFreqHz = freq; }
 
   void setMIDIMessage(MIDI_Message_t msg){ midiMessage = msg; }
 
@@ -51,7 +51,7 @@ public:
 
   virtual void tickCallback(void){
       ticks++;
-      int T = 1000/lfoFreqHz/timerTickPeriodMs;
+      int T = (int) ( 1000.0 / lfoFreqHz/ (float)timerTickPeriodMs);
       if(ticks >= T)
         ticks = 0;
       int sawToothValue = (-127) + (127*ticks*2/T);
@@ -65,13 +65,14 @@ public:
       startTimerFunc(*this, ms); 
   }
 
-    int getLFOFrequency() {
+    float getLFOFrequency() {
         return lfoFreqHz;
     }
 
 
     virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
-        lfoFreqHz = value;
+        (void)id;
+        lfoFreqHz = value/10.0;
     }
 
 

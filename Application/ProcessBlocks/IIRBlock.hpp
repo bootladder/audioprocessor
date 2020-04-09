@@ -75,22 +75,23 @@ public:
 
   void setCoefficient(IIRCoefficientID id, sample_t value){
     switch(id){
-    case IIR_COEFF_A1: a1 = value; break;
-    case IIR_COEFF_A2: a2 = value; break;
-    case IIR_COEFF_B0: b0 = value; break;
-    case IIR_COEFF_B1: b1 = value; break;
-    case IIR_COEFF_B2: b2 = value; break;
+      case IIR_COEFF_A1: a1 = value; break;
+      case IIR_COEFF_A2: a2 = value; break;
+      case IIR_COEFF_B0: b0 = value; break;
+      case IIR_COEFF_B1: b1 = value; break;
+      case IIR_COEFF_B2: b2 = value; break;
     }
   }
 
   sample_t getCoefficient(IIRCoefficientID id){
     switch(id){
-    case IIR_COEFF_A1: return a1;
-    case IIR_COEFF_A2: return a2;
-    case IIR_COEFF_B0: return b0;
-    case IIR_COEFF_B1: return b1;
-    case IIR_COEFF_B2: return b2;
+      case IIR_COEFF_A1: return a1;
+      case IIR_COEFF_A2: return a2;
+      case IIR_COEFF_B0: return b0;
+      case IIR_COEFF_B1: return b1;
+      case IIR_COEFF_B2: return b2;
     }
+    return 0.0;
   }
 
   void setCutoffFrequency(int freq){

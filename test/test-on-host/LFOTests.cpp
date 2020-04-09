@@ -16,6 +16,7 @@ static void mockMIDIMessageHandlerFunc(MIDI_Message_t message){
 
 static bool mockStartTimerMsFunc_called;
 static void mockStartTimerMsFunc(LFO & lfo, int ms){
+    (void)lfo; (void)ms;
     mockStartTimerMsFunc_called = true;
 }
 
@@ -82,7 +83,7 @@ TEST(LFO, waveform)
 TEST(LFO, handlesMIDIMessages) {
     LFO lfo("name");
 
-    int f = lfo.getLFOFrequency();
+    long f = lfo.getLFOFrequency();
     // changes the frequency to some value
     lfo.setMIDIParameter(PARAM_0, 30);
 

@@ -11,14 +11,14 @@ using namespace testing;
 static sample_t testBuf[NUM_SAMPLES];
 
 void loadBufferWithImpulse(sample_t * buf, int size, sample_t mag){
-  for(uint32_t i=0; i<size ; i++){
+  for(int i=0; i<size ; i++){
     buf[i] = 0.0;
   }
   buf[0] = mag;
 }
 
 void loadBufferWithZeros(sample_t * buf, int size){
-  for(uint32_t i=0; i<size ; i++){
+  for(int i=0; i<size ; i++){
     buf[i] = 0.0;
   }
 }
