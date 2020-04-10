@@ -5,6 +5,7 @@
 // Currently this assumes we are a BAND PASS FILTER
 
 #include "ProcessBlock.hpp"
+#include <memory>
 
 extern "C"{
 #include "SerialLogger.h"
@@ -30,6 +31,7 @@ class IIRBlock : public ProcessBlock{
   sample_t Q;
   sample_t cutoffFreq;
 
+  std::unique_ptr<sample_t[]> xh;
   sample_t last_xh;
   sample_t secondToLast_xh;
 
@@ -40,6 +42,9 @@ public:
     cutoffFreq = 1500.0;
     Q = 0.9;
     updateCoeffs();
+    xh  = std::make_unique<sample_t[]>(num_samples);
+    last_xh = 0.0;
+    secondToLast_xh = 0.0;
   }
 
   void process(sample_t * samplesToProcess){
@@ -51,7 +56,6 @@ public:
     //xh(0) = x(0) − a1xh(0 − 1) − a2xh(0 − 2) = 1 - a1*0 - a2*0 = 1
     //xh(1) = x(1) − a1xh(1 − 1) − a2xh(1 − 2) = 0 - a1*1 - a2*0 = -a1
 
-    sample_t xh[num_samples];
     xh[0] = inputBuffer[0] - (a1*last_xh) - (a2*secondToLast_xh); //inputBuffer[0];
     xh[1] = inputBuffer[1] - (a1*xh[0]) - (a2*last_xh);
     for(uint32_t i=2; i<num_samples; i++){

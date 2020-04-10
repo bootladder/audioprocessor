@@ -68,8 +68,9 @@ public:
     }
 
     sample_t freq = getFrequencyFunction();
-    sample_t freq_samples = freq/SAMPLE_RATE; //HARD CODED SAMPLE RATE
-    period_samples = (uint32_t) (1.0/freq_samples);
+    //sample_t freq_samples = freq/SAMPLE_RATE; //HARD CODED SAMPLE RATE
+    //period_samples = (uint32_t) (1.0/freq_samples);
+    period_samples = (uint32_t) SAMPLE_RATE/freq;
 
     for(uint32_t i=0; i<num_samples; i++){
       outputBuffer[i] = getAmplitudeFunction() * oscillator_square(index, period_samples);

@@ -98,8 +98,8 @@ TEST(IIRBlock, impulseresponse_magnitiude2)
 TEST(IIRBlock, impulseresponse_doubleLength_isSameAsTwoSingleLengths)
 {
   const int numSamplesForThisTest = 6;
-  IIRBlock blockshort1("short1", numSamplesForThisTest);
   IIRBlock blocklong("long", numSamplesForThisTest*2);
+  IIRBlock blockshort1("short1", numSamplesForThisTest);
 
   sample_t a1 = 0.1;
   sample_t a2 = 0.2;
