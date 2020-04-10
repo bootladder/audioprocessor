@@ -3,7 +3,7 @@
 
 #include "MIDI_Message.hpp"
 #include "MIDIReceiver.hpp"
-
+#include "SamplingTypes.h"
 
 extern "C"{
 #include "MIDIMessageHandler.h"
@@ -18,7 +18,7 @@ class LFO : public MIDIReceiver{
 
 protected:
     const char * name;
-    float lfoFreqHz;
+    sample_t lfoFreqHz;
     int timerTickPeriodMs;
     int currentLFOValue;
     int ticks;
@@ -49,14 +49,14 @@ public:
       startTimerFunc = func;
   }
 
-  virtual void tickCallback(void){
+  virtual void tickCallback(){
       ticks++;
       int T = (int) ( 1000.0 / lfoFreqHz/ (float)timerTickPeriodMs);
       if(ticks >= T)
         ticks = 0;
       int sawToothValue = (-127) + (127*ticks*2/T);
       currentLFOValue = abs(sawToothValue);
-      midiMessage.value = currentLFOValue;
+      midiMessage.value = (uint8_t) currentLFOValue;
       midiMessageHandlerFunc(midiMessage);
   }
 
@@ -65,14 +65,15 @@ public:
       startTimerFunc(*this, ms); 
   }
 
-    float getLFOFrequency() {
+    sample_t getLFOFrequency() {
         return lfoFreqHz;
     }
 
 
     virtual void setMIDIParameter(BlockParamIdentifier_t id, int value){
         (void)id;
-        lfoFreqHz = value/10.0;
+        const sample_t MIDI_VALUES_PER_HZ = 10.0;
+        lfoFreqHz = value/MIDI_VALUES_PER_HZ;
     }
 
 

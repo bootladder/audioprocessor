@@ -5,8 +5,10 @@ extern "C"{
 #include "tinyprintf.h"
 }
 
-typedef float (* GetFrequencyFunction)(void);
-typedef sample_t (* GetAmplitudeFunction)(void);
+const sample_t SAMPLE_RATE = 48000.0;
+
+typedef float (* GetFrequencyFunction)();
+typedef sample_t (* GetAmplitudeFunction)();
 
 typedef enum {
   OSCILLATOR_SQUARE,
@@ -22,7 +24,7 @@ private:
   uint32_t index;
   bool muted;
 
-  sample_t oscillator_square(uint32_t index, uint32_t period){
+  static sample_t oscillator_square(uint32_t index, uint32_t period){
     if(index < period/2)
       return 1;
     else
@@ -36,10 +38,11 @@ public:
     getAmplitudeFunction = fa;
     oscillatorType = t;
     index = 0;
+    period_samples = 0;
     muted = false;
   }
 
-  void setMIDIParameter(BlockParamIdentifier_t id, int value){
+  void setMIDIParameter(BlockParamIdentifier_t id, int value) override{
     (void)value;  //value is always 127.  The ID is note on or off
     //PARAM_0 is ON, PARAM_1 is OFF
     if(id == PARAM_0){
@@ -55,7 +58,7 @@ public:
   }
 
 
-  void process(sample_t * samplesToProcess)
+  void process(sample_t * samplesToProcess) override
   {
     (void)samplesToProcess; //oscillators do not depend on input
 
@@ -64,8 +67,8 @@ public:
       return;
     }
 
-    float freq = getFrequencyFunction();
-    float freq_samples = freq/48000.0; //HARD CODED SAMPLE RATE
+    sample_t freq = getFrequencyFunction();
+    sample_t freq_samples = freq/SAMPLE_RATE; //HARD CODED SAMPLE RATE
     period_samples = (uint32_t) (1.0/freq_samples);
 
     for(uint32_t i=0; i<num_samples; i++){
@@ -76,7 +79,7 @@ public:
     }
   }
 
-  void muteOutputBuffer(void){
+  void muteOutputBuffer(){
     for(uint32_t i=0; i<num_samples; i++){
       outputBuffer[i] = 0;
     }

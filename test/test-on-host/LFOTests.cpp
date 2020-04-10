@@ -83,7 +83,7 @@ TEST(LFO, waveform)
 TEST(LFO, handlesMIDIMessages) {
     LFO lfo("name");
 
-    long f = lfo.getLFOFrequency();
+    sample_t f = lfo.getLFOFrequency();
     // changes the frequency to some value
     lfo.setMIDIParameter(PARAM_0, 30);
 

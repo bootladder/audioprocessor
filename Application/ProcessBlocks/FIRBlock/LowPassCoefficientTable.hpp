@@ -16,7 +16,7 @@ public:
   }
   sample_t * lookupCutoffFrequency(int value){
 
-    const float * blah = lowPassFilterCoefficients.arr[value];
+    const sample_t * blah = lowPassFilterCoefficients.arr[value];
     return (sample_t *) blah;
   }
   int getNumTaps(){

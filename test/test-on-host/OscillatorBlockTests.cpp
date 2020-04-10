@@ -12,7 +12,7 @@ float return_constant_frequency(void){
   return 1000.0;
 }
 
-float return_constant_amplitude(void){
+sample_t return_constant_amplitude(void){
   return 7000.0;
 }
 

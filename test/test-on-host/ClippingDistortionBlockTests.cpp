@@ -18,7 +18,7 @@ TEST(ClippingDistortionBlock, clippingdistortion_setClipFactor_outputIsClipped)
 {
   ClippingDistortionBlock block("name", NUM_SAMPLES, ClippingDistortionBlock::CLIPPING_TYPE_HARD);
 
-  float clippingFactor = 0.8;
+  sample_t clippingFactor = 0.8;
   block.setClippingFactor(clippingFactor);
   sample_t max = 0x8000 * clippingFactor;
   sample_t min = -1*0x8000 * clippingFactor;
@@ -41,7 +41,7 @@ TEST(ClippingDistortionBlock, SoftClipping_setClipFactor_OutputIsClipped)
 {
   ClippingDistortionBlock block("name", NUM_SAMPLES, ClippingDistortionBlock::CLIPPING_TYPE_SOFT);
 
-  float clippingFactor = 0.8;
+  sample_t clippingFactor = 0.8;
   block.setClippingFactor(clippingFactor);
   sample_t max = 0x8000 * clippingFactor;
   sample_t min = -1*0x8000 * clippingFactor;
@@ -54,8 +54,8 @@ TEST(ClippingDistortionBlock, SoftClipping_setClipFactor_OutputIsClipped)
   //ASSERT_EQ(0x4000, 0x8000 * clippingFactor);
 
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
-    ASSERT_LE(out[i], 0x8000 * clippingFactor);
-    ASSERT_GE(out[i], -1 * 0x8000 * clippingFactor);
+    ASSERT_LE(out[i], max);
+    ASSERT_GE(out[i], min);
 
     //printf("out[%d] = %f\n", i, out[i]);
   }

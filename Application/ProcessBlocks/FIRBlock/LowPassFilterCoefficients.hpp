@@ -4,25 +4,25 @@
 #include "constexpr_arm_sin_f32.hpp"
 #define MAX_NUM_TAPS 512
 #define SAMPLE_FREQUENCY 48000.0
-
+#include "SamplingTypes.h"
 constexpr int midi_value_to_cutoff(int value){
   return (value*100) + 1;
 }
 
-
+const sample_t PI = 3.141592653589793115997963468544185161590576171875;
 struct LowPassFilterCoefficients {
 
-  float arr[128][MAX_NUM_TAPS]; //128 different MIDI values
+  sample_t arr[128][MAX_NUM_TAPS]; //128 different MIDI values
 
   constexpr LowPassFilterCoefficients() : arr() {
     for(auto i=0; i<128; i++){
 
-      float * coeffs = arr[i];
+      sample_t * coeffs = arr[i];
 
       uint32_t cutoff = midi_value_to_cutoff(i);
 
-      float fc_normalized = (float) (cutoff / SAMPLE_FREQUENCY);
-      float coefficient_sum = 0.0; //running total for normalization
+      sample_t fc_normalized = (sample_t) (cutoff / SAMPLE_FREQUENCY);
+      sample_t coefficient_sum = 0.0; //running total for normalization
       int numTaps = MAX_NUM_TAPS;
 
       for(int i=0; i<numTaps;i++)
@@ -33,7 +33,7 @@ struct LowPassFilterCoefficients {
             coefficient_sum += coeffs[i];  //keep running sum
             continue;
           }
-          float x = 3.1415927*fc_normalized*(float)n;
+          sample_t x = 3.1415927*fc_normalized*(sample_t)n;
           coeffs[i] = fc_normalized * constexpr_arm_sin_f32(x) / x;
 
           coefficient_sum += coeffs[i];//keep running sum

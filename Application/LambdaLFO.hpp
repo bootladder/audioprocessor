@@ -34,9 +34,9 @@ public:
         lambda = l;
     }
 
-    void tickCallback(void){
+    void tickCallback(){
         ticks++;
-        int T = 1000/lfoFreqHz/timerTickPeriodMs;
+        int T = (int) (1000.0/lfoFreqHz/timerTickPeriodMs);
         if(ticks >= T)
             ticks = 0;
         int sawToothValue = (-1*amplitude) + (amplitude*ticks*2/T);

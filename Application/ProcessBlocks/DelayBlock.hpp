@@ -25,11 +25,18 @@ public:
   //for testing
   int getDelayNumSamples(void){return delayNumSamples;}
 
+
+
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
     (void)id;
-    float delayNumSamples_float = ((float)value/128.0) * 100.0 * (1.0/1000.0) * (48000.0);
-    delayNumSamples = (int) delayNumSamples_float;
-    delayMillis = (int)(((float)value/128.0) * 100.0);
+    #define MAX_DELAY_MILLIS 100.0
+    #define MILLIS_TO_SECONDS (1.0/1000.0)
+    #define SAMPLES_PER_SECOND 48000.0
+    #define MAX_INPUT_VALUE 128.0
+    const sample_t VALUE_TO_SAMPLES = (MAX_DELAY_MILLIS * MILLIS_TO_SECONDS * SAMPLES_PER_SECOND / MAX_INPUT_VALUE);
+
+    sample_t delayNumSamples_float = (sample_t)value * VALUE_TO_SAMPLES;
+    delayNumSamples =  (int)delayNumSamples_float;
 
     static char str[100];
     int size = tfp_snprintf(str,100, "%s, Delay(ms), %d\n", name, delayMillis);
@@ -55,23 +62,17 @@ public:
         //  //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*5)
         //  //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*6)
         //  ;
-        outputBuffer[i] = getSampleAtIndex(i, delayNumSamples);
+        outputBuffer[i] = computeSampleAtIndex(i, delayNumSamples);
         delayBuffer->insertSample(inputBuffer[i]);
       }
 
     }
     else{
       for(uint32_t i=0; i<num_samples; i++){
-        float slope = ((float)delayNumSamples - (float)delayNumSamples_lastTimeProcessed) / (float)num_samples;
-        int interpolatedDelayNumSamples = 
-          delayNumSamples_lastTimeProcessed +
-            i*(slope);
+        sample_t slope = ((sample_t)delayNumSamples - (sample_t)delayNumSamples_lastTimeProcessed) / (sample_t)num_samples;
+        int interpolatedDelayNumSamples = delayNumSamples_lastTimeProcessed + (int)((sample_t)i*slope);
 
-        outputBuffer[i] = getSampleAtIndex(i, interpolatedDelayNumSamples);
-
-        //outputBuffer[i] = inputBuffer[i]
-        //  + 0.7* delayBuffer->getDelayedSample(interpolatedDelayNumSamples)
-        //  ;
+        outputBuffer[i] = computeSampleAtIndex(i, interpolatedDelayNumSamples);
         delayBuffer->insertSample(inputBuffer[i]);
       }
 
@@ -80,7 +81,7 @@ public:
     delayNumSamples_lastTimeProcessed = delayNumSamples;
   }
 
-  sample_t getSampleAtIndex(int i, int delayNumSamples){
+  sample_t computeSampleAtIndex(uint32_t i, int delayNumSamples){
         return  inputBuffer[i]
           + 0.7* delayBuffer->getDelayedSample(delayNumSamples)
           + 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)

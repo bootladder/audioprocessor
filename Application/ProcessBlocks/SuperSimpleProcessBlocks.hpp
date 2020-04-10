@@ -23,7 +23,7 @@ public:
     static char str[10];
     int gainFirstDigit = (int)gain;
     tfp_snprintf(str, 10, "%d", gainFirstDigit);
-    float gainFirstDecimalfloat = (gain - gainFirstDigit) * 10.0;
+    auto gainFirstDecimalfloat = (float)((gain - (float)gainFirstDigit) * 10.0);
     int gainFirstDecimal = int(gainFirstDecimalfloat);
     str[1] = '.';
     tfp_snprintf(&str[2], 7, "%d", gainFirstDecimal);
@@ -31,10 +31,10 @@ public:
     return str;
   }
 
-  void setMIDIParameter(BlockParamIdentifier_t id, int value){
+  void setMIDIParameter(BlockParamIdentifier_t id, int value) override{
     (void)id;
 
-    gain = (float)value * gainFactor /128.0;
+    gain = (float)((float)value * gainFactor /128.0);
 
     static char str[100];
     int size = tfp_snprintf(str,100, "%s, Gain, %s\n", name, paramToString(id));

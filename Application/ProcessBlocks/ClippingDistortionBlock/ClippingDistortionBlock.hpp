@@ -14,7 +14,7 @@ public:
   };
 
 private:
-  float clipping_percent;
+  sample_t clipping_percent;
   ClippingType clipping_type;
 
 public:
@@ -26,7 +26,7 @@ public:
     clipping_type = clippingType;
   }
 
-  void setClippingFactor(float factor){
+  void setClippingFactor(sample_t factor){
     clipping_percent = factor;
   }
 
@@ -68,14 +68,14 @@ public:
 
 
   // USING THE DAFX Formula
-    float thresh = clipping_percent * 32768.0;
+    sample_t thresh = clipping_percent * 32768.0;
     for(uint32_t i=0; i<num_samples; i++){
         if(my_abs(inputBuffer[i]) < 0.33*thresh){
           outputBuffer[i] = inputBuffer[i] * 2;
         }
         else if(my_abs(inputBuffer[i]) < 0.66){
-          float inputScaled = inputBuffer[i] / 32768.0;
-          float outputScaled = 
+          sample_t inputScaled = inputBuffer[i] / 32768.0;
+          sample_t outputScaled =
             (3.0 - ((2 - (3.0*inputScaled)) * (2 - (3.0*inputScaled)))) / 3.0;
 
           outputBuffer[i] = outputScaled * 32768.0;
@@ -105,7 +105,8 @@ public:
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
     (void)id;
 
-    clipping_percent = ((float)value/128.0);
+    clipping_percent = ((sample_t)value/128.0);
+
     int clipping_percent_int = (int) (clipping_percent*100.0);
     static char str[100];
     int size = tfp_snprintf(str,100, "%s, Clip(%%), %d\n", name, clipping_percent_int);
