@@ -64,19 +64,20 @@ public:
       return;
     }
 
-    float freq = getFrequencyFunction();
-    float freq_samples = freq/48000.0; //HARD CODED SAMPLE RATE
-    period_samples = (uint32_t) (1.0/freq_samples);
+    sample_t freq = getFrequencyFunction();
+    //sample_t freq_samples = freq/48000.0; //HARD CODED SAMPLE RATE
+    //period_samples = (uint32_t) (1.0/freq_samples);
+    period_samples = (uint32_t) (48000.0/freq);
 
     for(uint32_t i=0; i<num_samples; i++){
       outputBuffer[i] = getAmplitudeFunction() * oscillator_square(index, period_samples);
       index++;
-      if(index > period_samples)
+      if(index >= period_samples)
         index = 0;
     }
   }
 
-  void muteOutputBuffer(void){
+  void muteOutputBuffer(){
     for(uint32_t i=0; i<num_samples; i++){
       outputBuffer[i] = 0;
     }

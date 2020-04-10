@@ -12,7 +12,7 @@ float return_constant_frequency(void){
   return 1000.0;
 }
 
-float return_constant_amplitude(void){
+sample_t return_constant_amplitude(void){
   return 7000.0;
 }
 
@@ -51,6 +51,7 @@ TEST(OscillatorBlock, squarewave)
       break;
     }
   }
+  //first index is the last sample of positive value
 
   for(uint32_t i=firstIndex+1; i<NUM_SAMPLES; i++){
       if(out[i] == return_constant_amplitude() &&
@@ -116,4 +117,20 @@ TEST(OscillatorBlock, squarewave_multiplecalls_is_still_in_phase)
 
   ASSERT_EQ(bigbuf[somelaterindex], return_constant_amplitude());
   ASSERT_EQ(bigbuf[somelaterindex+1], -1*return_constant_amplitude());
+}
+
+TEST(OscillatorBlock, floatdoublesanitycheck)
+{
+  float freq = 1000.0;
+  float freq_samples = freq/48000.0; //HARD CODED SAMPLE RATE
+  uint32_t period_samples = (uint32_t) (1.0f/freq_samples);
+  ASSERT_EQ(period_samples, 48);
+}
+
+TEST(OscillatorBlock, floatdoublesanitycheck2)
+{
+  double freq = 1000.0;
+  double freq_samples = freq/48000.0; //HARD CODED SAMPLE RATE
+  uint32_t period_samples = (uint32_t) (1.0/freq_samples);
+  ASSERT_EQ(period_samples, 48);
 }
