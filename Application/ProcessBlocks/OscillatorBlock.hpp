@@ -7,7 +7,7 @@ extern "C"{
 
 const sample_t SAMPLE_RATE = 48000.0;
 
-typedef float (* GetFrequencyFunction)();
+typedef sample_t (* GetFrequencyFunction)();
 typedef sample_t (* GetAmplitudeFunction)();
 
 typedef enum {
@@ -74,7 +74,7 @@ public:
     for(uint32_t i=0; i<num_samples; i++){
       outputBuffer[i] = getAmplitudeFunction() * oscillator_square(index, period_samples);
       index++;
-      if(index > period_samples)
+      if(index >= period_samples)
         index = 0;
     }
   }

@@ -48,8 +48,8 @@ static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 2*1024, MY_PROCESSING
 
 //////////////////////////////////
 
-float return_constant_440hz(void){return (float)fft1.getSpectrumPeakFreq();}
-float return_some_amplitude(void){return (float)fft1.getSpectrumPeakMagnitude();}
+sample_t return_constant_440hz(void){return (sample_t)fft1.getSpectrumPeakFreq();}
+sample_t return_some_amplitude(void){return (sample_t)fft1.getSpectrumPeakMagnitude();}
 
 OscillatorBlock square1("square1", MY_PROCESSING_BUFFER_SIZE_SAMPLES,
                         OSCILLATOR_SQUARE,

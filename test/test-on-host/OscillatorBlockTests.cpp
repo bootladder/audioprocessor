@@ -8,7 +8,7 @@ using namespace std;
 static sample_t testBuf[NUM_SAMPLES];
 
 
-float return_constant_frequency(void){
+sample_t return_constant_frequency(void){
   return 1000.0;
 }
 
