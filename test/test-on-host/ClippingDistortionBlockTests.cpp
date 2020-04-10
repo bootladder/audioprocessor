@@ -52,13 +52,30 @@ TEST(ClippingDistortionBlock, SoftClipping_setClipFactor_OutputIsClipped)
   sample_t * out = block.getOutputBuffer();
 
   //ASSERT_EQ(0x4000, 0x8000 * clippingFactor);
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
 
+    printf("testBuf[%d] = %f\n", i, testBuf[i]);
+    printf("out[%d] = %f\n", i, out[i]);
+  }
+
+  //no values outside the bounds
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
     ASSERT_LE(out[i], max);
     ASSERT_GE(out[i], min);
 
     //printf("out[%d] = %f\n", i, out[i]);
   }
+
+  //but they can't all be zero for a ramp input.
+  //there shld be values greater than half the bounds
+  bool foundValueGreaterThanHalfBounds = false;
+  for(uint32_t i=0; i<NUM_SAMPLES; i++){
+    if(out[i] > max/2)
+      foundValueGreaterThanHalfBounds = true;
+  }
+
+  ASSERT_TRUE(foundValueGreaterThanHalfBounds);
+
 }
 
 TEST(ClippingDistortionBlock, SoftClipping_WithinThreshold_AppliesWaveShapingFunction)

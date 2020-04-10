@@ -64,33 +64,49 @@ public:
 
     //This formula assumes the signal range is -1 to 1
     //the actual input is huge, 32000.0.
-    //let's try gaining the formula instead of reducing the input
+    //input has to be normalized to 1 because of the squaring term.
+    //100% divide by 32000 and there will be clipping at 32000.
+    //50% divide by 16000
 
+    sample_t normalization_factor = clipping_percent * 32000.0;
+    // NORMALIZE
+    for(uint32_t i=0; i<num_samples; i++) {
+      inputBuffer[i] = inputBuffer[i]/normalization_factor;
+    }
 
   // USING THE DAFX Formula
-    sample_t thresh = clipping_percent * 32768.0;
     for(uint32_t i=0; i<num_samples; i++){
-        if(my_abs(inputBuffer[i]) < 0.33*thresh){
+        if(my_abs(inputBuffer[i]) < 0.33){
           outputBuffer[i] = inputBuffer[i] * 2;
         }
         else if(my_abs(inputBuffer[i]) < 0.66){
-          sample_t inputScaled = inputBuffer[i] / 32768.0;
-          sample_t outputScaled =
-            (3.0 - ((2 - (3.0*inputScaled)) * (2 - (3.0*inputScaled)))) / 3.0;
+          if(inputBuffer[i] < 0){
+            sample_t x = my_abs(inputBuffer[i]);
+            outputBuffer[i]=
+                    (-1) *
+                    (3.0 - ((2 - (3.0*x)) * (2 - (3.0*x)))) / 3.0;
+          }
+          else if(inputBuffer[i] > 0){
+            sample_t x = inputBuffer[i];
+            outputBuffer[i] =
+                    (3.0 - ((2 - (3.0*x)) * (2 - (3.0*x)))) / 3.0;
+          }
 
-          outputBuffer[i] = outputScaled * 32768.0;
         }
         else {
           if(inputBuffer[i] < 0)
-            outputBuffer[i] = -1 * thresh;
+            outputBuffer[i] = -1;
           else if(inputBuffer[i] > 0){
-            outputBuffer[i] = thresh;
+            outputBuffer[i] = 1;
           }
           
         }
     }
 
-
+    // DENORMALIZE
+    for(uint32_t i=0; i<num_samples; i++) {
+      outputBuffer[i] = outputBuffer[i]*normalization_factor;
+    }
 
   //this is from somehwere else
     //for(uint32_t i=0; i<num_samples; i++){
