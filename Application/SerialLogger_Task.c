@@ -42,8 +42,11 @@ void SerialLogger_Signal(){
 
 
 
+#include "BSP_SDRAM.h"
 void SerialLogger_Task(void * params)
 {
+  BSP_SDRAM_Init();
+
   (void)params;
   BSP_Fast_UART_Init();
   _send_hello_message();

@@ -60,7 +60,7 @@ int main(void)
   // Create this task first because other tasks send messages
   // Remember not to send messages in constructors because the message queue won't be created yet
 
-  xTaskCreate(SerialLogger_Task,
+  xTaskCreate(SerialLogger_Task,  //adding the sdram init here.  bad!!
               "Serial Logger Task",
               myStackSize,
               NULL, //task params

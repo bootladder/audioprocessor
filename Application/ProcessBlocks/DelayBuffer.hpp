@@ -3,14 +3,19 @@
 
 #include "SamplingTypes.h"
 
+#define EXT_RAM_SECTION __attribute__((section(".external_ram")))
+static EXT_RAM_SECTION sample_t delayBuffer[480000];  //static allocate //for now
+
 class DelayBuffer{
-  sample_t * delayBuffer;
+  //sample_t delayBuffer[48000];  //static allocate //for now
   int index; //points to where the newest sample is
   int size ;
+
+
 public:
   DelayBuffer(int size_param){
-    delayBuffer = new sample_t[size_param];
-    size = size_param;
+    //size = size_param;
+    size = 480000;
     index = 0;
   }
 

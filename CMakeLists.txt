@@ -22,8 +22,8 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/MIDIMessageHandler.cpp"
   "${SOURCE_ROOT_DIR}/Help/MemoryLogger.c"
   "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/FIRBlock.cpp"
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/LowPassFilterCoefficients.cpp"
+  #"${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/FIRBlock.cpp"
+  #"${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/LowPassFilterCoefficients.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/ClippingDistortionBlock/ClippingDistortionBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FFTBlock.cpp"
   )
@@ -34,6 +34,7 @@ set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/Monitor_Task.c"
   "${SOURCE_ROOT_DIR}/Application/SerialLogger_Task.c"
 
+  "${SOURCE_ROOT_DIR}/CPU/malloc.c"
   "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"
   "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"
   "${SOURCE_ROOT_DIR}/Application/main.c"
@@ -48,6 +49,8 @@ set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_dma.c"
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_i2c.c"
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_uart.c"
+  "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_sdram.c"
+  "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_ll_fmc.c"
 
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Init.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Task.c"
@@ -57,6 +60,7 @@ set(C_SOURCES_NOT_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_LED.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Codec_IO.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/wm8994.c"
+  "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_SDRAM.c"
 
   "${SOURCE_ROOT_DIR}/FreeRTOS/portable/GCC/ARM_CM7/r0p1/port.c"
   "${SOURCE_ROOT_DIR}/FreeRTOS/tasks.c"
@@ -78,7 +82,7 @@ LIST(APPEND C_SOURCES ${C_SOURCES_NOT_FOR_TESTING})
 SET(INCLUDES_FOR_TESTING
   "./Application"
   "./Application/ProcessBlocks"
-  "./Application/ProcessBlocks/FIRBlock"
+  #"./Application/ProcessBlocks/FIRBlock"
   "./Application/ProcessBlocks/ClippingDistortionBlock"
   "./Help"
   )
@@ -119,6 +123,9 @@ if(TOOLCHAIN STREQUAL "CROSS")
   set(TARGET_SPECIFIC_FLAGS " ")
   string(APPEND TARGET_SPECIFIC_FLAGS "  -mcpu=cortex-m7 -mthumb  -DARM_MATH_CM7 ")
   string(APPEND TARGET_SPECIFIC_FLAGS " -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
+  #string(APPEND TARGET_SPECIFIC_FLAGS " -nostdlib ")
+  string(APPEND TARGET_SPECIFIC_FLAGS " -fno-exceptions ")
+  string(APPEND TARGET_SPECIFIC_FLAGS " -fno-rtti ")
 
   string(APPEND CMAKE_C_FLAGS ${TARGET_SPECIFIC_FLAGS})
   string(APPEND CMAKE_CXX_FLAGS ${TARGET_SPECIFIC_FLAGS})
@@ -254,8 +261,8 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
     test/test-on-host/ProcessBlockTests.cpp
     test/test-on-host/ClippingDistortionBlockTests.cpp
     test/test-on-host/FFTBlockTests.cpp
-    test/test-on-host/FIRBlockTests.cpp
-    test/test-on-host/CircularFIRProcessorTests.cpp
+    #test/test-on-host/FIRBlockTests.cpp
+    #test/test-on-host/CircularFIRProcessorTests.cpp
     test/test-on-host/OscillatorBlockTests.cpp
     test/test-on-host/IIRBlockTests.cpp
     test/test-on-host/LFOTests.cpp

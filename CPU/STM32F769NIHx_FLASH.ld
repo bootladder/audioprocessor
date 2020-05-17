@@ -17,6 +17,7 @@ Memory3 (xrw)   : ORIGIN = 0x20000200, LENGTH = 0x1DC4
 Memory4 (xrw)   : ORIGIN = 0x20002200, LENGTH = 0x1DC4
 RAM (xrw)       : ORIGIN = 0x20003FC4, LENGTH = 0x78338
 QSPI (rx)       : ORIGIN = 0x90000000, LENGTH = 16M
+EXTERNAL_RAM (rw)      : ORIGIN = 0xC0000000, LENGTH = 8096K
 }
 
 /* Define output sections */
@@ -143,6 +144,11 @@ SECTIONS
   .RxBUF (NOLOAD) : { *(.RxBUF) } >Memory3
   .TxBUF (NOLOAD) : { *(.TxBUF) } >Memory4
   .ExtQSPIFlashSection (NOLOAD) : { *(.ExtQSPIFlashSection) } >QSPI
+
+
+  .external_ram (NOLOAD) :
+  {
+  } >EXTERNAL_RAM
 }
 
 

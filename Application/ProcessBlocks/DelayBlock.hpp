@@ -13,12 +13,14 @@ class DelayBlock : public ProcessBlock {
   int delayNumSamples;
   int delayNumSamples_lastTimeProcessed; //it can change
   int delayMillis; //for printing
-  DelayBuffer * delayBuffer;
+
+  //static allocate for now
+  DelayBuffer delayBuffer = DelayBuffer(0);
 
 public:
   DelayBlock(const char * name, uint32_t size) :
     ProcessBlock(name, size){
-    delayBuffer = new DelayBuffer(1024*40);//static 20k
+    //delayBuffer = new DelayBuffer(1024*40);//static 20k  //static allocate for now
     delayNumSamples = 0;
   }
 
@@ -63,7 +65,7 @@ public:
         //  //+ 0.1* delayBuffer->getDelayedSample(delayNumSamples*6)
         //  ;
         outputBuffer[i] = computeSampleAtIndex(i, delayNumSamples);
-        delayBuffer->insertSample(inputBuffer[i]);
+        delayBuffer.insertSample(inputBuffer[i]);
       }
 
     }
@@ -73,7 +75,7 @@ public:
         int interpolatedDelayNumSamples = delayNumSamples_lastTimeProcessed + (int)((sample_t)i*slope);
 
         outputBuffer[i] = computeSampleAtIndex(i, interpolatedDelayNumSamples);
-        delayBuffer->insertSample(inputBuffer[i]);
+        delayBuffer.insertSample(inputBuffer[i]);
       }
 
     }
@@ -83,12 +85,20 @@ public:
 
   sample_t computeSampleAtIndex(uint32_t i, int delayNumSamples){
         return  inputBuffer[i]
-          + 0.7* delayBuffer->getDelayedSample(delayNumSamples)
-          + 0.5* delayBuffer->getDelayedSample(delayNumSamples*2)
-          + 0.3* delayBuffer->getDelayedSample(delayNumSamples*3)
-          + 0.2* delayBuffer->getDelayedSample(delayNumSamples*4)
-          + 0.1* delayBuffer->getDelayedSample(delayNumSamples*5)
-          + 0.1* delayBuffer->getDelayedSample(delayNumSamples*6);
+          + 0.7* delayBuffer.getDelayedSample(delayNumSamples)
+          + 0.5* delayBuffer.getDelayedSample(delayNumSamples*2)
+          + 0.3* delayBuffer.getDelayedSample(delayNumSamples*3)
+          + 0.2* delayBuffer.getDelayedSample(delayNumSamples*4)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*5)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*6)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*7)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*8)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*9)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*10)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*11)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*12)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*13)
+          + 0.1* delayBuffer.getDelayedSample(delayNumSamples*14);
   }
 };
 

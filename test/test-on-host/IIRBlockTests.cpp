@@ -150,7 +150,7 @@ TEST(IIRBlock, setCutoffFrequency_checkCoeffs){
   block.setCutoffFrequency(1000);
   block.setQ(1.0);
 
-  sample_t a = 3.1415927 * 1000.0 /48000.0;
+  sample_t a = (sample_t)(3.1415927 * 1000.0 /48000.0);
   sample_t K = tan(a);
   sample_t Q = 1.0;
 

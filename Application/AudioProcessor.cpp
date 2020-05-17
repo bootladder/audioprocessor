@@ -33,28 +33,31 @@ createBlock(GainBlock               ,gain2       )
 createBlock(GainBlock               ,gain3       )
 createBlock(MixerBlock              ,mixer       )
 createBlock(DelayBlock              ,delay       )
+
+//static EXT_RAM_SECTION DelayBlock delay("delay", MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+
 createBlock(IIRBlock                ,iir1       )
 createBlock(IIRBlock                ,iirLFO       )
 createBlock(IIRBlock                ,iirLambdaLFO       )
 
 //////////////////////////////////
 
-static ClippingDistortionBlock clipping1("clip1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, ClippingDistortionBlock::CLIPPING_TYPE_SOFT);
+//static ClippingDistortionBlock clipping1("clip1", MY_PROCESSING_BUFFER_SIZE_SAMPLES, ClippingDistortionBlock::CLIPPING_TYPE_SOFT);
 
 //////////////////////////////////
 
-static ARMDSPFFTProcessor armDSPFFTProcessor;
-static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 2*1024, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
+//static ARMDSPFFTProcessor armDSPFFTProcessor;
+//static FFTBlock fft1 = FFTBlock("fft1",armDSPFFTProcessor, 2*1024, MY_PROCESSING_BUFFER_SIZE_SAMPLES);
 
 //////////////////////////////////
 
-sample_t return_constant_440hz(void){return (sample_t)fft1.getSpectrumPeakFreq();}
-sample_t return_some_amplitude(void){return (sample_t)fft1.getSpectrumPeakMagnitude();}
-
-OscillatorBlock square1("square1", MY_PROCESSING_BUFFER_SIZE_SAMPLES,
-                        OSCILLATOR_SQUARE,
-                        return_constant_440hz,
-                        return_some_amplitude);
+//sample_t return_constant_440hz(void){return (sample_t)fft1.getSpectrumPeakFreq();}
+//sample_t return_some_amplitude(void){return (sample_t)fft1.getSpectrumPeakMagnitude();}
+//
+//OscillatorBlock square1("square1", MY_PROCESSING_BUFFER_SIZE_SAMPLES,
+//                        OSCILLATOR_SQUARE,
+//                        return_constant_440hz,
+//                        return_some_amplitude);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,8 +68,8 @@ static BlockGraph tempTesterGraph = {
   .start = &gain1,
   .edges = {
     {&gain1, &gain3},
-    {&gain3, &clipping1},
-    {&clipping1, &iirLambdaLFO},
+    {&gain3, &iirLambdaLFO},
+    //{&clipping1, &iirLambdaLFO},
     {&iirLambdaLFO, &delay},
     {&delay, &mixer},
     {0,0}, // null terminator
@@ -79,15 +82,15 @@ __attribute__ ((unused))
 static BlockGraph blockGraph = {
   .start = &gain1,
   .edges = {
-  {&gain1, &square1},
-  {&square1, &gain2},
+//  {&gain1, &square1},
+//  {&square1, &gain2},
   {&gain1, &gain3},
-  {&gain1, &fft1},
-  {&gain3, &clipping1},
-  {&clipping1, &iir1},
+  //{&gain1, &fft1},
+ // {&gain3, &clipping1},
+  {&gain3, &iir1},
   {&iir1, &delay},
   {&delay, &mixer},
-  {&gain2, &mixer},
+//  {&gain2, &mixer},
   {0,0}, // null terminator
   },
   .end = &mixer,
@@ -98,8 +101,8 @@ static BlockGraph testerGraph = {
   .start = &gain1,
   .edges = {
     {&gain1, &gain3},
-    {&gain3, &clipping1},
-    {&clipping1, &iir1},
+    //{&gain3, &clipping1},
+    {&gain3, &iir1},
     {&iir1, &delay},
     {&delay, &mixer},
     {0,0}, // null terminator
@@ -112,8 +115,8 @@ static BlockGraph graph_ClippingDelay = {
   .start = &gain1,
   .edges = {
     {&gain1, &gain3},
-    {&gain3, &clipping1},
-    {&clipping1, &delay},
+    //{&gain3, &clipping1},
+    {&gain3, &delay},
     {&delay, &mixer},
     {0,0}, // null terminator
   },
@@ -125,8 +128,8 @@ static BlockGraph graph_ClippingDelayIIRLFO = {
   .start = &gain1,
   .edges = {
     {&gain1, &gain3},
-    {&gain3, &clipping1},
-    {&clipping1, &delay},
+    //{&gain3, &clipping1},
+    {&gain3, &delay},
     {&delay, &iirLFO},
     {&iirLFO, &mixer},
     {0,0}, // null terminator
@@ -216,7 +219,7 @@ void AudioProcessor::init(void)
   MIDIHookup({MIDI_CONTROL_CHANGE,1,1}, gain1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,2,1}, gain2, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,3,1}, gain3, PARAM_0);
-  MIDIHookup({MIDI_CONTROL_CHANGE,4,1}, clipping1, PARAM_0);
+//  MIDIHookup({MIDI_CONTROL_CHANGE,4,1}, clipping1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,6,1}, delay, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,7,1}, iir1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,20,1}, iir1, PARAM_0);
@@ -224,8 +227,8 @@ void AudioProcessor::init(void)
 
   MIDIHookup({MIDI_CONTROL_CHANGE,9,1}, iir1, PARAM_0);
 
-  MIDIHookup({MIDI_NOTE_ON,2,1}, square1, PARAM_0);
-  MIDIHookup({MIDI_NOTE_OFF,2,1}, square1, PARAM_1);
+//  MIDIHookup({MIDI_NOTE_ON,2,1}, square1, PARAM_0);
+//  MIDIHookup({MIDI_NOTE_OFF,2,1}, square1, PARAM_1);
 
   MIDIMessageHandler_RegisterMIDIMap(midiMap);
 
@@ -298,6 +301,7 @@ void AudioProcessor::process(sample_t * sampleBuf)
 
 
   void AudioProcessor::setMIDIParameter(BlockParamIdentifier_t id, int value){
+    (void)value;
     switch(id){
       case PARAM_0: active_block_graph = tempTesterGraph; break;
       case PARAM_1: active_block_graph = blockGraph; break;
@@ -364,8 +368,8 @@ extern "C" char * AudioProcessor_GetActiveBlockGraphEdgeListToString(void)
   return audioProcessor.getActiveBlockGraph().toEdgeListJSONString();
 }
 
-// Called by the monitor task
-extern "C" sample_t * AudioProcessor_GetFFTSpectrum(void)
-{
-  return fft1.getSpectrum();
-}
+//// Called by the monitor task
+//extern "C" sample_t * AudioProcessor_GetFFTSpectrum(void)
+//{
+//  return fft1.getSpectrum();
+//}
