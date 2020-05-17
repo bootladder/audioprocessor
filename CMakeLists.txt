@@ -144,7 +144,10 @@ if(TOOLCHAIN STREQUAL "HOST")
 
 elseif(TOOLCHAIN STREQUAL "CROSS")
 
-  set(TOOLCHAIN_PATH "/opt/gcc-arm-none-eabi-7-2018-q2-update/bin")
+  if(NOT TOOLCHAIN_PATH AND TOOLCHAIN STREQUAL "CROSS")
+    set(TOOLCHAIN_PATH "/opt/gcc-arm-none-eabi-7-2018-q2-update/bin")
+  endif()
+
   set(CMAKE_C_COMPILER   "${TOOLCHAIN_PATH}/arm-none-eabi-gcc")
   set(CMAKE_CXX_COMPILER "${TOOLCHAIN_PATH}/arm-none-eabi-g++")
   set(OBJCOPY            "${TOOLCHAIN_PATH}/arm-none-eabi-objcopy")
