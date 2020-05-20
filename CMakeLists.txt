@@ -28,12 +28,15 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FFTBlock.cpp"
   )
 
-set(C_SOURCES_NOT_FOR_TESTING
+set(C_SOURCES_NOT_TESTED
   "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"
   "${SOURCE_ROOT_DIR}/Application/MIDI_Input_Task.c"
   "${SOURCE_ROOT_DIR}/Application/Monitor_Task.c"
   "${SOURCE_ROOT_DIR}/Application/SerialLogger_Task.c"
+)
 
+
+set(C_SOURCES_HAL_BSP
   "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"
   "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"
   "${SOURCE_ROOT_DIR}/Application/main.c"
@@ -70,7 +73,8 @@ set(C_SOURCES_NOT_FOR_TESTING
 
 SET(C_SOURCES "")
 LIST(APPEND C_SOURCES ${C_SOURCES_FOR_TESTING})
-LIST(APPEND C_SOURCES ${C_SOURCES_NOT_FOR_TESTING})
+LIST(APPEND C_SOURCES ${C_SOURCES_HAL_BSP})
+LIST(APPEND C_SOURCES ${C_SOURCES_NOT_TESTED})
 
 ########################################
 # INCLUDES
@@ -128,10 +132,7 @@ if(TOOLCHAIN STREQUAL "CROSS")
   set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
   set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
-  SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH.ld")
-
-  string(APPEND TARGET_LINK_FLAGS " -specs=nosys.specs -specs=nano.specs ")
-  string(APPEND TARGET_LINK_FLAGS " -T${PATH_TO_LINKERSCRIPT}  ")
+  # Moved Link Flags down to where each cmake target is defined
 
 endif()
 
@@ -187,21 +188,42 @@ function(COMMON_EXE_CONFIG TARGET_NAME)
 endfunction()
 
 
+function(RENAME_TEXT_SECTIONS_OF_APP_OBJECT_FILES TARGET_NAME)
+  # Rename Text Sections of App Object Files
+  foreach(_file ${C_SOURCES_FOR_TESTING} ${C_SOURCES_NOT_TESTED})
+    add_custom_command(TARGET ${TARGET_NAME} PRE_LINK
+      COMMAND echo moving file ${_file} into .my_app section
+    )
+    EXEC_PROGRAM(
+      "find . -name $(basename ${_file}).o" 
+      OUTPUT_VARIABLE PATH_TO_FILE_BEING_SECTION_RENAMED
+    )
+    add_custom_command(TARGET ${TARGET_NAME} PRE_LINK
+      COMMAND ${OBJCOPY} --rename-section .text=.my_app ${PATH_TO_FILE_BEING_SECTION_RENAMED}
+    )
+  endforeach()
+endfunction()
+
 ##########################################################################
 #
 #   Executables:
-#      There are 3 types of executables
+#      There are 4 types of executables
 #        - Production cross compiled (runs on target)
+#        - Application-Only cross compiled (runs on target) (faster load time, no BSP and HAL)
 #        - Tests cross compiled (runs on target)
 #        - Tests host compiled (runs on host)
 
 #############################################################
 # PRODUCTION EXECUTABLE (CROSS COMPILE)
 ############################################################
-if(NOT BUILD_TEST AND TOOLCHAIN STREQUAL "CROSS")
+if(BUILD_PROD AND TOOLCHAIN STREQUAL "CROSS")
   add_executable(${TARGET_BASENAME}  ${C_SOURCES} ${ASM_SOURCES})
   target_link_libraries(${TARGET_BASENAME} "-L../static-libs/" "-l:libarm_cortexM7lfdp_math.a")
 
+  # Linker Flags
+  SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH.ld")
+  string(APPEND TARGET_LINK_FLAGS " -specs=nosys.specs -specs=nano.specs ")
+  string(APPEND TARGET_LINK_FLAGS " -T${PATH_TO_LINKERSCRIPT}  ")
   set_target_properties(${TARGET_BASENAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
 
   EXEC_PROGRAM(
@@ -219,6 +241,27 @@ if(NOT BUILD_TEST AND TOOLCHAIN STREQUAL "CROSS")
   add_custom_command(TARGET ${TARGET_BASENAME} POST_BUILD
     COMMAND cp ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname} ${EXECUTABLE_OUTPUT_PATH}/latest.elf
   )
+
+  RENAME_TEXT_SECTIONS_OF_APP_OBJECT_FILES(${TARGET_BASENAME})
+
+
+#############################################################
+# APPLICATION ONLY EXECUTABLE (CROSS COMPILE)
+############################################################
+elseif(BUILD_APP_ONLY AND TOOLCHAIN STREQUAL "CROSS")
+  set(APP_ONLY_TARGET_BASENAME ${TARGET_BASENAME}-app-only)
+  set(THIS_TARGET_NAME ${APP_ONLY_TARGET_BASENAME})
+  add_executable(${THIS_TARGET_NAME}  ${C_SOURCES} ${ASM_SOURCES})
+  target_link_libraries(${THIS_TARGET_NAME} "-L../static-libs/" "-l:libarm_cortexM7lfdp_math.a")
+
+  # Linker Flags
+  SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH_APP_ONLY.ld")
+  string(APPEND TARGET_LINK_FLAGS " -specs=nosys.specs -specs=nano.specs ")
+  string(APPEND TARGET_LINK_FLAGS " -T${PATH_TO_LINKERSCRIPT}  ")
+  set_target_properties(${THIS_TARGET_NAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
+
+  COMMON_EXE_CONFIG(${THIS_TARGET_NAME})
+  RENAME_TEXT_SECTIONS_OF_APP_OBJECT_FILES(${THIS_TARGET_NAME})
 
 #############################################################
 # TEST EXECUTABLE (CROSS COMPILE)
@@ -285,6 +328,6 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
   )
 
 else()
-  message( FATAL_ERROR "fatal error message" )
+  message( FATAL_ERROR "CMake Flags for build target or toolchain not specified" )
 endif()
 

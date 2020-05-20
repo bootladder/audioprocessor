@@ -1,4 +1,4 @@
-extern "C"{
+extern "C"{  
 #include "MIDIMessageHandler.h"
 #include "BSP_Fast_UART.h"
 #include "MemoryLogger.h"
