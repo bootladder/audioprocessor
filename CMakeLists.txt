@@ -26,7 +26,8 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/LowPassFilterCoefficients.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/ClippingDistortionBlock/ClippingDistortionBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FFTBlock.cpp"
-  )
+  "${SOURCE_ROOT_DIR}/Application/MIDIReceiver.cpp"
+        )
 
 set(C_SOURCES_NOT_TESTED
   "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"
@@ -123,6 +124,7 @@ if(TOOLCHAIN STREQUAL "CROSS")
   set(TARGET_SPECIFIC_FLAGS " ")
   string(APPEND TARGET_SPECIFIC_FLAGS "  -mcpu=cortex-m7 -mthumb  -DARM_MATH_CM7 ")
   string(APPEND TARGET_SPECIFIC_FLAGS " -mfloat-abi=hard -mfpu=fpv5-d16 -DSTM32F769xx -DUSE_HAL_DRIVER ")
+  string(APPEND TARGET_SPECIFIC_FLAGS " --no-exceptions ")
 
   string(APPEND CMAKE_C_FLAGS ${TARGET_SPECIFIC_FLAGS})
   string(APPEND CMAKE_CXX_FLAGS ${TARGET_SPECIFIC_FLAGS})
