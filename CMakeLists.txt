@@ -19,18 +19,12 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(SOURCE_ROOT_DIR "../")
 
 set(C_SOURCES_FOR_TESTING
-  "${SOURCE_ROOT_DIR}/Application/MIDIMessageHandler.cpp"
   "${SOURCE_ROOT_DIR}/Help/MemoryLogger.c"
   "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/FIRBlock.cpp"
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/LowPassFilterCoefficients.cpp"
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/ClippingDistortionBlock/ClippingDistortionBlock.cpp"
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FFTBlock.cpp"
-  "${SOURCE_ROOT_DIR}/Application/MIDIReceiver.cpp"
+
         )
 
 set(C_SOURCES_NOT_TESTED
-  "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"
 )
 
 set(C_SOURCES_SYSTEM
@@ -85,10 +79,7 @@ LIST(APPEND C_SOURCES ${C_SOURCES_SYSTEM})
 # INCLUDES
 #######################################
 SET(INCLUDES_FOR_TESTING
-  "./Application"
-  "./Application/ProcessBlocks"
-  "./Application/ProcessBlocks/FIRBlock"
-  "./Application/ProcessBlocks/ClippingDistortionBlock"
+  "./API"
   "./Help"
   )
 
