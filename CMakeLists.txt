@@ -91,6 +91,7 @@ SET(INCLUDES_FOR_TESTING
 
 SET(INCLUDES_NOT_FOR_TESTING
   "./Drivers/BSP"
+  "./Drivers/STM32F7xx_HAL_Drivers" # hal_conf is here
   "./Drivers/STM32F7xx_HAL_Drivers/Inc"
   "./Drivers/CMSIS/Device"
   "./Drivers/CMSIS/Include"
