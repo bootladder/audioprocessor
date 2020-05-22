@@ -35,6 +35,7 @@ set(C_SOURCES_NOT_TESTED
 
 set(C_SOURCES_SYSTEM
     "${SOURCE_ROOT_DIR}/System/main.c"
+    "${SOURCE_ROOT_DIR}/System/BSP_Audio_Task.c"
     "${SOURCE_ROOT_DIR}/System/MIDI_Input_Task.c"
     "${SOURCE_ROOT_DIR}/System/Monitor_Task.c"
     "${SOURCE_ROOT_DIR}/System/SerialLogger_Task.c"
@@ -57,7 +58,6 @@ set(C_SOURCES_HAL_BSP
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_uart.c"
 
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Init.c"
-  "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Audio_Task.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Bringup.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_UART.c"
   "${SOURCE_ROOT_DIR}/Drivers/BSP/BSP_Fast_UART.c"
