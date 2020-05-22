@@ -142,49 +142,57 @@ LFO lfo1("LFO1");
 LFO lfo2("LFO2");
 LambdaLFO lambdaLFO1("LambdaLFO1");
 
-extern "C"{
-#include "FreeRTOS.h"
-#include "timers.h"
-}
+// removing this to remove freertos dependency
+
+//extern "C"{
+//#include "FreeRTOS.h"
+//#include "timers.h"
+//}
 
 
 int num_lfos = 0;
 LFO * lfos[10];
 
 //this sucks
-void vTimerCallback( TimerHandle_t xTimer ){
-  auto id = ( uint32_t ) pvTimerGetTimerID( xTimer );
-  lfos[id]->tickCallback();
-}
+
+// removing this to remove freertos dependency
+
+//void vTimerCallback( TimerHandle_t xTimer ){
+//  auto id = ( uint32_t ) pvTimerGetTimerID( xTimer );
+//  lfos[id]->tickCallback();
+//}
 
 // MOVE THIS SOMEWHERE ELSE
 void freertosLFOTimerFunc(LFO & lfo, int ms){
 
-  TimerHandle_t handle = xTimerCreate
-  (
-    "Timer",
-    /* The timer period in ticks, must be
-    greater than 0. */
-    ms,
-    /* The timers will auto-reload themselves
-    when they expire. */
-    pdTRUE,
-    /* Timer ID */
-    ( void * ) num_lfos,
-    /* Each timer calls the same callback when
-    it expires. */
-    vTimerCallback
-  );
+  //stubbing this out to remove freertos dependency
 
-  if( xTimerStart( handle, 0 ) != pdPASS )
-             {
-                 /* The timer could not be set into the Active
-                 state. */
-             }
-
-
-    lfos[num_lfos] = &lfo;
-    num_lfos++;
+//
+//  TimerHandle_t handle = xTimerCreate
+//  (
+//    "Timer",
+//    /* The timer period in ticks, must be
+//    greater than 0. */
+//    ms,
+//    /* The timers will auto-reload themselves
+//    when they expire. */
+//    pdTRUE,
+//    /* Timer ID */
+//    ( void * ) num_lfos,
+//    /* Each timer calls the same callback when
+//    it expires. */
+//    vTimerCallback
+//  );
+//
+//  if( xTimerStart( handle, 0 ) != pdPASS )
+//             {
+//                 /* The timer could not be set into the Active
+//                 state. */
+//             }
+//
+//
+//    lfos[num_lfos] = &lfo;
+//    num_lfos++;
 }
 
 //////////////////////////////////////////////////////////////////////////
