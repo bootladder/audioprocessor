@@ -31,16 +31,19 @@ set(C_SOURCES_FOR_TESTING
 
 set(C_SOURCES_NOT_TESTED
   "${SOURCE_ROOT_DIR}/Application/AudioProcessor.cpp"
-  "${SOURCE_ROOT_DIR}/Application/MIDI_Input_Task.c"
-  "${SOURCE_ROOT_DIR}/Application/Monitor_Task.c"
-  "${SOURCE_ROOT_DIR}/Application/SerialLogger_Task.c"
 )
 
+set(C_SOURCES_SYSTEM
+    "${SOURCE_ROOT_DIR}/System/main.c"
+    "${SOURCE_ROOT_DIR}/System/MIDI_Input_Task.c"
+    "${SOURCE_ROOT_DIR}/System/Monitor_Task.c"
+    "${SOURCE_ROOT_DIR}/System/SerialLogger_Task.c"
+    "${SOURCE_ROOT_DIR}/System/startup_stm32f769xx.s"
+    "${SOURCE_ROOT_DIR}/System/stm32f7xx_it.c"
+)
 
 set(C_SOURCES_HAL_BSP
-  "${SOURCE_ROOT_DIR}/CPU/startup_stm32f769xx.s"
-  "${SOURCE_ROOT_DIR}/CPU/stm32f7xx_it.c"
-  "${SOURCE_ROOT_DIR}/Application/main.c"
+
   "${SOURCE_ROOT_DIR}/Drivers/CMSIS/Device/system_stm32f7xx.c"
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc.c"
   "${SOURCE_ROOT_DIR}/Drivers/STM32F7xx_HAL_Drivers/Src/stm32f7xx_hal_rcc_ex.c"
@@ -76,6 +79,7 @@ SET(C_SOURCES "")
 LIST(APPEND C_SOURCES ${C_SOURCES_FOR_TESTING})
 LIST(APPEND C_SOURCES ${C_SOURCES_HAL_BSP})
 LIST(APPEND C_SOURCES ${C_SOURCES_NOT_TESTED})
+LIST(APPEND C_SOURCES ${C_SOURCES_SYSTEM})
 
 ########################################
 # INCLUDES
@@ -224,7 +228,7 @@ if(BUILD_PROD AND TOOLCHAIN STREQUAL "CROSS")
   target_link_libraries(${TARGET_BASENAME} "-L../static-libs/" "-l:libarm_cortexM7lfdp_math.a")
 
   # Linker Flags
-  SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH.ld")
+  SET(PATH_TO_LINKERSCRIPT "../System/STM32F769NIHx_FLASH.ld")
   string(APPEND TARGET_LINK_FLAGS " -specs=nosys.specs -specs=nano.specs ")
   string(APPEND TARGET_LINK_FLAGS " -T${PATH_TO_LINKERSCRIPT}  ")
   set_target_properties(${TARGET_BASENAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
@@ -258,7 +262,7 @@ elseif(BUILD_APP_ONLY AND TOOLCHAIN STREQUAL "CROSS")
   target_link_libraries(${THIS_TARGET_NAME} "-L../static-libs/" "-l:libarm_cortexM7lfdp_math.a")
 
   # Linker Flags
-  SET(PATH_TO_LINKERSCRIPT "../CPU/STM32F769NIHx_FLASH_APP_ONLY.ld")
+  SET(PATH_TO_LINKERSCRIPT "../System/STM32F769NIHx_FLASH_APP_ONLY.ld")
   string(APPEND TARGET_LINK_FLAGS " -specs=nosys.specs -specs=nano.specs ")
   string(APPEND TARGET_LINK_FLAGS " -T${PATH_TO_LINKERSCRIPT}  ")
   set_target_properties(${THIS_TARGET_NAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
