@@ -44,8 +44,6 @@ void Monitor_Task(void * argument)
 
     if(timeToSendMessage()){
       sendIdleTickCountMessage();
-      sendEdgeListMessage();
-      sendFFTSpectrumMessage();
     }
   }
 }
@@ -66,19 +64,6 @@ static void sendIdleTickCountMessage(void)
   SerialLogger_Log(LOGTYPE_IDLE_MONITOR, (uint8_t *)msg, size);
 }
 
-static void sendEdgeListMessage(void)
-{
-  char * msg = AudioProcessor_GetActiveBlockGraphEdgeListToString();
-  int size = strlen(msg);
-  SerialLogger_Log(LOGTYPE_BLOCKGRAPH_EDGELIST_UPDATE, (uint8_t *)msg, size);
-}
-
-static void sendFFTSpectrumMessage(void)
-{
-  //sample_t * spectrum = AudioProcessor_GetFFTSpectrum();
-
-  //SerialLogger_LogLiteralString(LOGTYPE_EVENT, "Printing spectrum Stub...\n");
-}
 
 void vApplicationIdleHook(void);
 void vApplicationTickHook (void);
