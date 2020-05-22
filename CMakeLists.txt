@@ -22,7 +22,7 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Help/MemoryLogger.c"
   "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
 
-        )
+        API/WeakAppStubs.c)
 
 set(C_SOURCES_NOT_TESTED
 )
