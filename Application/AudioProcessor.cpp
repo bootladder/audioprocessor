@@ -158,31 +158,7 @@ void vTimerCallback( TimerHandle_t xTimer ){
 }
 
 // MOVE THIS SOMEWHERE ELSE
-void freertosLFOTimerFunc(LFO & lfo, int ms){
-
-  TimerHandle_t handle = xTimerCreate
-  (
-    "Timer",
-    /* The timer period in ticks, must be
-    greater than 0. */
-    ms,
-    /* The timers will auto-reload themselves
-    when they expire. */
-    pdTRUE,
-    /* Timer ID */
-    ( void * ) num_lfos,
-    /* Each timer calls the same callback when
-    it expires. */
-    vTimerCallback
-  );
-
-  if( xTimerStart( handle, 0 ) != pdPASS )
-             {
-                 /* The timer could not be set into the Active
-                 state. */
-             }
-
-
+void dummyLFOTimerFunc(LFO & lfo, int ms){
     lfos[num_lfos] = &lfo;
     num_lfos++;
 }
@@ -241,33 +217,18 @@ void AudioProcessor::init(void)
 
   // LFO
 
-  lfo1.setLFOFrequencyHz(1);
-  lfo1.setMIDIMessage({MIDI_CONTROL_CHANGE,90,1});
-  lfo1.setStartTimerMsFunc(freertosLFOTimerFunc);
-  lfo1.startTimerMs(5);
-
-  lfo2.setLFOFrequencyHz(1);
-  lfo2.setMIDIMessage({MIDI_CONTROL_CHANGE,30,1});
-  lfo2.setStartTimerMsFunc(freertosLFOTimerFunc);
-  lfo2.startTimerMs(5);
-
-  // LFO OUTPUT TO MIDI HOOKUP
-  MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, iirLFO, PARAM_0);
-
-
-
     // LFO LAMBDA HOOKUP
     lambdaLFO1.setLFOFrequencyHz(1);
-    lambdaLFO1.setStartTimerMsFunc(freertosLFOTimerFunc);
-    lambdaLFO1.startTimerMs(50);
-    lambdaLFO1.setMidPoint(500);
-    lambdaLFO1.setAmplitude(200);
+    lambdaLFO1.setStartTimerMsFunc(dummyLFOTimerFunc);
+    lambdaLFO1.startTimerMs(10);
+    lambdaLFO1.setMidPoint(800);
+    lambdaLFO1.setAmplitude(500);
 
     auto l = [](int f){iirLambdaLFO.setCutoffFrequency(f);};
     lambdaLFO1.setLambda(l);
 
     // MIDI IN TO LFO HOOKUP
-    MIDIHookup({MIDI_CONTROL_CHANGE,5,1}, lfo2, PARAM_0);
+    MIDIHookup({MIDI_CONTROL_CHANGE,5,1}, lambdaLFO1, PARAM_0);
 
 }
 
@@ -280,6 +241,10 @@ void AudioProcessor::process(sample_t * sampleBuf)
 {
   // call reset() on all of the blocks (particularly to reset the mixers' accumulators)
   mixer.reset();
+
+  // Update LFOs
+  lfos[0]->tickCallback();
+
 
 
   active_block_graph.start->process(sampleBuf);

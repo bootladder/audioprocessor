@@ -44,6 +44,14 @@ public:
 
         lambda(currentLFOValue);
     }
+
+
+
+  void setMIDIParameter(BlockParamIdentifier_t id, int value){
+    (void)id;
+    const sample_t MIDI_VALUES_PER_HZ = 10.0;
+    lfoFreqHz = value/MIDI_VALUES_PER_HZ;
+  }
 };
 
 #endif
