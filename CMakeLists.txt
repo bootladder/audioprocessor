@@ -195,22 +195,6 @@ function(COMMON_EXE_CONFIG TARGET_NAME)
 endfunction()
 
 
-function(RENAME_TEXT_SECTIONS_OF_APP_OBJECT_FILES TARGET_NAME)
-  # Rename Text Sections of App Object Files
-  foreach(_file ${C_SOURCES_FOR_TESTING} ${C_SOURCES_NOT_TESTED})
-    add_custom_command(TARGET ${TARGET_NAME} PRE_LINK
-      COMMAND echo moving file ${_file} into .my_app section
-    )
-    EXEC_PROGRAM(
-      "find . -name $(basename ${_file}).o" 
-      OUTPUT_VARIABLE PATH_TO_FILE_BEING_SECTION_RENAMED
-    )
-    add_custom_command(TARGET ${TARGET_NAME} PRE_LINK
-      COMMAND ${OBJCOPY} --rename-section .text=.my_app ${PATH_TO_FILE_BEING_SECTION_RENAMED}
-    )
-  endforeach()
-endfunction()
-
 ##########################################################################
 #
 #   Executables:
@@ -249,9 +233,6 @@ if(BUILD_PROD AND TOOLCHAIN STREQUAL "CROSS")
     COMMAND cp ${EXECUTABLE_OUTPUT_PATH}/${output_exe_elfname} ${EXECUTABLE_OUTPUT_PATH}/latest.elf
   )
 
-  RENAME_TEXT_SECTIONS_OF_APP_OBJECT_FILES(${TARGET_BASENAME})
-
-
 #############################################################
 # APPLICATION ONLY EXECUTABLE (CROSS COMPILE)
 ############################################################
@@ -268,7 +249,6 @@ elseif(BUILD_APP_ONLY AND TOOLCHAIN STREQUAL "CROSS")
   set_target_properties(${THIS_TARGET_NAME} PROPERTIES LINK_FLAGS ${TARGET_LINK_FLAGS} )
 
   COMMON_EXE_CONFIG(${THIS_TARGET_NAME})
-  RENAME_TEXT_SECTIONS_OF_APP_OBJECT_FILES(${THIS_TARGET_NAME})
 
 #############################################################
 # TEST EXECUTABLE (CROSS COMPILE)
