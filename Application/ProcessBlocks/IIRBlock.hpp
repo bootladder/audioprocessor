@@ -29,6 +29,7 @@ class IIRBlock : public ProcessBlock{
   sample_t b2;
 
   sample_t Q;
+  sample_t baseCutoffFreq;  //actual cutoff can be base+delta
   sample_t cutoffFreq;
 
   std::unique_ptr<sample_t[]> xh;
@@ -99,9 +100,16 @@ public:
   }
 
   void setCutoffFrequency(int freq){
+    baseCutoffFreq = freq;
     cutoffFreq = freq;
     updateCoeffs();
   }
+
+  void setDeltaCutoffFrequency(int delta){
+    cutoffFreq = baseCutoffFreq + delta;
+    updateCoeffs();
+  }
+
   sample_t getCutoffFrequency(){ return cutoffFreq;  }
 
   void setQ(sample_t value){

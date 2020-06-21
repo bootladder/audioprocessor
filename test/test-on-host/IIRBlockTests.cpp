@@ -174,3 +174,25 @@ TEST(IIRBlock, setMIDIParameter_Cutoff_Works){
   
   ASSERT_EQ(10.0, block.getQ());
 }
+
+TEST(IIRBlock, setDeltaCutoffFrequency) {
+  IIRBlock block("name", NUM_SAMPLES);
+  block.setCutoffFrequency(1000);
+  block.setDeltaCutoffFrequency(50);
+
+  sample_t newFreq = block.getCutoffFrequency();
+
+  ASSERT_EQ(1050, newFreq);
+}
+
+
+TEST(IIRBlock, setDeltaCutoffFrequency_setTwice_setsToSameValue) {
+  IIRBlock block("name", NUM_SAMPLES);
+  block.setCutoffFrequency(1000);
+  block.setDeltaCutoffFrequency(50);
+  block.setDeltaCutoffFrequency(50);
+
+  sample_t newFreq = block.getCutoffFrequency();
+
+  ASSERT_EQ(1050, newFreq);
+}
