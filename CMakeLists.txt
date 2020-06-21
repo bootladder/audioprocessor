@@ -22,8 +22,6 @@ set(C_SOURCES_FOR_TESTING
   "${SOURCE_ROOT_DIR}/Application/MIDIMessageHandler.cpp"
   "${SOURCE_ROOT_DIR}/Help/MemoryLogger.c"
   "${SOURCE_ROOT_DIR}/Help/tinyprintf.c"
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/FIRBlock.cpp"
-  "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FIRBlock/LowPassFilterCoefficients.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/ClippingDistortionBlock/ClippingDistortionBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/ProcessBlocks/FFTBlock.cpp"
   "${SOURCE_ROOT_DIR}/Application/MIDIReceiver.cpp"
@@ -287,9 +285,7 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
     test/test-on-host/ProcessBlockTests.cpp
     test/test-on-host/ClippingDistortionBlockTests.cpp
     test/test-on-host/FFTBlockTests.cpp
-    test/test-on-host/FIRBlockTests.cpp
-    test/test-on-host/CircularFIRProcessorTests.cpp
-    test/test-on-host/OscillatorBlockTests.cpp
+          test/test-on-host/OscillatorBlockTests.cpp
     test/test-on-host/IIRBlockTests.cpp
     test/test-on-host/LFOTests.cpp
     test/test-on-host/LambdaLFOTests.cpp
