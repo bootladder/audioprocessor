@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import thread
 import time
 import serial
@@ -8,7 +10,7 @@ import select
 
 # Open all /dev/midi* devices, pipe them all into the serial port output
 def thread_read_midi_and_pipe_to_ttyUSB():
-    output = subprocess.check_output("ls /dev/midi*", shell=True)
+    output = subprocess.check_output("ls /dev/snd/midi*", shell=True)
     midi_devices = output.strip().split('\n')
     midi_descriptors = []
     for device in midi_devices:
@@ -21,7 +23,7 @@ def thread_read_midi_and_pipe_to_ttyUSB():
             readable, _, _ = select.select(midi_descriptors, [], [])
             for descriptor in readable:
                 s = descriptor.read(3)
-                print 'got it'
+                print 'got it %d %d %d' % (ord(s[0]),ord(s[1]),ord(s[2]))
                 ser.write(s)
 
 
@@ -34,4 +36,3 @@ thread.start_new_thread(thread_read_midi_and_pipe_to_ttyUSB, ())
 while True:
     time.sleep(1000)
     continue
-    # wait for thread
