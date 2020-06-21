@@ -2,55 +2,56 @@
 #define __LAMBDA_LFO_HPP__
 
 #include <functional>
-#include "LFO.hpp"
+#include "MIDIReceiver.hpp"
+#include "SamplingTypes.h"
 
-class LambdaLFO : public LFO{
+class LambdaLFO : public MIDIReceiver{
 
-    std::function<void(int)> lambda;
+  const char * name;
+  std::function<void(int)> lambda;
 
-    int midpoint;
-    int amplitude;
+  sample_t lfoFreqHz;
+  int timerTickPeriodMs;
+  int midpoint;
+  int amplitude;
+
+  int currentLFOValue;
+  int ticks;
 
 public:
-  LambdaLFO(const char * name) : LFO(name)
+  LambdaLFO(const char * name): name(name)
   {
-      midpoint = 0;
-      amplitude = 0;
+    midpoint = 0;
+    amplitude = 0;
   }
 
-    void setAmplitude(int a){
-        amplitude = a;
-    }
+  void setLFOFrequencyHz(float freq){ lfoFreqHz = freq; }
+  void setTickPeriodMillis(int ms ){ timerTickPeriodMs = ms; }
+  void setAmplitude(int a){ amplitude = a; }
+  void setMidPoint(int m){ midpoint = m; }
+  int getCurrentLFOValue(){ return currentLFOValue; }
 
-    void setMidPoint(int m){
-        midpoint = m;
-    }
+  void setLambda(std::function<void(int)> l){
+      lambda = l;
+  }
 
-    int getCurrentLFOValue(){
-        return currentLFOValue;
-    }
+  void tickCallback(){
+      ticks++;
+      int T = (int) (1000.0/lfoFreqHz/timerTickPeriodMs);
+      if(ticks >= T)
+          ticks = 0;
+      int sawToothValue = (-1*amplitude) + (amplitude*ticks*2/T);
+      currentLFOValue = (abs(sawToothValue) - (amplitude/2)) + midpoint;
 
-    void setLambda(std::function<void(int)> l){
-        lambda = l;
-    }
-
-    void tickCallback(){
-        ticks++;
-        int T = (int) (1000.0/lfoFreqHz/timerTickPeriodMs);
-        if(ticks >= T)
-            ticks = 0;
-        int sawToothValue = (-1*amplitude) + (amplitude*ticks*2/T);
-        currentLFOValue = (abs(sawToothValue) - (amplitude/2)) + midpoint;
-
-        lambda(currentLFOValue);
-    }
+      lambda(currentLFOValue);
+  }
 
 
 
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
     (void)id;
     const sample_t MIDI_VALUES_PER_HZ = 10.0;
-    lfoFreqHz = value/MIDI_VALUES_PER_HZ;
+    lfoFreqHz = (sample_t)value/MIDI_VALUES_PER_HZ;
   }
 };
 

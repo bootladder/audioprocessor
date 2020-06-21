@@ -4,6 +4,20 @@ using namespace std;
 
 #include "ClippingDistortionBlock.hpp"
 
+
+#define not_LOGGING_ON
+#include <stdarg.h>
+static int logf(const char *format, ...)
+{
+  va_list args;
+  va_start(args, format);
+
+#ifdef LOGGING_ON
+  vprintf(format, args);
+#endif
+  va_end(args);
+}
+
 #define NUM_SAMPLES 1024
 static sample_t testBuf[NUM_SAMPLES];
 
@@ -54,8 +68,8 @@ TEST(ClippingDistortionBlock, SoftClipping_setClipFactor_OutputIsClipped)
   //ASSERT_EQ(0x4000, 0x8000 * clippingFactor);
   for(uint32_t i=0; i<NUM_SAMPLES; i++){
 
-    printf("testBuf[%d] = %f\n", i, testBuf[i]);
-    printf("out[%d] = %f\n", i, out[i]);
+    logf("testBuf[%d] = %f\n", i, testBuf[i]);
+    logf("out[%d] = %f\n", i, out[i]);
   }
 
   //no values outside the bounds
@@ -103,11 +117,11 @@ TEST(ClippingDistortionBlock, SoftClipping_WithinThreshold_AppliesWaveShapingFun
 TEST(ClippingDistortionBlock, FloatingPointSanityCheck)
 {
   float sample1 = (float)3.14;
-  printf("sample1 = %f\n", sample1);
-  printf("sample1 = %a\n", sample1);
+  logf("sample1 = %f\n", sample1);
+  logf("sample1 = %a\n", sample1);
   uint32_t i = 100;
-  printf("wtf = %f\n", (sample_t)(-0x8000 + ((float)i*0x10000)/NUM_SAMPLES));
+  logf("wtf = %f\n", (sample_t)(-0x8000 + ((float)i*0x10000)/NUM_SAMPLES));
   sample_t expectedClippedValue = (sample_t)0x8000 * (sample_t)2 / (sample_t) 3;
-  printf("expectedClippedValue = %f\n", expectedClippedValue);
+  logf("expectedClippedValue = %f\n", expectedClippedValue);
  
 }

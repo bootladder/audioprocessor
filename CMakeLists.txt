@@ -287,8 +287,7 @@ elseif(BUILD_TEST AND TOOLCHAIN STREQUAL "HOST")
     test/test-on-host/FFTBlockTests.cpp
           test/test-on-host/OscillatorBlockTests.cpp
     test/test-on-host/IIRBlockTests.cpp
-    test/test-on-host/LFOTests.cpp
-    test/test-on-host/LambdaLFOTests.cpp
+          test/test-on-host/LambdaLFOTests.cpp
     test/test-on-host/DelayBlockTests.cpp
 
     test/test-on-host/MIDIMessageHandlerTests.cpp

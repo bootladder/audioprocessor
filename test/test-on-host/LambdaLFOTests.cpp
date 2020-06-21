@@ -8,10 +8,18 @@ using namespace testing;
 
 #include "IIRBlock.hpp"
 
-static bool mockStartTimerMsFunc_called;
-static void mockStartTimerMsFunc(LFO & lfo, int ms){
-    (void)lfo; (void)ms;
-    mockStartTimerMsFunc_called = true;
+#define LOGGING_OFF
+
+#include <stdarg.h>
+static void logf(const char *format, ...)
+{
+  va_list args;
+  va_start(args, format);
+
+#ifdef LOGGING_ON
+  vprintf(format, args);
+#endif
+  va_end(args);
 }
 
 
@@ -19,8 +27,7 @@ TEST(LambdaLFO, callsLambda)
 {
     LambdaLFO lfo("name");
     lfo.setLFOFrequencyHz(1000);
-    lfo.setStartTimerMsFunc(mockStartTimerMsFunc);
-    lfo.startTimerMs(1);
+    lfo.setTickPeriodMillis(1);
 
 
     IIRBlock iir1("iir1", 1024);
@@ -39,8 +46,7 @@ TEST(LambdaLFO, canSetBounds)
 {
     LambdaLFO lfo("name");
     lfo.setLFOFrequencyHz(10);
-    lfo.setStartTimerMsFunc(mockStartTimerMsFunc);
-    lfo.startTimerMs(1);
+    lfo.setTickPeriodMillis(1);
     lfo.setMidPoint(500);
     lfo.setAmplitude(200);
 
@@ -52,13 +58,10 @@ TEST(LambdaLFO, canSetBounds)
 
     lfo.tickCallback();
 
-    ASSERT_LE(lfo.getCurrentLFOValue(), 700);
-    ASSERT_GE(lfo.getCurrentLFOValue(), 400);
-
     for(int i=0; i<1000;i++){
       lfo.tickCallback();
-      //printf("lfo value[%d] = %d\n", i, lfo.getCurrentLFOValue());
+      ASSERT_LE(lfo.getCurrentLFOValue(), 700);
+      ASSERT_GE(lfo.getCurrentLFOValue(), 400);
+      logf("lfo value[%d] = %d\n", i, lfo.getCurrentLFOValue());
     }
 }
-
-

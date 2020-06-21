@@ -16,7 +16,6 @@ extern "C" {
 #include "DelayBlock.hpp"
 #include "MixerBlock.hpp"
 #include "IIRBlock.hpp"
-#include "LFO.hpp"
 #include "LambdaLFO.hpp"
 
 // Currently, everything is configured statically and manually.
@@ -65,6 +64,7 @@ static BlockGraph tempTesterGraph = {
   .start = &gain1,
   .edges = {
     {&gain1, &gain3},
+    {&gain1, &fft1},
     {&gain3, &clipping1},
     {&clipping1, &iirLambdaLFO},
     {&iirLambdaLFO, &delay},
@@ -138,8 +138,6 @@ static BlockGraph graph_ClippingDelayIIRLFO = {
 //////////////////////////////////////////////////////////////////////////
 // LFOs
 
-LFO lfo1("LFO1");
-LFO lfo2("LFO2");
 LambdaLFO lambdaLFO1("LambdaLFO1");
 
 extern "C"{
@@ -149,19 +147,7 @@ extern "C"{
 
 
 int num_lfos = 0;
-LFO * lfos[10];
-
-//this sucks
-void vTimerCallback( TimerHandle_t xTimer ){
-  auto id = ( uint32_t ) pvTimerGetTimerID( xTimer );
-  lfos[id]->tickCallback();
-}
-
-// MOVE THIS SOMEWHERE ELSE
-void dummyLFOTimerFunc(LFO & lfo, int ms){
-    lfos[num_lfos] = &lfo;
-    num_lfos++;
-}
+LambdaLFO * lfos[10];
 
 //////////////////////////////////////////////////////////////////////////
 // AudioProcessor Class
@@ -225,8 +211,7 @@ void AudioProcessor::init(void)
 
     // LFO LAMBDA HOOKUP
     lambdaLFO1.setLFOFrequencyHz(1);
-    lambdaLFO1.setStartTimerMsFunc(dummyLFOTimerFunc);
-    lambdaLFO1.startTimerMs(10);
+    lambdaLFO1.setTickPeriodMillis(10);
     lambdaLFO1.setMidPoint(300);
     lambdaLFO1.setAmplitude(300);
 
