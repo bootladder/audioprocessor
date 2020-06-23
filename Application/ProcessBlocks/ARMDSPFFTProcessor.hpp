@@ -25,13 +25,9 @@ public:
       f32inputBuf[i] = (float32_t)fft_buf[i];
     }
 
-    //the specturm is empty so don't have to copy
-    auto f32resultSpectrum = std::make_unique<float32_t[]>(size);
-
-
     arm_rfft_fast_init_f32(&S, size);
-    arm_rfft_fast_f32(&S, f32inputBuf.get(), f32resultSpectrum.get(), 0);  //0 for fft, 1 for ifft
-    arm_cmplx_mag_f32(f32resultSpectrum.get(), f32resultSpectrum.get(), size/2);
+    arm_rfft_fast_f32(&S, f32inputBuf.get(), resultSpectrum, 0);  //0 for fft, 1 for ifft
+    arm_cmplx_mag_f32(resultSpectrum, resultSpectrum, size/2);
 
     return fft_buf;
   }
