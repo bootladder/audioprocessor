@@ -30,17 +30,21 @@ class IIRBlock : public ProcessBlock{
 
   sample_t Q;
   sample_t baseCutoffFreq;  //actual cutoff can be base+delta
-  sample_t cutoffFreq;
+  sample_t delta;
 
+  sample_t cutoffFreq;
   std::unique_ptr<sample_t[]> xh;
   sample_t last_xh;
-  sample_t secondToLast_xh;
 
+  sample_t secondToLast_xh;
 public:
+
   IIRBlock(const char * name, uint32_t size)
   : ProcessBlock(name, size)
   {
     cutoffFreq = 1500.0;
+    baseCutoffFreq = 0.0;
+    delta = 0.0;
     Q = 0.9;
     updateCoeffs();
     xh  = std::make_unique<sample_t[]>(num_samples);
@@ -62,7 +66,7 @@ public:
     for(uint32_t i=2; i<num_samples; i++){
       xh[i] = inputBuffer[i] - (a1*xh[i-1]) - (a2*xh[i-2]);
     }
-    
+
     //y(n) = b0xh(n) + b1xh(n − 1) + b2xh(n − 2)
     //y(0) = b0*xh(0) + b1*xh(0 - 1) + b2*xh(0 - 2) = b0*1 = b0
     //y(1) = b0*xh(1) + b1*xh(1 - 1) + b2*xh(1 - 2) = b0*(-a1) + b1*(1) = b0*(-a1) + b1
@@ -101,22 +105,24 @@ public:
 
   void setCutoffFrequency(int freq){
     baseCutoffFreq = freq;
-    cutoffFreq = freq;
+    cutoffFreq = freq + delta;
     updateCoeffs();
   }
 
   void setDeltaCutoffFrequency(int delta){
+    this->delta = (sample_t)delta;
     cutoffFreq = baseCutoffFreq + delta;
     updateCoeffs();
   }
 
   sample_t getCutoffFrequency(){ return cutoffFreq;  }
-
   void setQ(sample_t value){
     Q = value;
     updateCoeffs();
   }
+
   sample_t getQ(){ return Q;  }
+
 
   //K = tan(π*fc/fS)
   void updateCoeffs(){
@@ -131,10 +137,10 @@ public:
     b2 = -1* K / (K*K*Q + K + Q);
   }
 
-  
+
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
     if(id == PARAM_0){
-      
+
       int newCutoff = 200 + (value*8);
 
       static char str[100];
@@ -150,8 +156,6 @@ public:
       setQ(newQ);
     }
   }
-
-
 };
 
 

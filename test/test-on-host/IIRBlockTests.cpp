@@ -196,3 +196,15 @@ TEST(IIRBlock, setDeltaCutoffFrequency_setTwice_setsToSameValue) {
 
   ASSERT_EQ(1050, newFreq);
 }
+
+// only set the base, not the actual
+TEST(IIRBlock, setCutoffFrequency_preservesDelta) {
+  IIRBlock block("name", NUM_SAMPLES);
+  block.setCutoffFrequency(1000);
+  block.setDeltaCutoffFrequency(50);
+  block.setCutoffFrequency(1000);
+
+  sample_t newFreq = block.getCutoffFrequency();
+
+  ASSERT_EQ(1050, newFreq);
+}
