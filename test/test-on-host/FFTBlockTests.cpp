@@ -6,6 +6,9 @@ using namespace testing;
 
 #include "FFTBlock.hpp"
 
+#define NUM_SAMPLES 1024
+static sample_t testBuf[NUM_SAMPLES];
+
 class MockFFTProcessor : public FFTProcessor{
 public:
   MockFFTProcessor(){;}
@@ -29,8 +32,6 @@ public:
 
 };
 
-#define NUM_SAMPLES 1024
-static sample_t testBuf[NUM_SAMPLES];
 
 
 TEST(FFTBlock, inits_and_calls_calculate)
@@ -139,3 +140,23 @@ TEST(FFTBlock, getSpectrumPeakFreq_and_getSpectrumPeakMagnitude)
 
   ASSERT_EQ(peakMag, expectedMag);
 }
+
+TEST(FFTBlock, does_not_modify_input) {
+  int fft_buf_size = 1024;
+  static FakeFFTProcessor fakeFFTProcessor;
+  FFTBlock block = FFTBlock("name", fakeFFTProcessor, fft_buf_size, NUM_SAMPLES);
+
+  for(int i=0; i<1024; i++){
+    testBuf[i] = (sample_t)i;
+  }
+
+  block.process(testBuf);
+
+  for(int i=0; i<1024; i++){
+    ASSERT_EQ(testBuf[i],i);
+  }
+
+
+}
+
+

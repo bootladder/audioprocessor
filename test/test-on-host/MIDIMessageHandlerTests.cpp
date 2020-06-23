@@ -19,7 +19,7 @@ public:
   MockProcessBlock(uint32_t size): ProcessBlock("name", size) {(void)size;}
   MOCK_METHOD(void, MIDIMessageReceived, (MIDI_Message_t & msg), (override));
   MOCK_METHOD(void, setMIDIParameter, (BlockParamIdentifier_t id, int value));
-  MOCK_METHOD(void, process, (sample_t * samplesToProcess), (override));
+  MOCK_METHOD(void, process, (const sample_t * samplesToProcess), (override));
 };
 
 TEST(MIDIMessageHandler, MapInitialized_HandleCalled_BlockReceivesMessage)

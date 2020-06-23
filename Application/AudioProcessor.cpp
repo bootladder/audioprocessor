@@ -166,7 +166,7 @@ public:
     }
 
   void init(void);
-  void process(sample_t * sampleBuf);
+  void process(const sample_t *sampleBuf);
   void MIDIHookup(MIDI_Message_t msg, MIDIReceiver &midiReceiver, BlockParamIdentifier_t paramId);
 
 
@@ -230,7 +230,7 @@ void AudioProcessor::MIDIHookup(MIDI_Message_t msg, MIDIReceiver &midiReceiver, 
   midiReceiver.assignMIDIMessageToParameter(msg, paramId);
 }
 
-void AudioProcessor::process(sample_t * sampleBuf)
+void AudioProcessor::process(const sample_t *sampleBuf)
 {
   // call reset() on all of the blocks (particularly to reset the mixers' accumulators)
   mixer.reset();
@@ -239,6 +239,7 @@ void AudioProcessor::process(sample_t * sampleBuf)
   lfos[0]->tickCallback();
 
   iirLambdaLFO.setCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
+  iir1.setCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
 
   active_block_graph.start->process(sampleBuf);
 

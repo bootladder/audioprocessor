@@ -34,7 +34,7 @@ public:
 
 
   //default process function is identity (pass thru)
-  virtual void process(sample_t * samplesToProcess){
+  virtual void process(const sample_t *samplesToProcess){
     for(uint32_t i=0; i<num_samples; i++){
       inputBuffer[i] = samplesToProcess[i];
       outputBuffer[i] = inputBuffer[i];

@@ -41,7 +41,7 @@ public:
     SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
   }
 
-  void process(sample_t * samplesToProcess)
+  void process(const sample_t *samplesToProcess)
   {
     for(uint32_t i=0; i<num_samples; i++){
       inputBuffer[i] = samplesToProcess[i];

@@ -40,11 +40,11 @@ public:
       fft_buf[i] = 0;
   }
 
-  void process(sample_t * samplesToProcess)
+  void process(const sample_t *samplesToProcess)
   {
     //downsample the sample buffer by 8        HARD CODED 8!!!!
     for(uint32_t i=0; i<num_samples/8; i++){
-      samplesToProcess[i] = samplesToProcess[i*8];
+      inputBuffer[i] = samplesToProcess[i*8];
     }
 
 
@@ -55,7 +55,7 @@ public:
 
     // load the upper part of the FFT buffer with the sample buffer
     for(int i=(fft_buf_size - (num_samples/8)), j=0; i<fft_buf_size; i++){
-      fft_buf[i] = samplesToProcess[j++];
+      fft_buf[i] = inputBuffer[j++];
     }
 
     fftProcessor.calculateFFT(fft_buf, spectrum, fft_buf_size);

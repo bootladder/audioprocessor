@@ -58,7 +58,7 @@ public:
   }
 
 
-  void process(sample_t * samplesToProcess) override
+  void process(const sample_t *samplesToProcess) override
   {
     (void)samplesToProcess; //oscillators do not depend on input
 
