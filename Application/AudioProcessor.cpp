@@ -81,8 +81,8 @@ static BlockGraph blockGraph = {
   .edges = {
   {&gain1, &square1},
   {&square1, &gain2},
-  {&gain1, &gain3},
   {&gain1, &fft1},
+  {&gain1, &gain3},
   {&gain3, &clipping1},
   {&clipping1, &iir1},
   {&iir1, &delay},
@@ -147,7 +147,9 @@ extern "C"{
 
 
 int num_lfos = 0;
-LambdaLFO * lfos[10];
+LambdaLFO * lfos[10] = {
+        &lambdaLFO1
+};
 
 //////////////////////////////////////////////////////////////////////////
 // AudioProcessor Class
@@ -236,7 +238,7 @@ void AudioProcessor::process(sample_t * sampleBuf)
   // Update LFOs
   lfos[0]->tickCallback();
 
-
+  iirLambdaLFO.setCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
 
   active_block_graph.start->process(sampleBuf);
 
