@@ -30,6 +30,8 @@ public:
   void setAmplitude(int a){ amplitude = a; }
   void setMidPoint(int m){ midpoint = m; }
   int getCurrentLFOValue(){ return currentLFOValue; }
+  sample_t getLFOFrequencyHz(){ return lfoFreqHz; }
+  int getAmplitude(){ return amplitude; }
 
   void setLambda(std::function<void(int)> l){
       lambda = l;
@@ -49,9 +51,14 @@ public:
 
 
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
-    (void)id;
-    const sample_t MIDI_VALUES_PER_HZ = 10.0;
-    lfoFreqHz = (sample_t)value/MIDI_VALUES_PER_HZ;
+
+    if(PARAM_0 == id){
+      const sample_t MIDI_VALUES_PER_HZ = 10.0;
+      lfoFreqHz = (sample_t)value/MIDI_VALUES_PER_HZ;
+    }
+    else if(PARAM_1 == id){
+      amplitude = ((float)value/128) * midpoint;
+    }
   }
 };
 

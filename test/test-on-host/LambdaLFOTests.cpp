@@ -65,3 +65,17 @@ TEST(LambdaLFO, canSetBounds)
       logf("lfo value[%d] = %d\n", i, lfo.getCurrentLFOValue());
     }
 }
+
+TEST(LambdaLFO, midi_param0_is_frequency) {
+  LambdaLFO lfo("name");
+  lfo.setLFOFrequencyHz(1.0);
+  lfo.setMIDIParameter(PARAM_0, 120);
+  ASSERT_NE(1.0, lfo.getLFOFrequencyHz());
+}
+
+TEST(LambdaLFO, midi_param1_is_amplitude) {
+  LambdaLFO lfo("name");
+  lfo.setAmplitude(100);
+  lfo.setMIDIParameter(PARAM_1, 120);
+  ASSERT_NE(100, lfo.getAmplitude());
+}

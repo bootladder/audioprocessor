@@ -185,13 +185,11 @@ void AudioProcessor::init(void)
 
   //IIR1
   MIDIHookup({MIDI_CONTROL_CHANGE,25,1}, iir1, PARAM_0);
-  MIDIHookup({MIDI_CONTROL_CHANGE,26,1}, iir1, PARAM_0);
-  MIDIHookup({MIDI_CONTROL_CHANGE,27,1}, iir1, PARAM_1);
-  MIDIHookup({MIDI_CONTROL_CHANGE,28,1}, iir1, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,26,1}, iir1, PARAM_1);
 
   //LambdaLFOIIR
-  MIDIHookup({MIDI_CONTROL_CHANGE,29,1}, iirLambdaLFO, PARAM_0);
-  MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, iirLambdaLFO, PARAM_1);
+  MIDIHookup({MIDI_CONTROL_CHANGE,27,1}, iirLambdaLFO, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,28,1}, iirLambdaLFO, PARAM_1);
 
   //Square
   MIDIHookup({MIDI_NOTE_ON,2,1}, square1, PARAM_0);
@@ -211,17 +209,18 @@ void AudioProcessor::init(void)
 
   // LFO
 
-    // LFO LAMBDA HOOKUP
-    lambdaLFO1.setLFOFrequencyHz(1);
-    lambdaLFO1.setTickPeriodMillis(10);
-    lambdaLFO1.setMidPoint(300);
-    lambdaLFO1.setAmplitude(300);
+  // LFO LAMBDA HOOKUP
+  lambdaLFO1.setLFOFrequencyHz(1);
+  lambdaLFO1.setTickPeriodMillis(10);
+  lambdaLFO1.setMidPoint(300);
+  lambdaLFO1.setAmplitude(300);
 
-    auto l = [](int f){iirLambdaLFO.setDeltaCutoffFrequency(f);};
-    lambdaLFO1.setLambda(l);
+  auto l = [](int f){iirLambdaLFO.setDeltaCutoffFrequency(f);};
+  lambdaLFO1.setLambda(l);
 
-    // MIDI IN TO LFO HOOKUP
-    MIDIHookup({MIDI_CONTROL_CHANGE,31,1}, lambdaLFO1, PARAM_0);
+  // MIDI IN TO LFO HOOKUP
+  MIDIHookup({MIDI_CONTROL_CHANGE,29,1}, lambdaLFO1, PARAM_0);
+  MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, lambdaLFO1, PARAM_1);
 
 }
 
