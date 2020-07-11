@@ -45,7 +45,7 @@ public:
     cutoffFreq = 1500.0;
     baseCutoffFreq = 0.0;
     delta = 0.0;
-    Q = 0.9;
+    Q = (sample_t)0.9;
     updateCoeffs();
     xh  = std::make_unique<sample_t[]>(num_samples);
     last_xh = 0.0;
@@ -104,14 +104,14 @@ public:
   }
 
   void setCutoffFrequency(int freq){
-    baseCutoffFreq = freq;
-    cutoffFreq = freq + delta;
+    baseCutoffFreq = (sample_t)freq;
+    cutoffFreq = (sample_t)freq + delta;
     updateCoeffs();
   }
 
   void setDeltaCutoffFrequency(int delta){
     this->delta = (sample_t)delta;
-    cutoffFreq = baseCutoffFreq + delta;
+    cutoffFreq = baseCutoffFreq + (sample_t)delta;
     updateCoeffs();
   }
 
@@ -126,7 +126,7 @@ public:
 
   //K = tan(π*fc/fS)
   void updateCoeffs(){
-    sample_t a = 3.1415927 * cutoffFreq /48000.0;
+    sample_t a = (sample_t)3.1415927 * cutoffFreq /(sample_t)48000.0;
     sample_t K = tan(a);
 
     // from the DAFX book
@@ -149,7 +149,7 @@ public:
       setCutoffFrequency(newCutoff);
     }
     else{
-      sample_t newQ = ((float)value)/10.0;
+      sample_t newQ = ((sample_t)value)/(sample_t)10.0;
       static char str[100];
       int size = tfp_snprintf(str,100, "%s, Q, %f\n", name, newQ);
       SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);

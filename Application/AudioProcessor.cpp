@@ -17,6 +17,7 @@ extern "C" {
 #include "MixerBlock.hpp"
 #include "IIRBlock.hpp"
 #include "LambdaLFO.hpp"
+#include "LambdaEnvelopeFollower.hpp"
 
 // Currently, everything is configured statically and manually.
 // Eventually there will be some configuration format
@@ -79,8 +80,6 @@ __attribute__ ((unused))
 static BlockGraph blockGraph = {
   .start = &gain1,
   .edges = {
-  {&gain1, &square1},
-  {&square1, &gain2},
   {&gain1, &fft1},
   {&gain1, &gain3},
   {&gain3, &clipping1},
@@ -146,9 +145,17 @@ extern "C"{
 }
 
 
-int num_lfos = 0;
 LambdaLFO * lfos[10] = {
         &lambdaLFO1
+};
+
+//////////////////////////////////////////////////////////////////////////
+// Envelope Followers
+
+LambdaEnvelopeFollower lambdaEnvelopeFollower1("LambdaEnvelopeFollower1");
+
+LambdaEnvelopeFollower * lambdaEnvelopeFollowers[10] = {
+        &lambdaEnvelopeFollower1
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -207,8 +214,6 @@ void AudioProcessor::init(void)
   MIDIHookup({MIDI_NOTE_ON,50,1}, *this, PARAM_6);
   MIDIHookup({MIDI_NOTE_ON,51,1}, *this, PARAM_7);
 
-  // LFO
-
   // LFO LAMBDA HOOKUP
   lambdaLFO1.setLFOFrequencyHz(1);
   lambdaLFO1.setTickPeriodMillis(10);
@@ -221,6 +226,17 @@ void AudioProcessor::init(void)
   // MIDI IN TO LFO HOOKUP
   MIDIHookup({MIDI_CONTROL_CHANGE,29,1}, lambdaLFO1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,30,1}, lambdaLFO1, PARAM_1);
+
+
+  // LAMBDA ENVELOPE FOLLOWER HOOKUP
+  lambdaEnvelopeFollower1.setGain(0.2);
+  lambdaEnvelopeFollower1.setLambda(l);
+
+  auto l_envelope = [](){return fft1.getSpectrumPeakMagnitude();};
+  lambdaEnvelopeFollower1.setEnvelopeGetterLambda(l_envelope);
+
+  // MIDI IN TO LAMBDA ENVELOPE FOLLOWER HOOKUP
+  MIDIHookup({MIDI_CONTROL_CHANGE,31,1}, lambdaEnvelopeFollower1, PARAM_0);
 
 }
 
@@ -237,8 +253,11 @@ void AudioProcessor::process(const sample_t *sampleBuf)
   // Update LFOs
   lfos[0]->tickCallback();
 
-  iirLambdaLFO.setCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
-  iir1.setCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
+  // Update Envelope Followers
+  //lambdaEnvelopeFollowers[0] -> tickCallback();
+
+//  iirLambdaLFO.setDeltaCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
+//  iir1.setDeltaCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
 
   active_block_graph.start->process(sampleBuf);
 
