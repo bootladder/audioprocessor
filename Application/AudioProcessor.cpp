@@ -61,36 +61,37 @@ OscillatorBlock square1("square1", MY_PROCESSING_BUFFER_SIZE_SAMPLES,
 // GRAPH
 
 __attribute__ ((unused))
-static BlockGraph tempTesterGraph = {
-  .start = &gain1,
-  .edges = {
-    {&gain1, &gain3},
-    {&gain1, &fft1},
-    {&gain3, &clipping1},
-    {&clipping1, &iirLambdaLFO},
-    {&iirLambdaLFO, &delay},
-    {&delay, &mixer},
-    {0,0}, // null terminator
-  },
-  .end = &mixer,
+static BlockGraph blockGraph = {
+        .start = &gain1,
+        .edges = {
+                {&gain1, &fft1},
+                {&gain1, &gain3},
+                {&gain3, &clipping1},
+                {&clipping1, &iir1},
+                {&iir1, &delay},
+                {&delay, &mixer},
+                {&gain2, &mixer},
+                {0,0}, // null terminator
+        },
+        .end = &mixer,
 };
 
 
 __attribute__ ((unused))
-static BlockGraph blockGraph = {
+static BlockGraph tempTesterGraph = {
   .start = &gain1,
   .edges = {
-  {&gain1, &fft1},
-  {&gain1, &gain3},
-  {&gain3, &clipping1},
-  {&clipping1, &iir1},
-  {&iir1, &delay},
-  {&delay, &mixer},
-  {&gain2, &mixer},
-  {0,0}, // null terminator
+          {&gain1, &fft1},
+          {&gain1, &gain3},
+          {&gain3, &clipping1},
+          {&clipping1, &iirLambdaLFO},
+          {&iirLambdaLFO, &delay},
+          {&delay, &mixer},
+          {0,0}, // null terminator
   },
   .end = &mixer,
 };
+
 
 __attribute__ ((unused))
 static BlockGraph testerGraph = {
@@ -106,32 +107,6 @@ static BlockGraph testerGraph = {
   .end = &mixer,
 };
 
-__attribute__ ((unused))
-static BlockGraph graph_ClippingDelay = {
-  .start = &gain1,
-  .edges = {
-    {&gain1, &gain3},
-    {&gain3, &clipping1},
-    {&clipping1, &delay},
-    {&delay, &mixer},
-    {0,0}, // null terminator
-  },
-  .end = &mixer,
-};
-
-__attribute__ ((unused))
-static BlockGraph graph_ClippingDelayIIRLFO = {
-  .start = &gain1,
-  .edges = {
-    {&gain1, &gain3},
-    {&gain3, &clipping1},
-    {&clipping1, &delay},
-    {&delay, &iirLFO},
-    {&iirLFO, &mixer},
-    {0,0}, // null terminator
-  },
-  .end = &mixer,
-};
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -193,16 +168,20 @@ void AudioProcessor::init(void)
   //IIR1
   MIDIHookup({MIDI_CONTROL_CHANGE,25,1}, iir1, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,26,1}, iir1, PARAM_1);
+  MIDIHookup({MIDI_CONTROL_CHANGE,9,1}, iir1, PARAM_0);
 
   //LambdaLFOIIR
   MIDIHookup({MIDI_CONTROL_CHANGE,27,1}, iirLambdaLFO, PARAM_0);
   MIDIHookup({MIDI_CONTROL_CHANGE,28,1}, iirLambdaLFO, PARAM_1);
 
-  //Square
-  MIDIHookup({MIDI_NOTE_ON,2,1}, square1, PARAM_0);
-  MIDIHookup({MIDI_NOTE_OFF,2,1}, square1, PARAM_1);
+  //Enable Gates (not implemented yet)
+  MIDIHookup({MIDI_NOTE_ON,2,1}, clipping1, PARAM_1);
+  MIDIHookup({MIDI_NOTE_ON,3,1}, iir1, PARAM_3);
+  MIDIHookup({MIDI_NOTE_ON,4,1}, iirLambdaLFO, PARAM_3);
 
-  MIDIMessageHandler_RegisterMIDIMap(midiMap);
+
+
+
 
   //self midi hookup?
   MIDIHookup({MIDI_NOTE_ON,5,1}, *this, PARAM_0);
@@ -230,13 +209,18 @@ void AudioProcessor::init(void)
 
   // LAMBDA ENVELOPE FOLLOWER HOOKUP
   lambdaEnvelopeFollower1.setGain(0.2);
-  lambdaEnvelopeFollower1.setLambda(l);
+
+  auto l_iir1_deltacutoff = [](int f){iir1.setDeltaCutoffFrequency(f);};
+  lambdaEnvelopeFollower1.setLambda(l_iir1_deltacutoff);
 
   auto l_envelope = [](){return fft1.getSpectrumPeakMagnitude();};
   lambdaEnvelopeFollower1.setEnvelopeGetterLambda(l_envelope);
 
   // MIDI IN TO LAMBDA ENVELOPE FOLLOWER HOOKUP
   MIDIHookup({MIDI_CONTROL_CHANGE,31,1}, lambdaEnvelopeFollower1, PARAM_0);
+
+
+  MIDIMessageHandler_RegisterMIDIMap(midiMap);
 
 }
 
@@ -254,7 +238,7 @@ void AudioProcessor::process(const sample_t *sampleBuf)
   lfos[0]->tickCallback();
 
   // Update Envelope Followers
-  //lambdaEnvelopeFollowers[0] -> tickCallback();
+  lambdaEnvelopeFollowers[0] -> tickCallback();
 
 //  iirLambdaLFO.setDeltaCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
 //  iir1.setDeltaCutoffFrequency( fft1.getSpectrumPeakMagnitude()/5);
@@ -276,14 +260,9 @@ void AudioProcessor::process(const sample_t *sampleBuf)
 
   void AudioProcessor::setMIDIParameter(BlockParamIdentifier_t id, int value){
     switch(id){
-      case PARAM_0: active_block_graph = tempTesterGraph; break;
-      case PARAM_1: active_block_graph = blockGraph; break;
+      case PARAM_0: active_block_graph = blockGraph; break;
+      case PARAM_1: active_block_graph = tempTesterGraph; break;
       case PARAM_2: active_block_graph = testerGraph; break;
-      case PARAM_3: active_block_graph = graph_ClippingDelay; break;
-      case PARAM_4: active_block_graph = graph_ClippingDelayIIRLFO; break;
-      case PARAM_5: active_block_graph = blockGraph; break;
-      case PARAM_6: active_block_graph = blockGraph; break;
-      case PARAM_7: active_block_graph = blockGraph; break;
     }
   }
 

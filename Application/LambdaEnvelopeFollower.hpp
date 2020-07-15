@@ -40,7 +40,11 @@ public:
   void setMIDIParameter(BlockParamIdentifier_t id, int value){
 
     if(PARAM_0 == id){
-      gain = ((sample_t)value / (sample_t)128.0 ) * (sample_t)2.0;
+      gain = ((sample_t)value / (sample_t)128.0 ) * (sample_t)0.5;
+
+      static char str[100];
+      int size = tfp_snprintf(str,100, "%s, Gain, %f\n", name, gain);
+      SerialLogger_Log(LOGTYPE_BLOCKGRAPH_NODE_UPDATE, (uint8_t *)str, size);
     }
     else if(PARAM_1 == id){
     }
