@@ -208,3 +208,14 @@ TEST(IIRBlock, setCutoffFrequency_preservesDelta) {
 
   ASSERT_EQ(1050, newFreq);
 }
+
+TEST(IIRBlock, process_preserves_signal_RMS)
+{
+  IIRBlock block("name", NUM_SAMPLES);
+  block.setCutoffFrequency(1000);
+
+  for(int i=0; i<NUM_SAMPLES; i++){
+
+  }
+  block.process(testBuf);
+}
