@@ -197,6 +197,9 @@ function(RENAME_TEXT_SECTIONS_OF_APP_OBJECT_FILES TARGET_NAME)
       OUTPUT_VARIABLE PATH_TO_FILE_BEING_SECTION_RENAMED
     )
     add_custom_command(TARGET ${TARGET_NAME} PRE_LINK
+            COMMAND echo ${OBJCOPY} --rename-section .text=.my_app ${PATH_TO_FILE_BEING_SECTION_RENAMED}
+            )
+    add_custom_command(TARGET ${TARGET_NAME} PRE_LINK
       COMMAND ${OBJCOPY} --rename-section .text=.my_app ${PATH_TO_FILE_BEING_SECTION_RENAMED}
     )
   endforeach()

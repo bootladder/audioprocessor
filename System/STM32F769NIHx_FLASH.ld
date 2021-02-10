@@ -11,7 +11,6 @@ _Min_Stack_Size = 0x2000; /* required amount of stack */
 MEMORY
 {
 FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
-MY_APP (rx)      : ORIGIN = 0x08100000, LENGTH = 1024K
 Memory1 (xrw)   : ORIGIN = 0x20000000, LENGTH = 0xA0
 Memory2 (xrw)   : ORIGIN = 0x20000100, LENGTH = 0xA0
 Memory3 (xrw)   : ORIGIN = 0x20000200, LENGTH = 0x1DC4
@@ -23,12 +22,6 @@ QSPI (rx)       : ORIGIN = 0x90000000, LENGTH = 16M
 /* Define output sections */
 SECTIONS
 {
-
-  /* MY APP GETS ITS OWN SECTION */
-  .my_app :
-  {
-
-  } >MY_APP
 
   /* The startup code goes first into FLASH */
   .isr_vector :
